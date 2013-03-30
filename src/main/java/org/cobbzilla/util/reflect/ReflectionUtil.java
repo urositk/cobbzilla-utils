@@ -23,8 +23,7 @@ public class ReflectionUtil {
     public static Object get(Object object, String field) {
         Object target = object;
         for (String token : field.split("\\.")) {
-            final String methodName = getAccessorMethodName(Accessor.get, token);
-            target = invoke(target, methodName);
+            target = invoke_get(target, token);
         }
         return target;
     }
@@ -45,13 +44,23 @@ public class ReflectionUtil {
     }
 
     public static void set(Object object, String field, Object value) {
-        Object target = object;
         final String[] tokens = field.split("\\.");
+        Object target = getTarget(object, tokens);
+        invoke_set(target, tokens[tokens.length-1], value);
+    }
+
+    public static void setNull(Object object, String field, Class type) {
+        final String[] tokens = field.split("\\.");
+        Object target = getTarget(object, tokens);
+        invoke_set_null(target, tokens[tokens.length - 1], type);
+    }
+
+    private static Object getTarget(Object object, String[] tokens) {
+        Object target = object;
         for (int i=0; i<tokens.length-1; i++) {
-            final String methodName = getAccessorMethodName(Accessor.get, tokens[i]);
-            target = invoke(target, methodName);
+            target = invoke_get(target, tokens[i]);
         }
-        invoke(target, getAccessorMethodName(Accessor.set, tokens[tokens.length-1]));
+        return target;
     }
 
     public static boolean hasSetter(Object object, String field, Class type) {
@@ -59,8 +68,7 @@ public class ReflectionUtil {
         final String[] tokens = field.split("\\.");
         try {
             for (int i=0; i<tokens.length-1; i++) {
-                final String methodName = getAccessorMethodName(Accessor.get, tokens[i]);
-                target = MethodUtils.invokeExactMethod(target, methodName, null);
+                target = MethodUtils.invokeExactMethod(target, tokens[i], null);
             }
 
             target.getClass().getMethod(getAccessorMethodName(Accessor.set, tokens[tokens.length-1]), type);
@@ -77,13 +85,32 @@ public class ReflectionUtil {
         return token.length() == 1 ? accessor.name() +token.toUpperCase() : accessor.name() + token.substring(0, 1).toUpperCase() + token.substring(1);
     }
 
-    private static Object invoke(Object target, String methodName) {
+    private static Object invoke_get(Object target, String token) {
+        final String methodName = getAccessorMethodName(Accessor.get, token);
         try {
             target = MethodUtils.invokeExactMethod(target, methodName, null);
         } catch (Exception e) {
             throw new IllegalStateException("Error calling "+methodName+": "+e);
         }
         return target;
+    }
+
+    private static void invoke_set(Object target, String token, Object value) {
+        final String methodName = getAccessorMethodName(Accessor.set, token);
+        try {
+            MethodUtils.invokeExactMethod(target, methodName, value == null ? new Object[] { null } : value);
+        } catch (Exception e) {
+            throw new IllegalStateException("Error calling "+methodName+": "+e);
+        }
+    }
+
+    private static void invoke_set_null(Object target, String token, Class type) {
+        final String methodName = getAccessorMethodName(Accessor.set, token);
+        try {
+            MethodUtils.invokeExactMethod(target, methodName, new Object[] { null }, new Class[] { type });
+        } catch (Exception e) {
+            throw new IllegalStateException("Error calling "+methodName+": "+e);
+        }
     }
 
 }
