@@ -38,11 +38,7 @@ public class BeanMerger {
                 try {
                     Object value = propertyUtils.getSimpleProperty(orig, name);
                     if (evaluator.shouldCopy(name, value)) {
-                        if (value == null) {
-                            ReflectionUtil.setNull(dest, name, origDescriptor.getPropertyType());
-                        } else {
-                            ReflectionUtil.set(dest, name, value);
-                        }
+                        propertyUtils.setProperty(dest, name, value);
                     }
                 } catch (NoSuchMethodException e) {
                     // Should not happen

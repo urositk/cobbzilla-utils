@@ -88,7 +88,7 @@ public class ReflectionUtil {
     private static Object invoke_get(Object target, String token) {
         final String methodName = getAccessorMethodName(Accessor.get, token);
         try {
-            target = MethodUtils.invokeExactMethod(target, methodName, null);
+            target = MethodUtils.invokeMethod(target, methodName, null);
         } catch (Exception e) {
             throw new IllegalStateException("Error calling "+methodName+": "+e);
         }
@@ -96,9 +96,12 @@ public class ReflectionUtil {
     }
 
     private static void invoke_set(Object target, String token, Object value) {
+        if (value == null) {
+            throw new IllegalArgumentException("invoke_set: "+token+" cannot have null value, use setNull");
+        }
         final String methodName = getAccessorMethodName(Accessor.set, token);
         try {
-            MethodUtils.invokeExactMethod(target, methodName, value == null ? new Object[] { null } : value);
+            MethodUtils.invokeMethod(target, methodName, value == null ? new Object[] { null } : value);
         } catch (Exception e) {
             throw new IllegalStateException("Error calling "+methodName+": "+e);
         }
@@ -107,7 +110,7 @@ public class ReflectionUtil {
     private static void invoke_set_null(Object target, String token, Class type) {
         final String methodName = getAccessorMethodName(Accessor.set, token);
         try {
-            MethodUtils.invokeExactMethod(target, methodName, new Object[] { null }, new Class[] { type });
+            MethodUtils.invokeMethod(target, methodName, new Object[] { null }, new Class[] { type });
         } catch (Exception e) {
             throw new IllegalStateException("Error calling "+methodName+": "+e);
         }
