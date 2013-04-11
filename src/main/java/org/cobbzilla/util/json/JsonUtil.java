@@ -38,4 +38,12 @@ public class JsonUtil {
 
     public static class PublicView {}
 
+    public static String toJson (Object o) throws Exception {
+        return JsonUtil.FULL_WRITER.writeValueAsString(o);
+    }
+
+    public static <T> T fromJson(String json, Class<T> clazz) throws Exception {
+        return JsonUtil.FULL_MAPPER.readValue(json, clazz);
+    }
+
 }
