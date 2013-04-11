@@ -1,16 +1,10 @@
 package org.cobbzilla.util.bean;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.cobbzilla.util.reflect.ReflectionUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyDescriptor;
 
 public class BeanMerger {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BeanMerger.class);
 
     private static final PropertyUtilsBean propertyUtils = new PropertyUtilsBean();
 

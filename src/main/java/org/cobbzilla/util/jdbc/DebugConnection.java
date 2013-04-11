@@ -1,8 +1,7 @@
 package org.cobbzilla.util.jdbc;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.Map;
@@ -10,9 +9,8 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 public class DebugConnection implements Connection {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DebugConnection.class);
 
     private static final AtomicInteger counter = new AtomicInteger(0);
 
@@ -23,7 +21,7 @@ public class DebugConnection implements Connection {
         this.id = counter.getAndIncrement();
         this.delegate = delegate;
         final String msg = "DebugConnection " + id + " opened from " + ExceptionUtils.getStackTrace(new Exception("opened"));
-        LOG.info(msg);
+        log.info(msg);
     }
 
     @Override
@@ -69,7 +67,7 @@ public class DebugConnection implements Connection {
     @Override
     public void close() throws SQLException {
         final String msg = "DebugConnection " + id + " closed from " + ExceptionUtils.getStackTrace(new Exception("closed"));
-        LOG.info(msg);
+        log.info(msg);
         delegate.close();
     }
 

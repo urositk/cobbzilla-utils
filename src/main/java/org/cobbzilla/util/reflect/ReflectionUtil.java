@@ -1,8 +1,6 @@
 package org.cobbzilla.util.reflect;
 
 import org.apache.commons.beanutils.MethodUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -11,8 +9,6 @@ import java.lang.reflect.TypeVariable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ReflectionUtil {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ReflectionUtil.class);
 
     private enum Accessor { get, set }
 

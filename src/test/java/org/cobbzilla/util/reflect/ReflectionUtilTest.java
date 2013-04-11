@@ -1,21 +1,18 @@
 package org.cobbzilla.util.reflect;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 
 public class ReflectionUtilTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReflectionUtilTest.class);
-
+    @AllArgsConstructor
     public static class Dummy {
-        public Long id;
-        public Long getId() { return id; }
-        public void setId(Long id) { this.id = id; }
-        public Dummy (long id) { setId(id); }
+        @Getter @Setter public Long id;
     }
 
     private static final String ID = "id";

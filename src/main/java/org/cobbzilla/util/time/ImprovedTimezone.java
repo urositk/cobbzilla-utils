@@ -1,9 +1,8 @@
 package org.cobbzilla.util.time;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.string.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,9 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
+@Slf4j
 public class ImprovedTimezone {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ImprovedTimezone.class);
 
     private int id;
     private String gmtOffset;
@@ -33,7 +31,7 @@ public class ImprovedTimezone {
             init();
         } catch (IOException e) {
             String msg = "Error initializing ImprovedTimezone from timezones.txt: "+e;
-            LOG.error(msg, e);
+            log.error(msg, e);
             throw new IllegalStateException(msg, e);
         }
         TimeZone sysTimezone = TimeZone.getDefault();
@@ -54,7 +52,7 @@ public class ImprovedTimezone {
         }
 
         SYSTEM_TIMEZONE = tz.getTimeZone();
-        LOG.info("System Time Zone set to " + SYSTEM_TIMEZONE.getDisplayName());
+        log.info("System Time Zone set to " + SYSTEM_TIMEZONE.getDisplayName());
     }
 
     private ImprovedTimezone (int id,
@@ -144,7 +142,7 @@ public class ImprovedTimezone {
         TimeZone tz = TimeZone.getTimeZone(timezoneName);
         if (!gmtOffset.equals("GMT") && isGMT(tz)) {
             String msg = "Error looking up timezone: "+timezoneName+": got GMT, expected "+gmtOffset;
-            LOG.error(msg);
+            log.error(msg);
             throw new IllegalStateException(msg);
         }
         StringBuffer displayName = new StringBuffer();

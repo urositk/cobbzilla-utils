@@ -1,14 +1,12 @@
 package org.cobbzilla.util.jdbc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
 import java.util.Properties;
 
+@Slf4j
 public class DebugPostgresqlDriver implements Driver {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DebugPostgresqlDriver.class);
 
     private static final String DEBUG_PREFIX = "debug:";
     private static final String POSTGRESQL_PREFIX = "jdbc:postgresql:";
@@ -29,7 +27,7 @@ public class DebugPostgresqlDriver implements Driver {
             driver = (Driver) Class.forName(DRIVER_CLASS_NAME).newInstance();
         } catch (Exception e) {
             String msg = "Error instantiating driver: "+DRIVER_CLASS_NAME+": "+e;
-            LOG.error(msg, e);
+            log.error(msg, e);
             throw new IllegalArgumentException(msg, e);
         }
     }
