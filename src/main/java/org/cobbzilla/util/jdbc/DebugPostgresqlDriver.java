@@ -1,12 +1,13 @@
 package org.cobbzilla.util.jdbc;
 
+import lombok.Delegate;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
 import java.util.Properties;
 
 @Slf4j
-public class DebugPostgresqlDriver implements Driver {
+public class DebugPostgresqlDriver implements Driver, DebugDriver {
 
     private static final String DEBUG_PREFIX = "debug:";
     private static final String POSTGRESQL_PREFIX = "jdbc:postgresql:";
@@ -20,6 +21,7 @@ public class DebugPostgresqlDriver implements Driver {
         }
     }
 
+    @Delegate(excludes = DebugDriver.class)
     private Driver driver;
 
     public DebugPostgresqlDriver() {
@@ -41,29 +43,5 @@ public class DebugPostgresqlDriver implements Driver {
             }
         }
         throw new IllegalArgumentException("can't connect: "+url);
-    }
-
-    @Override
-    public boolean acceptsURL(String url) throws SQLException {
-        return driver.acceptsURL(url);
-    }
-
-    @Override
-    public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
-        return driver.getPropertyInfo(url, info);
-    }
-
-    @Override
-    public int getMajorVersion() { return driver.getMajorVersion(); }
-
-    @Override
-    public int getMinorVersion() { return driver.getMinorVersion(); }
-
-    @Override
-    public boolean jdbcCompliant() { return driver.jdbcCompliant(); }
-
-    @Override
-    public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
-        return driver.getParentLogger();
     }
 }
