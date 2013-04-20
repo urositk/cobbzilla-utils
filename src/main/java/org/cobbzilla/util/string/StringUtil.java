@@ -1,8 +1,5 @@
 package org.cobbzilla.util.string;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class StringUtil {
 
     public static String prefix(String s, int count) {
@@ -14,4 +11,13 @@ public class StringUtil {
     }
 
     public static boolean empty(String s) { return s == null || s.length() == 0; }
+
+    public static Integer safeParseInt(String s) {
+        if (StringUtil.empty(s)) return null;
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }
