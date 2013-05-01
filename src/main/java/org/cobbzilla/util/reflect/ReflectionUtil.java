@@ -1,13 +1,16 @@
 package org.cobbzilla.util.reflect;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.MethodUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Slf4j
 public class ReflectionUtil {
 
     private enum Accessor { get, set }
@@ -45,19 +48,23 @@ public class ReflectionUtil {
     public static void set(Object object, String field, Object value) {
         final String[] tokens = field.split("\\.");
         Object target = getTarget(object, tokens);
-        invoke_set(target, tokens[tokens.length-1], value);
+        if (target != null) invoke_set(target, tokens[tokens.length-1], value);
     }
 
     public static void setNull(Object object, String field, Class type) {
         final String[] tokens = field.split("\\.");
         Object target = getTarget(object, tokens);
-        invoke_set_null(target, tokens[tokens.length - 1], type);
+        if (target != null) invoke_set_null(target, tokens[tokens.length - 1], type);
     }
 
     private static Object getTarget(Object object, String[] tokens) {
         Object target = object;
         for (int i=0; i<tokens.length-1; i++) {
             target = invoke_get(target, tokens[i]);
+            if (target == null) {
+                log.warn("getTarget("+object+", "+Arrays.toString(tokens)+"): exiting early, null object found at token="+tokens[i]);
+                return null;
+            }
         }
         return target;
     }
