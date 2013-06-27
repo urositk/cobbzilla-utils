@@ -8,6 +8,7 @@ import java.util.Locale;
 
 public class StringUtil {
 
+    public static final String UTF8 = "UTF-8";
     public static final String EMPTY = "";
     public static final String DEFAULT_LOCALE = "en_US";
 
