@@ -54,6 +54,7 @@ public class LocaleAwareMustacheFactory extends DefaultMustacheFactory {
         if (locale == null) locale = DEFAULT_LOCALE;
         if (System.currentTimeMillis() > lastRefresh.longValue() + REFRESH_INTERVAL) {
             factoryLoadingCache.invalidateAll();
+            lastRefresh.set(System.currentTimeMillis());
         }
         return factoryLoadingCache.get(new LAMFCacheKey(fileRoot, locale));
     }
