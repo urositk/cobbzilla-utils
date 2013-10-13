@@ -3,8 +3,7 @@ package org.cobbzilla.util.string;
 import org.apache.commons.lang.LocaleUtils;
 
 import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
 public class StringUtil {
 
@@ -21,6 +20,15 @@ public class StringUtil {
     }
 
     public static boolean empty(String s) { return s == null || s.length() == 0; }
+
+    public static List<String> split (String s, String delim) {
+        final StringTokenizer st = new StringTokenizer(s, delim);
+        final List<String> results = new ArrayList<>();
+        while (st.hasMoreTokens()) {
+            results.add(st.nextToken());
+        }
+        return results;
+    }
 
     public static String lastPathElement(String url) { return url.substring(url.lastIndexOf("/")+1); }
 
