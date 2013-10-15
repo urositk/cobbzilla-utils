@@ -43,7 +43,7 @@ public class LocaleAwareMustacheFactoryTest {
 
     @Test
     public void testFindOnlyFullResource () throws Exception {
-        final String resource = "resource1.subject_en_us"+TEMPLATE_SUFFIX;
+        final String resource = "resource1.subject_en_US"+TEMPLATE_SUFFIX;
         populateTempDir(new String[] {resource});
 
         final List lines = IOUtils.readLines(factory.getReader("resource1.subject"));
@@ -76,7 +76,7 @@ public class LocaleAwareMustacheFactoryTest {
     public void testFindMostSpecificResource () throws Exception {
         final String resource = "resource1.subject"+TEMPLATE_SUFFIX;
         final String resource_en = "resource1.subject_en"+TEMPLATE_SUFFIX;
-        final String resource_en_us = "resource1.subject_en_us"+TEMPLATE_SUFFIX;
+        final String resource_en_us = "resource1.subject_en_US"+TEMPLATE_SUFFIX;
         populateTempDir(new String[] {resource, resource_en, resource_en_us});
 
         final List lines = IOUtils.readLines(factory.getReader("resource1.subject"));
