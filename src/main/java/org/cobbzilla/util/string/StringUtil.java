@@ -48,8 +48,8 @@ public class StringUtil {
 
     public static String trimQuotes (String s) {
         if (s == null) return s;
-        if (s.startsWith("\"") || s.startsWith("\'")) s = s.substring(1);
-        if (s.endsWith("\"") || s.endsWith("\'")) s = s.substring(0, s.length()-1);
+        while (s.startsWith("\"") || s.startsWith("\'")) s = s.substring(1);
+        while (s.endsWith("\"") || s.endsWith("\'")) s = s.substring(0, s.length()-1);
         return s;
     }
 
