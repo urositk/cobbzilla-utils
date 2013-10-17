@@ -6,8 +6,6 @@ import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 
 public class FileUtil {
 
@@ -31,30 +29,6 @@ public class FileUtil {
             if (in == null) throw new IllegalArgumentException("null data at resourcePath: "+resourcePath);
             IOUtils.copy(in, out);
         }
-    }
-
-    public static final String EXPORT = "export ";
-
-    public static Map<String, String> loadShellExports (File f) throws IOException {
-        final Map<String, String> map = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)))) {
-            String line, key, value;
-            int eqPos;
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (line.startsWith("#")) continue;
-                if (line.startsWith(EXPORT)) {
-                    line = line.substring(EXPORT.length()).trim();
-                    eqPos = line.indexOf('=');
-                    if (eqPos != -1) {
-                        key = line.substring(0, eqPos).trim();
-                        value = line.substring(eqPos+1).trim();
-                        map.put(key, value);
-                    }
-                }
-            }
-        }
-        return map;
     }
 
 }
