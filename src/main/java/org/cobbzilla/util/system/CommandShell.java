@@ -8,6 +8,14 @@ public class CommandShell {
 
     protected static final String EXPORT_PREFIX = "export ";
 
+    public static Map<String, String> loadShellExports (String userFile) throws IOException {
+        File file = new File(System.getProperty("user.home") + File.separator + userFile);
+        if (!file.exists()) {
+            throw new IllegalArgumentException("file does not exist: "+file.getAbsolutePath());
+        }
+        return loadShellExports(file);
+    }
+
     public static Map<String, String> loadShellExports (File f) throws IOException {
         final Map<String, String> map = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)))) {

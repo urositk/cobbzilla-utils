@@ -53,4 +53,7 @@ public class StringUtil {
         return s;
     }
 
+    public static String getPackagePath(Class clazz) {
+        return clazz.getPackage().getName().replace('.', '/');
+    }
 }
