@@ -1,6 +1,8 @@
 package org.cobbzilla.util.io;
 
+import lombok.Cleanup;
 import org.apache.commons.io.IOUtils;
+import org.cobbzilla.util.string.StringUtil;
 
 import java.io.*;
 
@@ -10,12 +12,20 @@ public class StreamUtil {
     public static final String PREFIX = "stream2file";
 
     public static File stream2file (InputStream in) throws IOException {
-        final File tempFile = File.createTempFile(PREFIX, SUFFIX);
-        tempFile.deleteOnExit();
-        try (OutputStream out = new FileOutputStream(tempFile)) {
+        return stream2file(in, false);
+    }
+
+    public static File stream2temp (InputStream in) throws IOException {
+        return stream2file(in, true);
+    }
+
+    public static File stream2file (InputStream in, boolean temp) throws IOException {
+        final File file = File.createTempFile(PREFIX, SUFFIX);
+        if (temp) file.deleteOnExit();
+        try (OutputStream out = new FileOutputStream(file)) {
             IOUtils.copy(in, out);
         }
-        return tempFile;
+        return file;
     }
 
     public static InputStream loadResourceAsStream(String path) throws IOException {
@@ -28,5 +38,15 @@ public class StreamUtil {
         return in;
     }
 
+    public static String loadResourceAsString(String path) throws IOException {
+        return loadResourceAsString(path, StreamUtil.class);
+    }
+
+    public static String loadResourceAsString(String path, Class clazz) throws IOException {
+        @Cleanup final InputStream in = loadResourceAsStream(path, clazz);
+        @Cleanup final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        IOUtils.copy(in, out);
+        return out.toString(StringUtil.UTF8);
+    }
 
 }

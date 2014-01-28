@@ -2,12 +2,17 @@ package org.cobbzilla.util.string;
 
 import org.apache.commons.lang.LocaleUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.util.*;
 
 public class StringUtil {
 
     public static final String UTF8 = "UTF-8";
+    public static final Charset UTF8cs = Charset.forName(UTF8);
+
     public static final String EMPTY = "";
     public static final String DEFAULT_LOCALE = "en_US";
 
@@ -56,4 +61,13 @@ public class StringUtil {
     public static String getPackagePath(Class clazz) {
         return clazz.getPackage().getName().replace('.', '/');
     }
+
+    public static String urlEncode (String s) {
+        try {
+            return URLEncoder.encode(s, UTF8);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("urlEncode: "+e, e);
+        }
+    }
+
 }
