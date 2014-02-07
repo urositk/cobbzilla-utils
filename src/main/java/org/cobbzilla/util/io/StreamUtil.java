@@ -28,6 +28,10 @@ public class StreamUtil {
         return file;
     }
 
+    public static ByteArrayInputStream toStream(String publicKey) throws UnsupportedEncodingException {
+        return new ByteArrayInputStream(publicKey.getBytes(StringUtil.UTF8));
+    }
+
     public static InputStream loadResourceAsStream(String path) throws IOException {
         return loadResourceAsStream(path, StreamUtil.class);
     }
