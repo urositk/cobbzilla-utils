@@ -1,6 +1,10 @@
 package org.cobbzilla.util.string;
 
 import org.apache.commons.lang.LocaleUtils;
+import org.cobbzilla.util.time.ImprovedTimezone;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -46,9 +50,23 @@ public class StringUtil {
         }
     }
 
-    public static String fullDateTime(String localeString, long time) {
-        Locale locale = LocaleUtils.toLocale(localeString);
-        return DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, locale).format(new Date(time));
+    public static String shortDateTime(String localeString, Integer timezone, long time) {
+        return formatDateTime("SS", localeString, timezone, time);
+    }
+
+    public static String mediumDateTime(String localeString, Integer timezone, long time) {
+        return formatDateTime("MM", localeString, timezone, time);
+    }
+
+    public static String fullDateTime(String localeString, Integer timezone, long time) {
+        return formatDateTime("FF", localeString, timezone, time);
+    }
+
+    public static String formatDateTime(String style, String localeString, Integer timezone, long time) {
+        final Locale locale = LocaleUtils.toLocale(localeString);
+        final ImprovedTimezone tz = ImprovedTimezone.getTimeZoneById(timezone);
+        return DateTimeFormat.forPattern(DateTimeFormat.patternForStyle(style, locale))
+                .withZone(DateTimeZone.forTimeZone(tz.getTimeZone())).print(time);
     }
 
     public static String trimQuotes (String s) {
