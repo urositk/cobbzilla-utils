@@ -13,6 +13,9 @@ public class CommandShell {
 
     protected static final String EXPORT_PREFIX = "export ";
 
+    public static final String CHMOD = "chmod";
+    public static final String P_600 = "600";
+
     public static Map<String, String> loadShellExports (String userFile) throws IOException {
         File file = new File(System.getProperty("user.home") + File.separator + userFile);
         if (!file.exists()) {
@@ -86,7 +89,7 @@ public class CommandShell {
     }
 
     public static int chmod (String file, String perms) throws IOException {
-        CommandLine commandLine = new CommandLine("chmod");
+        CommandLine commandLine = new CommandLine(CHMOD);
         commandLine.addArgument(perms);
         commandLine.addArgument(file);
         Executor executor = new DefaultExecutor();
