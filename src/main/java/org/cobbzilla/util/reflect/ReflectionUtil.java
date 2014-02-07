@@ -25,6 +25,7 @@ public class ReflectionUtil {
     public static Object get(Object object, String field) {
         Object target = object;
         for (String token : field.split("\\.")) {
+            if (target == null) return null;
             target = invoke_get(target, token);
         }
         return target;
