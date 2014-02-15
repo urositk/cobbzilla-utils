@@ -20,6 +20,18 @@ public class FileUtil {
         return new File(Files.createTempDirectory(parent, prefix).toAbsolutePath().toString());
     }
 
+    public static File createTempDirOrDie(String prefix) {
+        return createTempDirOrDie(DEFAULT_TEMPDIR, prefix);
+    }
+
+    public static File createTempDirOrDie(File parentDir, String prefix) {
+        try {
+            return createTempDir(parentDir, prefix);
+        } catch (IOException e) {
+            throw new IllegalStateException("createTempDirOrDie: error creating directory with prefix="+parentDir.getAbsolutePath()+"/"+prefix+": "+e, e);
+        }
+    }
+
     public static void writeResourceToFile(String resourcePath, File outFile, Class clazz) throws IOException {
         if (!outFile.getParentFile().exists() || !outFile.getParentFile().canWrite() || (outFile.exists() && !outFile.canWrite())) {
             throw new IllegalArgumentException("outFile is not writeable: "+outFile.getAbsolutePath());
