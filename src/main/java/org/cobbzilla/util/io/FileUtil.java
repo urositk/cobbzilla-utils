@@ -11,6 +11,13 @@ public class FileUtil {
 
     public static final File DEFAULT_TEMPDIR = new File(System.getProperty("java.io.tmpdir"));
 
+    public static String chopSuffix(String path) {
+        if (path == null) return null;
+        final int lastDot = path.lastIndexOf('.');
+        if (lastDot == -1 || lastDot == path.length()-1) return path;
+        return path.substring(0, lastDot);
+    }
+
     public static File createTempDir(String prefix) throws IOException {
         return createTempDir(DEFAULT_TEMPDIR, prefix);
     }
