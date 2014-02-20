@@ -2,14 +2,12 @@ package org.cobbzilla.util.string;
 
 import org.apache.commons.lang.LocaleUtils;
 import org.cobbzilla.util.time.ImprovedTimezone;
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.text.DateFormat;
 import java.util.*;
 
 public class StringUtil {
@@ -86,6 +84,19 @@ public class StringUtil {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("urlEncode: "+e, e);
         }
+    }
+
+    public static String toString (Collection c, String sep) {
+        StringBuilder builder = new StringBuilder();
+        for (Object o : c) {
+            if (builder.length() > 0) builder.append(sep);
+            builder.append(o);
+        }
+        return builder.toString();
+    }
+
+    public static Set<String> toSet (String s, String sep) {
+        return new HashSet<>(Arrays.asList(s.split(sep)));
     }
 
 }

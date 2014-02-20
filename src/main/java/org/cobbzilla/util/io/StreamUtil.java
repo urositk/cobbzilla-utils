@@ -53,4 +53,7 @@ public class StreamUtil {
         return out.toString(StringUtil.UTF8);
     }
 
+    public static Reader loadResourceAsReader(String resourcePath, Class clazz) throws IOException {
+        return new InputStreamReader(loadResourceAsStream(resourcePath, clazz));
+    }
 }

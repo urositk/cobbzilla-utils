@@ -6,6 +6,9 @@ import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 public class FileUtil {
 
@@ -50,4 +53,112 @@ public class FileUtil {
         }
     }
 
+    public static List<String> loadResourceAsStringListOrDie(String resourcePath, Class clazz) {
+        try {
+            return loadResourceAsStringList(resourcePath, clazz);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("loadResourceAsStringList error: "+e, e);
+        }
+    }
+
+    public static List<String> loadResourceAsStringList(String resourcePath, Class clazz) throws IOException {
+        final List<String> strings = new ArrayList<>();
+        try (BufferedReader r = new BufferedReader(StreamUtil.loadResourceAsReader(resourcePath, clazz))) {
+            String line;
+            while ((line = r.readLine()) != null) {
+                strings.add(line.trim());
+            }
+        }
+        return strings;
+    }
+
+    public static String toStringOrDie (String f) {
+        return toStringOrDie(new File(f));
+    }
+
+    public static String toStringOrDie (File f) {
+        try {
+            return toString(f);
+        } catch (IOException e) {
+            final String path = f == null ? "null" : f.getAbsolutePath();
+            throw new IllegalArgumentException("Error reading file ("+ path +"): "+e, e);
+        }
+    }
+
+    public static String toString (String f) throws IOException {
+        return toString(new File(f));
+    }
+
+    public static String toString (File f) throws IOException {
+        StringWriter writer = new StringWriter();
+        try (Reader r = new FileReader(f)) {
+            IOUtils.copy(r, writer);
+        }
+        return writer.toString();
+    }
+
+    public static Properties toPropertiesOrDie (String f) {
+        return toPropertiesOrDie(new File(f));
+    }
+
+    private static Properties toPropertiesOrDie(File f) {
+        try {
+            return toProperties(f);
+        } catch (IOException e) {
+            final String path = f == null ? "null" : f.getAbsolutePath();
+            throw new IllegalArgumentException("Error reading properties file ("+ path +"): "+e, e);
+        }
+    }
+
+    public static Properties toProperties (String f) throws IOException {
+        return toProperties(new File(f));
+    }
+
+    public static Properties toProperties (File f) throws IOException {
+        Properties props = new Properties();
+        try (InputStream in = new FileInputStream(f)) {
+            props.load(in);
+        }
+        return props;
+    }
+
+    public static Properties resourceToPropertiesOrDie (String path, Class clazz) {
+        try {
+            return resourceToProperties(path, clazz);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error reading resource ("+ path +"): "+e, e);
+        }
+    }
+
+    public static Properties resourceToProperties (String path, Class clazz) throws IOException {
+        Properties props = new Properties();
+        try (InputStream in = StreamUtil.loadResourceAsStream(path, clazz)) {
+            props.load(in);
+        }
+        return props;
+    }
+
+    public static File toFileOrDie (String file, String data) {
+        return toFileOrDie(new File(file), data);
+    }
+
+    private static File toFileOrDie(File file, String data) {
+        try {
+            return toFile(file, data);
+        } catch (IOException e) {
+            String path = file.getAbsolutePath();
+            throw new IllegalStateException("toFileOrDie: error writing to file: "+ (path == null ? "null" : path));
+        }
+    }
+
+    public static File toFile (String file, String data) throws IOException {
+        return toFile(new File(file), data);
+    }
+
+    private static File toFile(File file, String data) throws IOException {
+        try (OutputStream out = new FileOutputStream(file)) {
+            IOUtils.copy(new ByteArrayInputStream(data.getBytes()), out);
+        }
+        return file;
+    }
 }
