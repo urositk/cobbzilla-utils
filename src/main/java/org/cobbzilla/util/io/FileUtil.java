@@ -146,8 +146,8 @@ public class FileUtil {
         try {
             return toFile(file, data);
         } catch (IOException e) {
-            String path = file.getAbsolutePath();
-            throw new IllegalStateException("toFileOrDie: error writing to file: "+ (path == null ? "null" : path));
+            String path = (file == null) ? "null" : file.getAbsolutePath();
+            throw new IllegalStateException("toFileOrDie: error writing to file: "+ path);
         }
     }
 
