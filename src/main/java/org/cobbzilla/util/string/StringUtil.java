@@ -1,6 +1,7 @@
 package org.cobbzilla.util.string;
 
 import org.apache.commons.lang.LocaleUtils;
+import org.cobbzilla.util.security.MD5Util;
 import org.cobbzilla.util.time.ImprovedTimezone;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -99,4 +100,28 @@ public class StringUtil {
         return new HashSet<>(Arrays.asList(s.split(sep)));
     }
 
+    public static String tohex(byte[] data) {
+        return tohex(data, 0, data.length);
+    }
+
+    public static String tohex(byte[] data, int start, int len) {
+        StringBuffer b = new StringBuffer();
+        int stop = start+len;
+        for (int i=start; i<stop; i++) {
+            b.append(getHexValue(data[i]));
+        }
+        return b.toString();
+    }
+
+    /**
+     * Get the hexadecimal string representation for a byte.
+     * The leading 0x is not included.
+     *
+     * @param b the byte to process
+     * @return a String representing the hexadecimal value of the byte
+     */
+    public static String getHexValue(byte b) {
+        int i = (int) b;
+        return MD5Util.HEX_DIGITS[((i >> 4) + 16) % 16] + MD5Util.HEX_DIGITS[(i + 128) % 16];
+    }
 }
