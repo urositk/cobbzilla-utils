@@ -40,6 +40,10 @@ public class XPathUtil {
         return getFirstMatchList(in).get(0);
     }
 
+    public String getFirstMatchText (InputStream in) throws ParserConfigurationException, TransformerException, SAXException, IOException {
+        return getFirstMatch(in).getTextContent();
+    }
+
     public Map<String, List<Node>> applyXPaths(InputStream in) throws ParserConfigurationException, IOException, SAXException, TransformerException {
 
         final Map<String, List<Node>> allFound = new HashMap<>();
