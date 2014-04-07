@@ -56,4 +56,21 @@ public class StreamUtil {
     public static Reader loadResourceAsReader(String resourcePath, Class clazz) throws IOException {
         return new InputStreamReader(loadResourceAsStream(resourcePath, clazz));
     }
+
+    public static final int DEFAULT_BUFFER_SIZE = 32 * 1024;
+
+    public static long copyLarge(InputStream input, OutputStream output) throws IOException {
+        return copyLarge(input, output, DEFAULT_BUFFER_SIZE);
+    }
+
+    public static long copyLarge(InputStream input, OutputStream output, int bufferSize) throws IOException {
+        byte[] buffer = new byte[bufferSize];
+        long count = 0;
+        int n = 0;
+        while (-1 != (n = input.read(buffer))) {
+            output.write(buffer, 0, n);
+            count += n;
+        }
+        return count;
+    }
 }
