@@ -1,6 +1,7 @@
 package org.cobbzilla.util.reflect;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.MethodUtils;
 
 import java.lang.reflect.ParameterizedType;
@@ -14,6 +15,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ReflectionUtil {
 
     private enum Accessor { get, set }
+
+    public static <T> T copy (T dest, T src) {
+        try {
+            BeanUtils.copyProperties(dest, src);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error copying "+dest.getClass().getSimpleName()+" from src="+src+": "+e, e);
+        }
+        return dest;
+    }
 
     public static Class getFirstTypeParam(Class clazz) {
         final ParameterizedType parameterizedType = (ParameterizedType) clazz.getGenericSuperclass();
