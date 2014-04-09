@@ -72,12 +72,12 @@ cobbzilla-utils is available under the Apache License, version 2: http://www.apa
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>${httpclient.version}</version>
+            <version>${httpclient43.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>${httpclient.version}</version>
+            <version>${httpclient43.version}</version>
         </dependency>
 
         <dependency>
