@@ -43,6 +43,7 @@ public class TimeUtil {
             millis = duration - secs * SECOND;
         }
 
-        return String.format("%1$01dd %2$02d:%3$02d:%4$02d.%5$04d", days, hours, mins, secs, millis);
+        if (days > 0) return String.format("%1$01dd %2$02d:%3$02d:%4$02d.%5$04d", days, hours, mins, secs, millis);
+        return String.format("%1$02d:%2$02d:%3$02d.%4$04d", hours, mins, secs, millis);
     }
 }
