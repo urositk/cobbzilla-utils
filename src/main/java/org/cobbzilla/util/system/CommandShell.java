@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.cobbzilla.util.string.StringUtil.UTF8;
+import static org.cobbzilla.util.string.StringUtil.UTF8cs;
 
 public class CommandShell {
 
@@ -57,29 +58,50 @@ public class CommandShell {
     }
 
     public static CommandResult exec (String command) throws IOException {
-        MultiCommandResult result = exec(command, null);
+        return exec(CommandLine.parse(command));
+    }
+
+    public static CommandResult exec (CommandLine command) throws IOException {
+        MultiCommandResult result = exec(command, null, null);
+        return result.getResults().values().iterator().next();
+    }
+
+    public static CommandResult exec (String command, String input) throws IOException {
+        return exec(CommandLine.parse(command), input);
+    }
+
+    public static CommandResult exec (CommandLine commandLine, String input) throws IOException {
+        MultiCommandResult result = exec(commandLine, null, input);
         return result.getResults().values().iterator().next();
     }
 
     public static MultiCommandResult exec (String command, MultiCommandResult result) throws IOException {
+        return exec(command, result, null);
+    }
+
+    public static MultiCommandResult exec (String cmdLine, MultiCommandResult result, String input) throws IOException {
+        return exec(CommandLine.parse(cmdLine), result, input);
+    }
+
+    public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result, String input) throws IOException {
         if (result == null) result = new MultiCommandResult();
-        final CommandLine cmdLine = CommandLine.parse(command);
         final DefaultExecutor executor = new DefaultExecutor();
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final ByteArrayOutputStream err = new ByteArrayOutputStream();
-        final ExecuteStreamHandler handler = new PumpStreamHandler(out, err);
+        final ByteArrayInputStream in = (input == null) ? null : new ByteArrayInputStream(input.getBytes(UTF8cs));
+        final ExecuteStreamHandler handler = new PumpStreamHandler(out, err, in);
         executor.setStreamHandler(handler);
         final int exitValue;
         try {
             exitValue = executor.execute(cmdLine);
             if (exitValue != 0) {
-                result.exception(command, new IllegalStateException("non-zero value ("+exitValue+") returned from command: "+command));
+                result.exception(cmdLine, new IllegalStateException("non-zero value ("+exitValue+") returned from cmdLine: "+cmdLine));
                 return result;
             }
-            result.add(command, new CommandResult(exitValue, out.toString(UTF8), err.toString(UTF8)));
+            result.add(cmdLine, new CommandResult(exitValue, out.toString(UTF8), err.toString(UTF8)));
 
         } catch (Exception e) {
-            result.exception(command, e);
+            result.exception(cmdLine, e);
         }
         return result;
     }

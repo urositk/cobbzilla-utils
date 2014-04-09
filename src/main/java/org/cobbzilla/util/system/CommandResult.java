@@ -10,6 +10,9 @@ public class CommandResult {
     @Getter private Exception exception;
 
     public boolean hasException () { return exception != null; }
+    public boolean isZeroExitStatus () { return exitStatus != null && exitStatus == 0; }
+
+    public String getExitStatusString () { return exitStatus == null ? "null" : exitStatus.toString(); }
 
     public CommandResult (Integer exitStatus, String stdout, String stderr) {
         this.exitStatus = exitStatus; this.stdout = stdout; this.stderr = stderr;
