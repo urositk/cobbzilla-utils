@@ -186,4 +186,18 @@ public class FileUtil {
     public static void renameOrDie (File from, File to) {
         if (!from.renameTo(to)) throw new IllegalStateException("Error renaming "+from.getAbsolutePath()+" -> "+to.getAbsolutePath());
     }
+
+    public static void writeString (File target, String data) throws IOException {
+        try (FileWriter w = new FileWriter(target)) {
+            w.write(data);
+        }
+    }
+
+    public static void writeStringOrDie (File target, String data) {
+        try {
+            writeString(target, data);
+        } catch (IOException e) {
+            throw new IllegalStateException("Error writing to file ("+target.getAbsolutePath()+"): "+e, e);
+        }
+    }
 }

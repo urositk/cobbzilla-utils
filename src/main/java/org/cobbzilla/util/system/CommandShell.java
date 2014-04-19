@@ -66,6 +66,17 @@ public class CommandShell {
         return result.getResults().values().iterator().next();
     }
 
+    public static CommandResult exec (CommandLine command, Map<String, String> environment) throws IOException {
+        MultiCommandResult result = exec(command, null, null, null, environment);
+        return result.getResults().values().iterator().next();
+    }
+
+    public static CommandResult exec (CommandLine command, String input,
+                                      File workingDir, Map<String, String> environment) throws IOException {
+        MultiCommandResult result = exec(command, null, input, workingDir, environment);
+        return result.getResults().values().iterator().next();
+    }
+
     public static CommandResult exec (CommandLine command, File workingDir) throws IOException {
         MultiCommandResult result = exec(command, null, null, workingDir);
         return result.getResults().values().iterator().next();
@@ -94,6 +105,12 @@ public class CommandShell {
 
     public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result,
                                            String input, File workingDir) throws IOException {
+        return exec(cmdLine, result, input, workingDir, null);
+    }
+
+    public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result,
+                                           String input, File workingDir,
+                                           Map<String, String> environment) throws IOException {
         if (result == null) result = new MultiCommandResult();
         final DefaultExecutor executor = new DefaultExecutor();
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -104,7 +121,7 @@ public class CommandShell {
         if (workingDir != null) executor.setWorkingDirectory(workingDir);
         final int exitValue;
         try {
-            exitValue = executor.execute(cmdLine);
+            exitValue = executor.execute(cmdLine, environment);
             if (exitValue != 0) {
                 result.exception(cmdLine, new IllegalStateException("non-zero value ("+exitValue+") returned from cmdLine: "+cmdLine));
                 return result;
