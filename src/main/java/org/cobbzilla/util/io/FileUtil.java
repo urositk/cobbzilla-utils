@@ -1,5 +1,6 @@
 package org.cobbzilla.util.io;
 
+import lombok.Cleanup;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -62,14 +63,34 @@ public class FileUtil {
     }
 
     public static List<String> loadResourceAsStringList(String resourcePath, Class clazz) throws IOException {
+        @Cleanup final Reader reader = StreamUtil.loadResourceAsReader(resourcePath, clazz);
+        return toStringList(reader);
+    }
+
+    public static List<String> toStringList(File f) throws IOException {
+        @Cleanup final Reader reader = new FileReader(f);
+        return toStringList(reader);
+    }
+
+    public static List<String> toStringList(Reader reader) throws IOException {
         final List<String> strings = new ArrayList<>();
-        try (BufferedReader r = new BufferedReader(StreamUtil.loadResourceAsReader(resourcePath, clazz))) {
+        try (BufferedReader r = new BufferedReader(reader)) {
             String line;
             while ((line = r.readLine()) != null) {
                 strings.add(line.trim());
             }
         }
         return strings;
+    }
+
+    public static File toFile (List<String> lines) throws IOException {
+        final File temp = File.createTempFile(FileUtil.class.getSimpleName()+".toFile", "tmp");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(temp))) {
+            for (String line : lines) {
+                writer.write(line+"\n");
+            }
+        }
+        return temp;
     }
 
     public static String toStringOrDie (String f) {
@@ -160,5 +181,9 @@ public class FileUtil {
             IOUtils.copy(new ByteArrayInputStream(data.getBytes()), out);
         }
         return file;
+    }
+
+    public static void renameOrDie (File from, File to) {
+        if (!from.renameTo(to)) throw new IllegalStateException("Error renaming "+from.getAbsolutePath()+" -> "+to.getAbsolutePath());
     }
 }

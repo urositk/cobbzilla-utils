@@ -66,6 +66,11 @@ public class CommandShell {
         return result.getResults().values().iterator().next();
     }
 
+    public static CommandResult exec (CommandLine command, File workingDir) throws IOException {
+        MultiCommandResult result = exec(command, null, null, workingDir);
+        return result.getResults().values().iterator().next();
+    }
+
     public static CommandResult exec (String command, String input) throws IOException {
         return exec(CommandLine.parse(command), input);
     }
@@ -84,6 +89,11 @@ public class CommandShell {
     }
 
     public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result, String input) throws IOException {
+        return exec(cmdLine, result, input, null);
+    }
+
+    public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result,
+                                           String input, File workingDir) throws IOException {
         if (result == null) result = new MultiCommandResult();
         final DefaultExecutor executor = new DefaultExecutor();
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -91,6 +101,7 @@ public class CommandShell {
         final ByteArrayInputStream in = (input == null) ? null : new ByteArrayInputStream(input.getBytes(UTF8cs));
         final ExecuteStreamHandler handler = new PumpStreamHandler(out, err, in);
         executor.setStreamHandler(handler);
+        if (workingDir != null) executor.setWorkingDirectory(workingDir);
         final int exitValue;
         try {
             exitValue = executor.execute(cmdLine);

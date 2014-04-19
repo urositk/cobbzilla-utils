@@ -20,6 +20,10 @@ public class ShaUtil {
         return sha256(data.getBytes(StringUtil.UTF8));
     }
 
+    public static String sha256_hex (String data) throws Exception {
+        return StringUtil.tohex(sha256(data));
+    }
+
     public static byte[] sha256 (byte[] data) throws Exception {
         return md().digest(data);
     }
