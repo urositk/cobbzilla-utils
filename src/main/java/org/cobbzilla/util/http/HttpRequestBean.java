@@ -14,9 +14,10 @@ public class HttpRequestBean<T> {
     @Getter @Setter private String uri;
     @Getter @Setter private T data;
     @Getter @Setter private Map<String, String> headers = Collections.EMPTY_MAP;
+    @Getter @Setter private boolean isRedirect = false;
 
     public HttpRequestBean (String method, String uri, T data) {
-        this(method, uri, data, Collections.EMPTY_MAP);
+        this(method, uri, data, Collections.EMPTY_MAP, false);
     }
 
     public boolean hasData () { return data != null; }
@@ -34,6 +35,12 @@ public class HttpRequestBean<T> {
     public HttpRequestBean (String method, String uri) {
         this.method = method;
         this.uri = uri;
+    }
+
+    public HttpRequestBean (String method, String uri, boolean redirect) {
+        this.method = method;
+        this.uri = uri;
+        this.isRedirect = redirect;
     }
 
     public String getHost () { return get_uri().getHost(); }
