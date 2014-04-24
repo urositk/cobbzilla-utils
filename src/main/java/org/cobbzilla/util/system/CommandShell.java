@@ -119,16 +119,17 @@ public class CommandShell {
         final ExecuteStreamHandler handler = new PumpStreamHandler(out, err, in);
         executor.setStreamHandler(handler);
         if (workingDir != null) executor.setWorkingDirectory(workingDir);
-        final int exitValue;
+        int exitValue = -1;
         try {
             exitValue = executor.execute(cmdLine, environment);
-            if (exitValue != 0) {
-                result.exception(cmdLine, new IllegalStateException("non-zero value ("+exitValue+") returned from cmdLine: "+cmdLine));
-                return result;
-            }
             result.add(cmdLine, new CommandResult(exitValue, out.toString(UTF8), err.toString(UTF8)));
+            if (exitValue != 0) {
+                // shouldn't happen since executor.execute will throw an exception on a non-zero exit status
+                result.exception(cmdLine, new IllegalStateException("non-zero value ("+exitValue+") returned from cmdLine: "+cmdLine));
+            }
 
         } catch (Exception e) {
+            result.add(cmdLine, new CommandResult(exitValue, out.toString(UTF8), err.toString(UTF8)));
             result.exception(cmdLine, e);
         }
         return result;
