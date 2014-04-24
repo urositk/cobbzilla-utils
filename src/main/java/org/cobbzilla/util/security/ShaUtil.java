@@ -16,11 +16,15 @@ import java.security.NoSuchAlgorithmException;
 
 public class ShaUtil {
 
-    public static byte[] sha256 (String data) throws Exception {
-        return sha256(data.getBytes(StringUtil.UTF8));
+    public static byte[] sha256 (String data) {
+        try {
+            return sha256(data.getBytes(StringUtil.UTF8));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("sha256: bad data: "+data);
+        }
     }
 
-    public static String sha256_hex (String data) throws Exception {
+    public static String sha256_hex (String data) {
         return StringUtil.tohex(sha256(data));
     }
 
@@ -40,8 +44,12 @@ public class ShaUtil {
         return sha256_filename(data.getBytes(StringUtil.UTF8cs));
     }
 
-    public static String sha256_filename (byte[] data) throws Exception {
-        return URLEncoder.encode(Base64.encodeBytes(sha256(data)), StringUtil.UTF8);
+    public static String sha256_filename (byte[] data) {
+        try {
+            return URLEncoder.encode(Base64.encodeBytes(sha256(data)), StringUtil.UTF8);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("sha256_filename: bad byte[] data: "+e, e);
+        }
     }
 
     public static String sha256_file (String file) throws Exception {

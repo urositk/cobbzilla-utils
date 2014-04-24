@@ -40,6 +40,10 @@ public class StringUtil {
 
     public static String lastPathElement(String url) { return url.substring(url.lastIndexOf("/")+1); }
 
+    public static String safeHostname (String s) {
+        return s.replaceAll("\\W", "");
+    }
+
     public static Integer safeParseInt(String s) {
         if (StringUtil.empty(s)) return null;
         try {
