@@ -3,9 +3,9 @@
 # Uses inotify to watch a directory for changes to apply to a djbdns data file.
 # Prerequisite: sudo apt-get install inotify-tools
 #
-# Usage: djbdns_updater.sh <data-file> <service-path> <changes-dir> <log-file>
+# Usage: djbdns_updater.sh <data-file> <service-path> <changes-dir> [<log-file>]
 #
-# For example: djbdns_updater.sh /etc/tinydns/root/data /service/tinydns /tmp/tinydns_changes /tmp/dns_changes.log
+# For example: djbdns_updater.sh /etc/tinydns/root/data /service/tinydns /tmp/tinydns_changes /var/log/dns_updater.log
 #
 # When a line of djbdns config is written to a file in /tmp/tinydns_changes this script will run
 # If the data file already contains the line, nothing happens
@@ -18,7 +18,19 @@
 DATA_FILE=${1}
 SERVICE=${2}
 WATCH=${3}
+
+DEFAULT_LOG_FILE=/var/log/dns_updater.log
 LOG=${4}
+
+if [ -z ${LOG} ] ; then
+  echo "LOG file was not set, writing to default location: ${DEFAULT_LOG_FILE}"
+  LOG=${DEFAULT_LOG_FILE}
+fi
+
+if [ -z ${WATCH} ] ; then
+  echo "No WATCH was defined, cannot start" | tee -a ${LOG}
+  exit 1
+fi
 
 mkdir -p $(dirname ${LOG})
 touch ${LOG}
@@ -42,14 +54,16 @@ inotifywait -e close_write -mr ${WATCH} --format "%f" | while read file ; do
   # only the first line of the written file matters
   line=$(cat ${WATCH}/${file} | head -n 1 | tr -d ' ')
 
-  echo "found line=$line"
-  if [ $(cat $DATA_FILE | grep "${line}" | wc -l | tr -d ' ') -gt 0 ] ; then
-    echo "$(date): $0: ${DATA_FILE} already contains ${line}, not doing anything" | tee -a ${LOG}
+  # extract the record type and name, and trailing colon. this is what makes the record unique.
+  dns_record="$(echo "${line}" | awk -F ':' '{print $1}'):"
+
+  if [ $(cat $DATA_FILE | grep "${dns_record}" | wc -l | tr -d ' ') -gt 0 ] ; then
+    echo "$(date): $0: ${DATA_FILE} already contains ${dns_record}, not doing anything" | tee -a ${LOG}
 
   else
     # Create a new data file as a tempfile
     temp=$(mktemp ${SCRATCH_DIR}/data.XXXXXXXX)
-    cat ${DATA_FILE} > ${temp}
+    cat ${DATA_FILE} | grep -v ${dns_record} > ${temp}   # filter-out existing dns record if there is one
     echo "${line}" >> ${temp}
 
     # Backup the existing data file and move the temp file into position
@@ -74,6 +88,8 @@ inotifywait -e close_write -mr ${WATCH} --format "%f" | while read file ; do
         if [ $? -ne 0 ] ; then
           echo "$(date): $0: Error running make while trying to rollback: ${MAKE_RESULTS}" | tee -a ${LOG}
         fi
+      else
+        echo "$(date): $0: successfully added to ${DATA_FILE}: ${line}" | tee -a ${LOG}
       fi
     fi
 
