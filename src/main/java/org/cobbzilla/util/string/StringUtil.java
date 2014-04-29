@@ -91,6 +91,17 @@ public class StringUtil {
         }
     }
 
+    public static String urlParameterize(Map<String, String> params) {
+        final StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (sb.length() > 0) sb.append('&');
+            sb.append(urlEncode(entry.getKey()))
+                    .append('=')
+                    .append(urlEncode(entry.getValue()));
+        }
+        return sb.toString();
+    }
+
     public static String toString (Collection c, String sep) {
         StringBuilder builder = new StringBuilder();
         for (Object o : c) {
