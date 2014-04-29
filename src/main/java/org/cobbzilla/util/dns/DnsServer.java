@@ -9,4 +9,6 @@ public interface DnsServer {
 
     public void writeA (String hostname, String ip, int ttl) throws IOException;
 
+    public void writeMX(String mailDomain, String mxHostname, int rank, int ttl) throws IOException;
+
 }

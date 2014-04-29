@@ -40,6 +40,12 @@ public class DjbDnsServer implements DnsServer {
         writeChange(data);
     }
 
+    @Override
+    public void writeMX(String mailDomain, String mxHostname, int rank, int ttl) throws IOException {
+        final String data = "@" + mailDomain + "::" + mxHostname + ":" + ttl;
+        writeChange(data);
+    }
+
     private void writeChange(String data) throws IOException {
         FileUtil.toFile(File.createTempFile("djbdns", "tmp", changesDir).getAbsolutePath(), data);
     }
