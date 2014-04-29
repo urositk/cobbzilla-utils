@@ -1,6 +1,7 @@
 package org.cobbzilla.util.io;
 
 import lombok.Cleanup;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+@Slf4j
 public class FileUtil {
 
     public static final File DEFAULT_TEMPDIR = new File(System.getProperty("java.io.tmpdir"));
@@ -100,6 +102,9 @@ public class FileUtil {
     public static String toStringOrDie (File f) {
         try {
             return toString(f);
+        } catch (FileNotFoundException e) {
+            log.warn("toStringOrDie: returning null; file not found: "+f.getAbsolutePath());
+            return null;
         } catch (IOException e) {
             final String path = f == null ? "null" : f.getAbsolutePath();
             throw new IllegalArgumentException("Error reading file ("+ path +"): "+e, e);
