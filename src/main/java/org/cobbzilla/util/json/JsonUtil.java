@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.cobbzilla.util.string.StringUtil;
+
+import java.io.IOException;
 
 public class JsonUtil {
 
@@ -44,6 +47,15 @@ public class JsonUtil {
 
     public static <T> T fromJson(String json, Class<T> clazz) throws Exception {
         return JsonUtil.FULL_MAPPER.readValue(json, clazz);
+    }
+
+    public static <T> T fromJsonOrDie(String json, Class<T> clazz) {
+        if (StringUtil.empty(json)) return null;
+        try {
+            return JsonUtil.FULL_MAPPER.readValue(json, clazz);
+        } catch (IOException e) {
+            throw new IllegalStateException("fromJson: exception while reading: "+json+": "+e, e);
+        }
     }
 
 }
