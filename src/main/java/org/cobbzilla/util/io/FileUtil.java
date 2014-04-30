@@ -205,4 +205,13 @@ public class FileUtil {
             throw new IllegalStateException("Error writing to file ("+target.getAbsolutePath()+"): "+e, e);
         }
     }
+
+    public static void truncate (File file) {
+        try (FileWriter ignored = new FileWriter(file)) {
+            // do nothing -- truncate the file
+        } catch (IOException e) {
+            final String path = (file == null) ? "null" : file.getAbsolutePath();
+            throw new IllegalArgumentException("error in truncate("+ path +"): "+e, e);
+        }
+    }
 }
