@@ -1,5 +1,6 @@
 package org.cobbzilla.util.system;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.*;
 
 import java.io.*;
@@ -10,6 +11,7 @@ import java.util.Map;
 import static org.cobbzilla.util.string.StringUtil.UTF8;
 import static org.cobbzilla.util.string.StringUtil.UTF8cs;
 
+@Slf4j
 public class CommandShell {
 
     protected static final String EXPORT_PREFIX = "export ";
@@ -125,7 +127,10 @@ public class CommandShell {
             result.add(cmdLine, new CommandResult(exitValue, out.toString(UTF8), err.toString(UTF8)));
             if (exitValue != 0) {
                 // shouldn't happen since executor.execute will throw an exception on a non-zero exit status
-                result.exception(cmdLine, new IllegalStateException("non-zero value ("+exitValue+") returned from cmdLine: "+cmdLine));
+                final String baseMessage = "non-zero value (" + exitValue + ") returned from cmdLine: " + cmdLine;
+                final String message = baseMessage + ": out=" + out.toString(UTF8) + ", err=" + err.toString(UTF8);
+                log.info(message);
+                result.exception(cmdLine, new IllegalStateException(baseMessage));
             }
 
         } catch (Exception e) {
