@@ -10,5 +10,6 @@ public class HttpStatusCodes {
     public static final int NOT_FOUND = 404;
     public static final int FORBIDDEN = 403;
     public static final int UNSUPPORTED_MEDIA_TYPE = 415;
+    public static final int SERVER_ERROR = 500;
 
 }
