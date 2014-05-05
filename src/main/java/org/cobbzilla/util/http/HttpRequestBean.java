@@ -3,6 +3,7 @@ package org.cobbzilla.util.http;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import lombok.*;
+import org.cobbzilla.util.string.StringUtil;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,13 +26,7 @@ public class HttpRequestBean<T> {
 
     @Getter(lazy=true, value=AccessLevel.PRIVATE) private final URI _uri = initURI();
 
-    private URI initURI() {
-        try {
-            return new URI(uri);
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException("initURI: "+e, e);
-        }
-    }
+    private URI initURI() { return StringUtil.uriOrDie(uri); }
 
     public HttpRequestBean (String method, String uri) {
         this.method = method;
