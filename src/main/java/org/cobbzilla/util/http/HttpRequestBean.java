@@ -1,5 +1,7 @@
 package org.cobbzilla.util.http;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import lombok.*;
 
 import java.net.URI;
@@ -13,11 +15,10 @@ public class HttpRequestBean<T> {
     @Getter @Setter private String method;
     @Getter @Setter private String uri;
     @Getter @Setter private T data;
-    @Getter @Setter private Map<String, String> headers = Collections.EMPTY_MAP;
-    @Getter @Setter private boolean isRedirect = false;
+    @Getter @Setter private Multimap<String, String> headers = ArrayListMultimap.create();
 
     public HttpRequestBean (String method, String uri, T data) {
-        this(method, uri, data, Collections.EMPTY_MAP, false);
+        this(method, uri, data, null);
     }
 
     public boolean hasData () { return data != null; }
@@ -35,12 +36,6 @@ public class HttpRequestBean<T> {
     public HttpRequestBean (String method, String uri) {
         this.method = method;
         this.uri = uri;
-    }
-
-    public HttpRequestBean (String method, String uri, boolean redirect) {
-        this.method = method;
-        this.uri = uri;
-        this.isRedirect = redirect;
     }
 
     public String getHost () { return get_uri().getHost(); }
