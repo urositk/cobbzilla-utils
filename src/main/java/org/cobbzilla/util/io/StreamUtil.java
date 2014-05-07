@@ -28,8 +28,8 @@ public class StreamUtil {
         return file;
     }
 
-    public static ByteArrayInputStream toStream(String publicKey) throws UnsupportedEncodingException {
-        return new ByteArrayInputStream(publicKey.getBytes(StringUtil.UTF8));
+    public static ByteArrayInputStream toStream(String s) throws UnsupportedEncodingException {
+        return new ByteArrayInputStream(s.getBytes(StringUtil.UTF8));
     }
 
     public static InputStream loadResourceAsStream(String path) throws IOException {
@@ -72,5 +72,20 @@ public class StreamUtil {
             count += n;
         }
         return count;
+    }
+
+    /**
+     * Copy the first n bytes from input to output
+     * @return the number of bytes actually copied (might be less than n if EOF was reached)
+     */
+    public static long copyNbytes(InputStream input, OutputStream output, long n) throws IOException {
+        byte[] buffer = new byte[(n > DEFAULT_BUFFER_SIZE) ? DEFAULT_BUFFER_SIZE : (int) n];
+        long copied = 0;
+        int read = 0;
+        while (copied < n && -1 != (read = input.read(buffer, 0, (int) (n - copied > buffer.length ? buffer.length : n - copied)))) {
+            output.write(buffer, 0, read);
+            copied += read;
+        }
+        return copied;
     }
 }
