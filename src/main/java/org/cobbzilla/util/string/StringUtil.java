@@ -130,7 +130,7 @@ public class StringUtil {
     }
 
     public static String tohex(byte[] data, int start, int len) {
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         int stop = start+len;
         for (int i=start; i<stop; i++) {
             b.append(getHexValue(data[i]));

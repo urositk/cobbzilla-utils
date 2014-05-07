@@ -77,7 +77,7 @@ public class XPathUtil {
                     // DOM may have more than one node corresponding to a
                     // single XPath text node.  Coalesce all contiguous text nodes
                     // at this level
-                    StringBuffer sb = new StringBuffer(n.getNodeValue());
+                    StringBuilder sb = new StringBuilder(n.getNodeValue());
                     for (
                             Node nn = n.getNextSibling();
                             isTextNode(nn);

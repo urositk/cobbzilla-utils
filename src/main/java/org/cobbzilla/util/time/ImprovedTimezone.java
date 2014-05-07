@@ -145,7 +145,7 @@ public class ImprovedTimezone {
             log.error(msg);
             throw new IllegalStateException(msg);
         }
-        StringBuffer displayName = new StringBuffer();
+        StringBuilder displayName = new StringBuilder();
         while (st.hasMoreTokens()) {
             displayName.append(st.nextToken()).append(' ');
         }
