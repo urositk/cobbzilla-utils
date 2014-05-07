@@ -168,7 +168,7 @@ public class FileUtil {
         return toFileOrDie(new File(file), data);
     }
 
-    private static File toFileOrDie(File file, String data) {
+    public static File toFileOrDie(File file, String data) {
         try {
             return toFile(file, data);
         } catch (IOException e) {
@@ -181,7 +181,7 @@ public class FileUtil {
         return toFile(new File(file), data);
     }
 
-    private static File toFile(File file, String data) throws IOException {
+    public static File toFile(File file, String data) throws IOException {
         try (OutputStream out = new FileOutputStream(file)) {
             IOUtils.copy(new ByteArrayInputStream(data.getBytes()), out);
         }
