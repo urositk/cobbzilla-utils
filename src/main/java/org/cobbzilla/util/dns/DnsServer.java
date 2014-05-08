@@ -11,4 +11,6 @@ public interface DnsServer {
 
     public void writeMX(String mailDomain, String mxHostname, int rank, int ttl) throws IOException;
 
+    public void writeNS(String fqdn, String ip, int ttl) throws IOException;
+
 }
