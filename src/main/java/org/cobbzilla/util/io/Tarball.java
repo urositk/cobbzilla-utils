@@ -59,6 +59,10 @@ public class Tarball {
                 }
                 continue;
             }
+
+            // when "./" gets squashed to "", we skip the entry
+            if (name.trim().length() == 0) continue;
+
             try (OutputStream out = new FileOutputStream(new File(dir, name))) {
                 if (StreamUtil.copyNbytes(tarIn, out, entry.getSize()) != entry.getSize()) {
                     throw new IllegalStateException("Expected to copy "+entry.getSize()+ " bytes for "+entry.getName()+" in tarball "+ path);
