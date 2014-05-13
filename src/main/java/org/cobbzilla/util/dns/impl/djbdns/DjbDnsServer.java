@@ -42,13 +42,13 @@ public class DjbDnsServer implements DnsServer {
 
     @Override
     public void writeMX(String mailDomain, String mxHostname, int rank, int ttl) throws IOException {
-        final String data = new StringBuilder().append("@").append(mailDomain).append("::").append(mxHostname).append(":").append(ttl).toString();
+        final String data = new StringBuilder().append("@").append(mailDomain).append(".::").append(mxHostname).append(":").append(ttl).toString();
         writeChange(data);
     }
 
     @Override
     public void writeNS(String fqdn, String ip, int ttl) throws IOException {
-        final String data = new StringBuilder().append("&").append(fqdn).append(":").append(ip).append(":a:").append(ttl).toString();
+        final String data = new StringBuilder().append("&").append(fqdn).append(".:").append(ip).append(":a:").append(ttl).toString();
         writeChange(data);
     }
 
