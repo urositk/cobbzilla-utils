@@ -227,4 +227,15 @@ public class FileUtil {
     public static boolean isSymlink(File file) {
         return Files.isSymbolicLink(path(file));
     }
+
+    public static String toStringExcludingLines(File file, String prefix) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().startsWith(prefix)) sb.append(line).append("\n");
+            }
+        }
+        return sb.toString();
+    }
 }
