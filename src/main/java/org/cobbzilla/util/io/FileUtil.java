@@ -206,12 +206,25 @@ public class FileUtil {
         }
     }
 
-    public static void truncate (File file) {
-        try (FileWriter ignored = new FileWriter(file)) {
-            // do nothing -- truncate the file
+    public static void truncate (File file) { _touch(file, false); }
+
+    public static void touch (File file) { _touch(file, true); }
+
+    private static void _touch(File file, boolean append) {
+        try (FileWriter ignored = new FileWriter(file, append)) {
+            // do nothing -- if append is false, we truncate the file,
+            // otherwise just update the mtime/atime, and possible create an empty file if it doesn't already exist
         } catch (IOException e) {
             final String path = (file == null) ? "null" : file.getAbsolutePath();
-            throw new IllegalArgumentException("error in truncate("+ path +"): "+e, e);
+            throw new IllegalArgumentException("error "+(append ? "touching" : "truncating")+" "+path +": "+e, e);
         }
+    }
+
+    public static Path path(File f) {
+        return FileSystems.getDefault().getPath(f.getAbsolutePath());
+    }
+
+    public static boolean isSymlink(File file) {
+        return Files.isSymbolicLink(path(file));
     }
 }

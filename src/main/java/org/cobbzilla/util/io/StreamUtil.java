@@ -22,6 +22,10 @@ public class StreamUtil {
     public static File stream2file (InputStream in, boolean temp) throws IOException {
         final File file = File.createTempFile(PREFIX, SUFFIX);
         if (temp) file.deleteOnExit();
+        return stream2file(in, file);
+    }
+
+    public static File stream2file(InputStream in, File file) throws IOException {
         try (OutputStream out = new FileOutputStream(file)) {
             IOUtils.copy(in, out);
         }
