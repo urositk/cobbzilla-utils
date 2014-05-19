@@ -6,20 +6,27 @@ import lombok.*;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.Map;
 
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor @AllArgsConstructor @ToString(of={"method", "uri"})
 public class HttpRequestBean<T> {
 
-    @Getter @Setter private String method;
+    @Getter @Setter private String method = HttpMethods.GET;
     @Getter @Setter private String uri;
     @Getter @Setter private T data;
     @Getter @Setter private Multimap<String, String> headers = ArrayListMultimap.create();
 
+    public HttpRequestBean (String uri) { this(HttpMethods.GET, uri, null); }
+
+    public HttpRequestBean (String method, String uri) { this(method, uri, null); }
+
     public HttpRequestBean (String method, String uri, T data) {
-        this(method, uri, data, null);
+        this.method = method;
+        this.uri = uri;
+        this.data = data;
+    }
+
+    public void setHeader (String name, String value) {
+        headers.put(name, value);
     }
 
     public boolean hasData () { return data != null; }
@@ -28,13 +35,8 @@ public class HttpRequestBean<T> {
 
     private URI initURI() { return StringUtil.uriOrDie(uri); }
 
-    public HttpRequestBean (String method, String uri) {
-        this.method = method;
-        this.uri = uri;
-    }
-
     public String getHost () { return get_uri().getHost(); }
     public int getPort () { return get_uri().getPort(); }
-    public String getPath() { return get_uri().getPath(); }
+    public String getPath () { return get_uri().getPath(); }
 
 }
