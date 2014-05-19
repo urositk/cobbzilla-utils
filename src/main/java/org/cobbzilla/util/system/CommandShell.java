@@ -2,6 +2,7 @@ package org.cobbzilla.util.system;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.*;
+import org.apache.commons.io.output.TeeOutputStream;
 
 import java.io.*;
 import java.util.Collection;
@@ -18,6 +19,7 @@ public class CommandShell {
 
     public static final String CHMOD = "chmod";
     public static final String P_600 = "600";
+    public static final String CHGRP = "chgrp";
 
     public static Map<String, String> loadShellExports (String userFile) throws IOException {
         File file = new File(System.getProperty("user.home") + File.separator + userFile);
@@ -115,10 +117,15 @@ public class CommandShell {
                                            Map<String, String> environment) throws IOException {
         if (result == null) result = new MultiCommandResult();
         final DefaultExecutor executor = new DefaultExecutor();
+
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final TeeOutputStream teeOut = new TeeOutputStream(out, System.out);
+
         final ByteArrayOutputStream err = new ByteArrayOutputStream();
+        final TeeOutputStream teeErr = new TeeOutputStream(err, System.err);
+
         final ByteArrayInputStream in = (input == null) ? null : new ByteArrayInputStream(input.getBytes(UTF8cs));
-        final ExecuteStreamHandler handler = new PumpStreamHandler(out, err, in);
+        final ExecuteStreamHandler handler = new PumpStreamHandler(teeOut, teeErr, in);
         executor.setStreamHandler(handler);
         if (workingDir != null) executor.setWorkingDirectory(workingDir);
         int exitValue = -1;
@@ -145,11 +152,31 @@ public class CommandShell {
     }
 
     public static int chmod (String file, String perms) throws IOException {
-        CommandLine commandLine = new CommandLine(CHMOD);
+        final CommandLine commandLine = new CommandLine(CHMOD);
         commandLine.addArgument(perms);
         commandLine.addArgument(file);
-        Executor executor = new DefaultExecutor();
+        final Executor executor = new DefaultExecutor();
         return executor.execute(commandLine);
+    }
+
+    public static int chgrp(String group, File path) throws IOException {
+        return chgrp(group, path, false);
+    }
+
+    public static int chgrp(String group, File path, boolean recursive) throws IOException {
+        return chgrp(group, path.getAbsolutePath(), recursive);
+    }
+
+    public static int chgrp(String group, String path) throws IOException {
+        return chgrp(group, path, false);
+    }
+
+    public static int chgrp(String group, String path, boolean recursive) throws IOException {
+        final Executor executor = new DefaultExecutor();
+        final CommandLine command = new CommandLine(CHGRP);
+        if (recursive) command.addArgument("-R");
+        command.addArgument(group).addArgument(path);
+        return executor.execute(command);
     }
 
 }
