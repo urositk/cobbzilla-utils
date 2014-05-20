@@ -7,7 +7,7 @@ import org.cobbzilla.util.string.StringUtil;
 
 import java.net.URI;
 
-@NoArgsConstructor @AllArgsConstructor @ToString(of={"method", "uri"})
+@NoArgsConstructor @ToString(of={"method", "uri"})
 public class HttpRequestBean<T> {
 
     @Getter @Setter private String method = HttpMethods.GET;
@@ -23,6 +23,11 @@ public class HttpRequestBean<T> {
         this.method = method;
         this.uri = uri;
         this.data = data;
+    }
+
+    public HttpRequestBean (String method, String uri, T data, Multimap<String, String> headers) {
+        this(method, uri, data);
+        this.headers = headers;
     }
 
     public void setHeader (String name, String value) {
