@@ -8,6 +8,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -21,6 +22,15 @@ public class ReflectionUtil {
             BeanUtils.copyProperties(dest, src);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error copying "+dest.getClass().getSimpleName()+" from src="+src+": "+e, e);
+        }
+        return dest;
+    }
+
+    public static <T> T copyFromMap (T dest, Map<String, Object> src) {
+        for (Map.Entry<String, Object> entry : src.entrySet()) {
+            if (hasSetter(dest, entry.getKey(), entry.getValue().getClass())) {
+                set(dest, entry.getKey(), entry.getValue());
+            }
         }
         return dest;
     }
