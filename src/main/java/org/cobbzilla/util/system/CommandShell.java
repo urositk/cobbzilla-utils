@@ -3,6 +3,7 @@ package org.cobbzilla.util.system;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.*;
 import org.apache.commons.io.output.TeeOutputStream;
+import org.cobbzilla.util.io.FileUtil;
 
 import java.io.*;
 import java.util.Collection;
@@ -179,4 +180,32 @@ public class CommandShell {
         return executor.execute(command);
     }
 
+    public static String toString(String command) {
+        try {
+            return exec(command).getStdout();
+        } catch (IOException e) {
+            throw new IllegalStateException("Error executing: "+command+": "+e, e);
+        }
+    }
+
+    public static String hostname () {
+        try {
+            return exec("hostname").getStdout().trim();
+        } catch (IOException e) {
+            throw new IllegalStateException("CommandShell.hostname() error: "+e, e);
+        }
+    }
+
+    public static File tempScript (String contents) {
+        contents = "#!/bin/bash\n\n"+contents;
+        try {
+            final File temp = File.createTempFile("tempScript", ".sh");
+            FileUtil.toFile(temp, contents);
+            chmod(temp, "755");
+            return temp;
+
+        } catch (Exception e) {
+            throw new IllegalStateException("tempScript("+contents+") failed: "+e, e);
+        }
+    }
 }
