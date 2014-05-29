@@ -69,6 +69,10 @@ public class FileUtil {
         return toStringList(reader);
     }
 
+    public static List<String> toStringList(String f) throws IOException {
+        return toStringList(new File(f));
+    }
+
     public static List<String> toStringList(File f) throws IOException {
         @Cleanup final Reader reader = new FileReader(f);
         return toStringList(reader);
@@ -121,6 +125,14 @@ public class FileUtil {
             IOUtils.copy(r, writer);
         }
         return writer.toString();
+    }
+
+    public static byte[] toBytes (File f) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (InputStream in = new FileInputStream(f)) {
+            IOUtils.copy(in, out);
+        }
+        return out.toByteArray();
     }
 
     public static Properties toPropertiesOrDie (String f) {
@@ -207,6 +219,8 @@ public class FileUtil {
     }
 
     public static void truncate (File file) { _touch(file, false); }
+
+    public static void touch (String file) { _touch(new File(file), true); }
 
     public static void touch (File file) { _touch(file, true); }
 
