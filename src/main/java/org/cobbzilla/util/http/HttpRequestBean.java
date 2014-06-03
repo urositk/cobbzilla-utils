@@ -11,9 +11,21 @@ import java.net.URI;
 public class HttpRequestBean<T> {
 
     @Getter @Setter private String method = HttpMethods.GET;
+    public HttpRequestBean<T> withMethod (String m) { method = m; return this; }
+
     @Getter @Setter private String uri;
+    public HttpRequestBean<T> withUri (String u) { uri = u; return this; }
+
     @Getter @Setter private T data;
+    public HttpRequestBean<T> withData (T d) { data = d; return this; }
+    public boolean hasData () { return data != null; }
+
     @Getter @Setter private Multimap<String, String> headers = ArrayListMultimap.create();
+    public HttpRequestBean<T> withHeaders (Multimap<String, String> headers) { this.headers = headers; return this; }
+    public HttpRequestBean<T> withHeader (String name, String value) { setHeader(name, value); return this; }
+    public void setHeader (String name, String value) {
+        headers.put(name, value);
+    }
 
     public HttpRequestBean (String uri) { this(HttpMethods.GET, uri, null); }
 
@@ -29,12 +41,6 @@ public class HttpRequestBean<T> {
         this(method, uri, data);
         this.headers = headers;
     }
-
-    public void setHeader (String name, String value) {
-        headers.put(name, value);
-    }
-
-    public boolean hasData () { return data != null; }
 
     @Getter(lazy=true, value=AccessLevel.PRIVATE) private final URI _uri = initURI();
 
