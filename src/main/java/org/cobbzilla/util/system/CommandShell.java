@@ -149,11 +149,19 @@ public class CommandShell {
     }
 
     public static int chmod (File file, String perms) throws IOException {
-        return chmod(file.getAbsolutePath(), perms);
+        return chmod(file.getAbsolutePath(), perms, false);
+    }
+    public static int chmod (File file, String perms, boolean recursive) throws IOException {
+        return chmod(file.getAbsolutePath(), perms, recursive);
     }
 
     public static int chmod (String file, String perms) throws IOException {
+        return chmod(file, perms, false);
+    }
+
+    public static int chmod (String file, String perms, boolean recursive) throws IOException {
         final CommandLine commandLine = new CommandLine(CHMOD);
+        if (recursive) commandLine.addArgument("-R");
         commandLine.addArgument(perms);
         commandLine.addArgument(file);
         final Executor executor = new DefaultExecutor();
