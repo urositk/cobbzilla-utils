@@ -3,6 +3,7 @@ package org.cobbzilla.util.http;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.util.string.StringUtil;
 
 import java.util.StringTokenizer;
 
@@ -14,6 +15,8 @@ public class HttpCookieBean {
     @Getter @Setter private String name;
     @Getter @Setter private String value;
     @Getter @Setter private String domain;
+    public boolean hasDomain () { return !StringUtil.empty(domain); }
+
     @Getter @Setter private String path;
     @Getter @Setter private String expires;
     @Getter @Setter private String maxAge;
