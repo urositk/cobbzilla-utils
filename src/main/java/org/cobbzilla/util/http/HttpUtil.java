@@ -85,7 +85,10 @@ public class HttpUtil {
 
         bean.setStatus(response.getStatusLine().getStatusCode());
         bean.setContentLength(response.getEntity().getContentLength());
-        bean.setContentType(response.getEntity().getContentType().getValue());
+        final Header contentType = response.getEntity().getContentType();
+        if (contentType != null) {
+            bean.setContentType(contentType.getValue());
+        }
         bean.setEntity(response.getEntity().getContent());
 
         return bean;
