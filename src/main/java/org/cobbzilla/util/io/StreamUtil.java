@@ -46,6 +46,14 @@ public class StreamUtil {
         return in;
     }
 
+    public static String loadResourceAsStringOrDie(String path) {
+        try {
+            return loadResourceAsString(path, StreamUtil.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("cannot load resource: "+path+": "+e, e);
+        }
+    }
+
     public static String loadResourceAsString(String path) throws IOException {
         return loadResourceAsString(path, StreamUtil.class);
     }
