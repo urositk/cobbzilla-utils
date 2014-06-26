@@ -1,5 +1,6 @@
 package org.cobbzilla.util.system;
 
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.*;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -19,8 +20,8 @@ public class CommandShell {
     protected static final String EXPORT_PREFIX = "export ";
 
     public static final String CHMOD = "chmod";
-    public static final String P_600 = "600";
     public static final String CHGRP = "chgrp";
+    public static final String CHOWN = "chown";
 
     public static Map<String, String> loadShellExports (String userFile) throws IOException {
         File file = new File(System.getProperty("user.home") + File.separator + userFile);
@@ -188,6 +189,26 @@ public class CommandShell {
         return executor.execute(command);
     }
 
+    public static int chown(String group, File path) throws IOException {
+        return chown(group, path, false);
+    }
+
+    public static int chown(String group, File path, boolean recursive) throws IOException {
+        return chown(group, path.getAbsolutePath(), recursive);
+    }
+
+    public static int chown(String group, String path) throws IOException {
+        return chown(group, path, false);
+    }
+
+    public static int chown(String group, String path, boolean recursive) throws IOException {
+        final Executor executor = new DefaultExecutor();
+        final CommandLine command = new CommandLine(CHOWN);
+        if (recursive) command.addArgument("-R");
+        command.addArgument(group).addArgument(path);
+        return executor.execute(command);
+    }
+
     public static String toString(String command) {
         try {
             return exec(command).getStdout();
@@ -209,11 +230,20 @@ public class CommandShell {
         try {
             final File temp = File.createTempFile("tempScript", ".sh");
             FileUtil.toFile(temp, contents);
-            chmod(temp, "755");
+            chmod(temp, "700");
             return temp;
 
         } catch (Exception e) {
             throw new IllegalStateException("tempScript("+contents+") failed: "+e, e);
+        }
+    }
+
+    public static String execScript (String contents){
+        try {
+            @Cleanup("delete") final File script = tempScript(contents);
+            return exec(new CommandLine(script)).getStdout();
+        } catch (Exception e) {
+            throw new IllegalStateException("Error executing: "+e);
         }
     }
 }
