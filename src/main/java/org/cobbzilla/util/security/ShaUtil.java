@@ -4,6 +4,7 @@ import lombok.Cleanup;
 import org.cobbzilla.util.string.Base64;
 import org.cobbzilla.util.string.StringUtil;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +54,10 @@ public class ShaUtil {
     }
 
     public static String sha256_file (String file) throws Exception {
+        return sha256_file(new File(file));
+    }
+
+    public static String sha256_file (File file) throws Exception {
         @Cleanup final InputStream input = new FileInputStream(file);
         final MessageDigest md = getMessageDigest(input);
         return StringUtil.tohex(md.digest());
