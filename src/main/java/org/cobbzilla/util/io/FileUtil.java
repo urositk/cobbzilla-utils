@@ -194,6 +194,9 @@ public class FileUtil {
     }
 
     public static File toFile(File file, String data) throws IOException {
+        if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+            throw new IOException("Error creating directory: "+file.getParentFile());
+        }
         try (OutputStream out = new FileOutputStream(file)) {
             IOUtils.copy(new ByteArrayInputStream(data.getBytes()), out);
         }
