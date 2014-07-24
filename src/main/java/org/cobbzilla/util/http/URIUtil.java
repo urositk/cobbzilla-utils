@@ -5,13 +5,14 @@ import java.net.URISyntaxException;
 
 public class URIUtil {
 
-    public static String getHost(String uri) {
-        try {
-            return new URI(uri).getHost();
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException("Invalid host in URI: "+ uri);
+    public static URI toUri(String uri) {
+        try { return new URI(uri); } catch (URISyntaxException e) {
+            throw new IllegalStateException("Invalid URI: "+ uri);
         }
     }
+
+    public static String getHost(String uri) { return toUri(uri).getHost(); }
+    public static String getPath(String uri) { return toUri(uri).getPath(); }
 
     /**
      * getTLD("foo.bar.baz") == "baz"
