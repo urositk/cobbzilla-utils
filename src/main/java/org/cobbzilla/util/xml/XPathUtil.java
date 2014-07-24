@@ -36,6 +36,15 @@ public class XPathUtil {
         return applyXPaths(in).values().iterator().next();
     }
 
+    public Map<String, String> getFirstMatchMap(InputStream in) throws ParserConfigurationException, IOException, SAXException, TransformerException {
+        final Map<String, List<Node>> matchMap = applyXPaths(in);
+        final Map<String, String> firstMatches = new HashMap<>();
+        for (String key : matchMap.keySet()) {
+            firstMatches.put(key, matchMap.get(key).get(0).getTextContent());
+        }
+        return firstMatches;
+    }
+
     public Node getFirstMatch(InputStream in) throws ParserConfigurationException, IOException, SAXException, TransformerException {
         return getFirstMatchList(in).get(0);
     }
