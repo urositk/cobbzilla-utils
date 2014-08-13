@@ -71,7 +71,7 @@ public class StringUtil {
         final Locale locale = LocaleUtils.toLocale(localeString);
         final ImprovedTimezone tz = ImprovedTimezone.getTimeZoneById(timezone);
         return DateTimeFormat.forPattern(DateTimeFormat.patternForStyle(style, locale))
-                .withZone(DateTimeZone.forTimeZone(tz.getTimeZone())).print(time);
+                .withZone(DateTimeZone.forTimeZone(tz.getTimezone())).print(time);
     }
 
     public static String trimQuotes (String s) {

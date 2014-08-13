@@ -1,7 +1,8 @@
 package org.cobbzilla.util.time;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.io.BufferedReader;
@@ -13,11 +14,12 @@ import java.util.*;
 @Slf4j
 public class ImprovedTimezone {
 
-    private int id;
-    private String gmtOffset;
-    private String displayName;
-    private TimeZone timezone;
-    private String displayNameWithOffset;
+    @Getter private int id;
+    @Getter private String gmtOffset;
+    @Getter private String displayName;
+    @Getter private String linuxName;
+    @Getter private TimeZone timezone;
+    @Getter private String displayNameWithOffset;
 
     private static List<ImprovedTimezone> TIMEZONES = null;
     private static Map<Integer, ImprovedTimezone> TIMEZONES_BY_ID = new HashMap<>();
@@ -34,50 +36,46 @@ public class ImprovedTimezone {
             log.error(msg, e);
             throw new IllegalStateException(msg, e);
         }
-        TimeZone sysTimezone = TimeZone.getDefault();
+        final TimeZone sysTimezone = TimeZone.getDefault();
         ImprovedTimezone tz = TIMEZONES_BY_JNAME.get(sysTimezone.getDisplayName());
-        if(null == tz) {
-            for(String displayName: TIMEZONES_BY_JNAME.keySet()) {
+        if (tz == null) {
+            for (String displayName: TIMEZONES_BY_JNAME.keySet()) {
                 ImprovedTimezone tz1 = TIMEZONES_BY_JNAME.get(displayName);
                 String dn = displayName.replace("GMT-0","GMT-");
                 dn = dn.replace("GMT+0", "GMT+");
-                if(tz1.getGmtOffset().equals(dn)) {
+                if (tz1.getGmtOffset().equals(dn)) {
                     tz = tz1;
                     break;
                 }
             }
         }
-        if(null == tz) {
-            throw(new ExceptionInInitializerError("System Timezone could not be located in timezones.txt"));
+        if (tz == null) {
+            throw new ExceptionInInitializerError("System Timezone could not be located in timezones.txt");
         }
 
-        SYSTEM_TIMEZONE = tz.getTimeZone();
+        SYSTEM_TIMEZONE = tz.getTimezone();
         log.info("System Time Zone set to " + SYSTEM_TIMEZONE.getDisplayName());
     }
 
     private ImprovedTimezone (int id,
                               String gmtOffset,
                               TimeZone timezone,
-                              String displayName) {
+                              String displayName,
+                              String linuxName) {
         this.id = id;
         this.gmtOffset = gmtOffset;
         this.timezone = timezone;
         this.displayName = displayName;
+        this.linuxName = (linuxName == null) ? timezone.getDisplayName() : linuxName;
         this.displayNameWithOffset = "("+gmtOffset+") "+displayName;
     }
 
-    public int getId() { return id; }
-    public String getDisplayName() { return displayName; }
-    public String getGmtOffset() { return gmtOffset; }
-    @JsonIgnore public TimeZone getTimeZone() { return timezone; }
-    public String getDisplayNameWithOffset () { return displayNameWithOffset; }
     public long getLocalTime (long systemTime) {
         // convert time to GMT
-        long gmtTime = systemTime - SYSTEM_TIMEZONE.getRawOffset();
-        // now that we're in GMT, convert to local
-        long localTime = gmtTime + getTimeZone().getRawOffset();
+        final long gmtTime = systemTime - SYSTEM_TIMEZONE.getRawOffset();
 
-        return localTime;
+        // now that we're in GMT, convert to local
+        return gmtTime + getTimezone().getRawOffset();
     }
 
     public String toString () {
@@ -90,7 +88,7 @@ public class ImprovedTimezone {
     }
 
     public static ImprovedTimezone getTimeZoneById (int id) {
-        ImprovedTimezone tz = TIMEZONES_BY_ID.get(id);
+        final ImprovedTimezone tz = TIMEZONES_BY_ID.get(id);
         if (tz == null) {
             throw new IllegalArgumentException("Invalid timezone id: "+id);
         }
@@ -98,7 +96,7 @@ public class ImprovedTimezone {
     }
 
     public static ImprovedTimezone getTimeZoneByJavaDisplayName (String name) {
-        ImprovedTimezone tz = TIMEZONES_BY_JNAME.get(name);
+        final ImprovedTimezone tz = TIMEZONES_BY_JNAME.get(name);
         if (tz == null) {
             throw new IllegalArgumentException("Invalid timezone name: "+name);
         }
@@ -116,7 +114,7 @@ public class ImprovedTimezone {
     private static void init () throws IOException {
 
         TIMEZONES = new ArrayList<>();
-        try (InputStream in = ImprovedTimezone.class.getClassLoader().getResourceAsStream(TZ_FILE)) {
+        try (InputStream in = StreamUtil.loadResourceAsStream(TZ_FILE)) {
             if (in == null) {
                 throw new IOException("Error loading timezone file from classpath: "+TZ_FILE);
             }
@@ -125,31 +123,34 @@ public class ImprovedTimezone {
                 while (line != null) {
                     line = r.readLine();
                     if (line == null) break;
-                    ImprovedTimezone improvedTimezone = initZone(line);
+                    final ImprovedTimezone improvedTimezone = initZone(line);
                     TIMEZONES.add(improvedTimezone);
                     TIMEZONES_BY_ID.put(improvedTimezone.getId(), improvedTimezone);
-                    TIMEZONES_BY_JNAME.put(improvedTimezone.getTimeZone().getDisplayName(), improvedTimezone);
+                    TIMEZONES_BY_JNAME.put(improvedTimezone.getTimezone().getDisplayName(), improvedTimezone);
                     TIMEZONES_BY_GMT.put(improvedTimezone.getGmtOffset(), improvedTimezone);
                 }
             }
         }
     }
     private static ImprovedTimezone initZone (String line) {
-        StringTokenizer st = new StringTokenizer(line);
-        int id = Integer.parseInt(st.nextToken());
-        String gmtOffset = st.nextToken();
-        String timezoneName = st.nextToken();
-        TimeZone tz = TimeZone.getTimeZone(timezoneName);
-        if (!gmtOffset.equals("GMT") && isGMT(tz)) {
-            String msg = "Error looking up timezone: "+timezoneName+": got GMT, expected "+gmtOffset;
-            log.error(msg);
-            throw new IllegalStateException(msg);
+        try {
+            final StringTokenizer st = new StringTokenizer(line, "|");
+            int id = Integer.parseInt(st.nextToken());
+            final String gmtOffset = st.nextToken();
+            final String timezoneName = st.nextToken();
+            final String displayName = st.nextToken();
+            final String linuxName = st.hasMoreTokens() ? st.nextToken() : timezoneName;
+            final TimeZone tz = TimeZone.getTimeZone(timezoneName);
+            if (!gmtOffset.equals("GMT") && isGMT(tz)) {
+                String msg = "Error looking up timezone: " + timezoneName + ": got GMT, expected " + gmtOffset;
+                log.error(msg);
+                throw new IllegalStateException(msg);
+            }
+            return new ImprovedTimezone(id, gmtOffset, tz, displayName, linuxName);
+
+        } catch (Exception e) {
+            throw new IllegalStateException("Error processing line: "+line+": "+e, e);
         }
-        StringBuilder displayName = new StringBuilder();
-        while (st.hasMoreTokens()) {
-            displayName.append(st.nextToken()).append(' ');
-        }
-        return new ImprovedTimezone(id, gmtOffset, tz, displayName.toString().trim());
     }
 
     private static boolean isGMT(TimeZone tz) {
