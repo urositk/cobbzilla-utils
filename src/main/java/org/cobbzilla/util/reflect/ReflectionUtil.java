@@ -1,9 +1,9 @@
 package org.cobbzilla.util.reflect;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.MethodUtils;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -19,11 +19,32 @@ public class ReflectionUtil {
 
     public static <T> T copy (T dest, T src) {
         try {
-            BeanUtils.copyProperties(dest, src);
+            for (Method getter : src.getClass().getMethods()) {
+                final Class<?>[] types = getter.getParameterTypes();
+                if (types.length != 0) continue;
+
+                final String setterName = setterForGetter(getter.getName());
+                if (setterName != null) {
+                    final Method setter;
+                    try {
+                        setter = dest.getClass().getMethod(setterName, getter.getReturnType());
+                    } catch (Exception e) {
+                        log.debug("copy: setter not found: "+setterName);
+                        continue;
+                    }
+                    setter.invoke(dest, getter.invoke(src));
+                }
+            }
         } catch (Exception e) {
             throw new IllegalArgumentException("Error copying "+dest.getClass().getSimpleName()+" from src="+src+": "+e, e);
         }
         return dest;
+    }
+
+    public static String setterForGetter(String getter) {
+        if (getter.startsWith("get")) return "set"+getter.substring(3);
+        if (getter.startsWith("is")) return "set"+getter.substring(2);
+        return null;
     }
 
     public static <T> T copyFromMap (T dest, Map<String, Object> src) {
