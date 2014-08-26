@@ -32,7 +32,8 @@ public class ReflectionUtil {
                         log.debug("copy: setter not found: "+setterName);
                         continue;
                     }
-                    setter.invoke(dest, getter.invoke(src));
+                    final Object srcValue = getter.invoke(src);
+                    if (srcValue != null) setter.invoke(dest, srcValue);
                 }
             }
         } catch (Exception e) {
