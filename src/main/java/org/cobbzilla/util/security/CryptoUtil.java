@@ -71,4 +71,9 @@ public class CryptoUtil {
         return cipher.doFinal(data);
     }
 
+    public static byte[] encryptOrDie(byte[] data, String passphrase) {
+        try { return encrypt(data, passphrase); } catch (Exception e) {
+            throw new IllegalStateException("Error encrypting: "+e, e);
+        }
+    }
 }
