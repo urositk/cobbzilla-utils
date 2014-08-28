@@ -21,6 +21,7 @@ public class StringUtil {
     public static final String EMPTY = "";
     public static final String[] EMPTY_ARRAY = {};
     public static final String DEFAULT_LOCALE = "en_US";
+    public static final String BYTES_PATTERN = "(\\d+)(\\s+)?([MgGgTtPpEe][Bb])";
 
     public static String prefix(String s, int count) {
         return s == null ? null : s.length() > count ? s.substring(0, count) : s;
