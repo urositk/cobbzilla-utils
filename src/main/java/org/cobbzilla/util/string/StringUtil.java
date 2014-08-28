@@ -19,6 +19,7 @@ public class StringUtil {
     public static final Charset UTF8cs = Charset.forName(UTF8);
 
     public static final String EMPTY = "";
+    public static final String[] EMPTY_ARRAY = {};
     public static final String DEFAULT_LOCALE = "en_US";
 
     public static String prefix(String s, int count) {
