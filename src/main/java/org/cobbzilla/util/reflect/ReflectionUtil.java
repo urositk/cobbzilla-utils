@@ -139,7 +139,12 @@ public class ReflectionUtil {
         try {
             target = MethodUtils.invokeMethod(target, methodName, null);
         } catch (Exception e) {
-            throw new IllegalStateException("Error calling "+methodName+": "+e);
+            final String isMethod = methodName.replaceFirst("get", "is");
+            try {
+                target = MethodUtils.invokeMethod(target, isMethod, null);
+            } catch (Exception e2) {
+                throw new IllegalStateException("Error calling "+methodName+" and "+isMethod+": "+e+", "+e2);
+            }
         }
         return target;
     }
