@@ -4,6 +4,7 @@ import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.*;
 import org.apache.commons.io.output.TeeOutputStream;
+import org.cobbzilla.util.collection.MapBuilder;
 import org.cobbzilla.util.io.FileUtil;
 
 import java.io.*;
@@ -45,12 +46,68 @@ public class CommandShell {
                     if (eqPos != -1) {
                         key = line.substring(0, eqPos).trim();
                         value = line.substring(eqPos+1).trim();
+                        if (value.startsWith("\"") && value.endsWith("\"")) {
+                            // strip quotes if found
+                            value = value.substring(1, value.length()-1);
+                        }
                         map.put(key, value);
                     }
                 }
             }
         }
         return map;
+    }
+
+    public static Map<String, String> loadShellExportsOrDie (String f) {
+        return loadShellExportsOrDie(new File(f));
+    }
+
+    public static Map<String, String> loadShellExportsOrDie (File f) {
+        try { return loadShellExports(f); } catch (Exception e) {
+            throw new IllegalStateException("loadShellExportsOrDie: "+e, e);
+        }
+    }
+
+    public static void replaceShellExport (String f, String name, String value) throws IOException {
+        replaceShellExports(new File(f), MapBuilder.build(name, value));
+    }
+
+    public static void replaceShellExport (File f, String name, String value) throws IOException {
+        replaceShellExports(f, MapBuilder.build(name, value));
+    }
+
+    public static void replaceShellExports (String f, Map<String, String> exports) throws IOException {
+        replaceShellExports(new File(f), exports);
+    }
+
+    public static void replaceShellExports (File f, Map<String, String> exports) throws IOException {
+
+        // validate -- no quote chars allowed for security reasons
+        for (String key : exports.keySet()) {
+            if (key.contains("\"") || key.contains("\'")) throw new IllegalArgumentException("replaceShellExports: name cannot contain a quote character: "+key);
+            String value = exports.get(key);
+            if (value.contains("\"") || value.contains("\'")) throw new IllegalArgumentException("replaceShellExports: value for "+key+" cannot contain a quote character: "+value);
+        }
+
+        // read entire file as a string
+        final String contents = FileUtil.toString(f);
+
+        // walk file line by line and look for replacements to make, overwrite file.
+        try (Writer w = new FileWriter(f)) {
+            for (String line : contents.split("\n")) {
+                line = line.trim();
+                boolean found = false;
+                for (String key : exports.keySet()) {
+                    if (!line.startsWith("#") && line.matches("^\\s*export\\s+" + key + "\\s*=.*")) {
+                        w.write("export " + key + "=\"" + exports.get(key) + "\"");
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) w.write(line);
+                w.write("\n");
+            }
+        }
     }
 
     public static MultiCommandResult exec (Collection<String> commands) throws IOException {
@@ -246,4 +303,5 @@ public class CommandShell {
             throw new IllegalStateException("Error executing: "+e);
         }
     }
+
 }
