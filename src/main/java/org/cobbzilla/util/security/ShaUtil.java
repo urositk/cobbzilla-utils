@@ -41,6 +41,10 @@ public class ShaUtil {
         return Base64.encodeBytes(sha256(data));
     }
 
+    public static String sha256_string (String data) throws Exception {
+        return StringUtil.tohex(sha256(data.getBytes(StringUtil.UTF8cs)));
+    }
+
     public static String sha256_filename (String data) throws Exception {
         return sha256_filename(data.getBytes(StringUtil.UTF8cs));
     }
