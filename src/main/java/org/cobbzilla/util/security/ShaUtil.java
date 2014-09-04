@@ -4,10 +4,7 @@ import lombok.Cleanup;
 import org.cobbzilla.util.string.Base64;
 import org.cobbzilla.util.string.StringUtil;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -17,33 +14,28 @@ import java.security.NoSuchAlgorithmException;
 
 public class ShaUtil {
 
+    private static MessageDigest md() throws NoSuchAlgorithmException { return MessageDigest.getInstance("SHA-256"); }
+
     public static byte[] sha256 (String data) {
         try {
             return sha256(data.getBytes(StringUtil.UTF8));
         } catch (Exception e) {
-            throw new IllegalArgumentException("sha256: bad data: "+data);
+            throw new IllegalArgumentException("sha256: bad data: "+e, e);
         }
     }
 
-    public static String sha256_hex (String data) {
-        return StringUtil.tohex(sha256(data));
+    public static byte[] sha256 (byte[] data) {
+        if (data == null) throw new NullPointerException("sha256: null argument");
+        try {
+            return md().digest(data);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("sha256: bad data: "+e, e);
+        }
     }
 
-    public static byte[] sha256 (byte[] data) throws Exception {
-        return md().digest(data);
-    }
+    public static String sha256_hex (String data) { return StringUtil.tohex(sha256(data)); }
 
-    private static MessageDigest md() throws NoSuchAlgorithmException {
-        return MessageDigest.getInstance("SHA-256");
-    }
-
-    public static String sha256_base64 (byte[] data) throws Exception {
-        return Base64.encodeBytes(sha256(data));
-    }
-
-    public static String sha256_string (String data) throws Exception {
-        return StringUtil.tohex(sha256(data.getBytes(StringUtil.UTF8cs)));
-    }
+    public static String sha256_base64 (byte[] data) throws Exception { return Base64.encodeBytes(sha256(data)); }
 
     public static String sha256_filename (String data) throws Exception {
         return sha256_filename(data.getBytes(StringUtil.UTF8cs));
@@ -57,9 +49,7 @@ public class ShaUtil {
         }
     }
 
-    public static String sha256_file (String file) throws Exception {
-        return sha256_file(new File(file));
-    }
+    public static String sha256_file (String file) throws Exception { return sha256_file(new File(file)); }
 
     public static String sha256_file (File file) throws Exception {
         @Cleanup final InputStream input = new FileInputStream(file);
