@@ -8,9 +8,7 @@ import org.cobbzilla.util.collection.MapBuilder;
 import org.cobbzilla.util.io.FileUtil;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.cobbzilla.util.string.StringUtil.UTF8;
 import static org.cobbzilla.util.string.StringUtil.UTF8cs;
@@ -93,6 +91,7 @@ public class CommandShell {
         final String contents = FileUtil.toString(f);
 
         // walk file line by line and look for replacements to make, overwrite file.
+        final Set<String> replaced = new HashSet<>(exports.size());
         try (Writer w = new FileWriter(f)) {
             for (String line : contents.split("\n")) {
                 line = line.trim();
@@ -100,12 +99,19 @@ public class CommandShell {
                 for (String key : exports.keySet()) {
                     if (!line.startsWith("#") && line.matches("^\\s*export\\s+" + key + "\\s*=.*")) {
                         w.write("export " + key + "=\"" + exports.get(key) + "\"");
+                        replaced.add(key);
                         found = true;
                         break;
                     }
                 }
                 if (!found) w.write(line);
                 w.write("\n");
+            }
+
+            for (String key : exports.keySet()) {
+                if (!replaced.contains(key)) {
+                    w.write("export "+key+"=\""+exports.get(key)+"\"\n");
+                }
             }
         }
     }
