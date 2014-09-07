@@ -25,4 +25,17 @@ public class BCryptUtil {
     public static String hash(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt(getBcryptRounds(), random));
     }
+
+    public static void main (String[] args) {
+        int input = 0;
+        int rounds = 16;
+        try {
+            rounds = Integer.valueOf(args[0]);
+            input = 1;
+        } catch (Exception ignored) {
+            // whatever
+        }
+        setBcryptRounds(rounds);
+        System.out.println(hash(args[input]));
+    }
 }
