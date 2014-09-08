@@ -1,14 +1,16 @@
 package org.cobbzilla.util.dns;
 
+import java.util.List;
+
 public interface DnsManager {
 
-    public void writeA(String fqdn, String ip, int ttl) throws Exception;
+    public List<DnsRecord> list(DnsRecordMatch match) throws Exception;
 
-    public void writeCNAME(String fqdn, String name, int ttl) throws Exception;
-
-    public void writeMX(String fqdn, String mxHostname, int rank, int ttl) throws Exception;
+    public void write(DnsRecord record) throws Exception;
 
     public void publish() throws Exception;
+
+    public int remove(DnsRecordMatch match) throws Exception;
 
     public void removeAll(String domain);
 
