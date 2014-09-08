@@ -8,6 +8,8 @@ public interface DnsManager {
 
     public void writeMX(String fqdn, String mxHostname, int rank, int ttl) throws Exception;
 
+    public void publish() throws Exception;
+
     public void removeAll(String domain);
 
 }
