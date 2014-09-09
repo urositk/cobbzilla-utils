@@ -1,21 +1,20 @@
 package org.cobbzilla.util.dns;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.Accessors;
-import org.cobbzilla.util.string.StringUtil;
 
-@Accessors(chain=true) @ToString
+import static org.cobbzilla.util.string.StringUtil.empty;
+
+@Accessors(chain=true) @ToString @NoArgsConstructor @AllArgsConstructor
 public class DnsRecordBase {
 
     @Getter @Setter private String fqdn;
-    public boolean hasFqdn() { return !StringUtil.empty(fqdn); }
+    public boolean hasFqdn() { return !empty(fqdn); }
 
     @Getter @Setter private DnsType type;
     public boolean hasType () { return type != null; }
 
     @Getter @Setter private String value;
-    public boolean hasValue () { return !StringUtil.empty(value); }
+    public boolean hasValue () { return !empty(value); }
 
 }

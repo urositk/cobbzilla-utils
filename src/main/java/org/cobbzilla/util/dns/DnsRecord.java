@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -18,11 +19,12 @@ public class DnsRecord extends DnsRecordBase {
     @Getter @Setter private Map<String, String> options;
 
     public DnsRecord setOption(String optName, String value) {
+        if (options == null) options = new HashMap<>();
         options.put(optName, value);
         return this;
     }
 
-    public String getOption(String optName) { return options.get(optName); }
+    public String getOption(String optName) { return options == null ? null : options.get(optName); }
 
     public int getIntOption(String optName, int defaultValue) {
         try {
