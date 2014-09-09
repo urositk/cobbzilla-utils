@@ -5,7 +5,7 @@ import lombok.experimental.Accessors;
 
 import static org.cobbzilla.util.string.StringUtil.empty;
 
-@Accessors(chain=true) @ToString @NoArgsConstructor @AllArgsConstructor
+@Accessors(chain=true) @ToString @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode
 public class DnsRecordBase {
 
     @Getter @Setter private String fqdn;
@@ -16,5 +16,4 @@ public class DnsRecordBase {
 
     @Getter @Setter private String value;
     public boolean hasValue () { return !empty(value); }
-
 }

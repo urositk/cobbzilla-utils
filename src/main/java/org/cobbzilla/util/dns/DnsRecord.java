@@ -1,16 +1,13 @@
 package org.cobbzilla.util.dns;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@Accessors(chain=true) @NoArgsConstructor @ToString(callSuper=true)
+@Accessors(chain=true) @ToString(callSuper=true)
 public class DnsRecord extends DnsRecordBase {
 
     public static final int DEFAULT_TTL = (int) TimeUnit.HOURS.toMillis(1);
