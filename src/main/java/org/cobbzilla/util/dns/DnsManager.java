@@ -6,7 +6,7 @@ public interface DnsManager {
 
     public List<DnsRecord> list(DnsRecordMatch match) throws Exception;
 
-    public void write(DnsRecord record) throws Exception;
+    public boolean write(DnsRecord record) throws Exception;
 
     public void publish() throws Exception;
 
