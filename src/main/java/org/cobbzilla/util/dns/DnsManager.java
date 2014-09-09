@@ -12,6 +12,4 @@ public interface DnsManager {
 
     public int remove(DnsRecordMatch match) throws Exception;
 
-    public void removeAll(String domain);
-
 }
