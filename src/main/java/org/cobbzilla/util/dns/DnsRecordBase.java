@@ -16,4 +16,8 @@ public class DnsRecordBase {
 
     @Getter @Setter private String value;
     public boolean hasValue () { return !empty(value); }
+
+    public DnsRecordMatch getMatcher() {
+        return (DnsRecordMatch) new DnsRecordMatch().setFqdn(fqdn).setType(type).setValue(value);
+    }
 }
