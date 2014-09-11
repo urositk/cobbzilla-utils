@@ -274,7 +274,7 @@ public class CommandShell {
 
     public static String toString(String command) {
         try {
-            return exec(command).getStdout();
+            return exec(command).getStdout().trim();
         } catch (IOException e) {
             throw new IllegalStateException("Error executing: "+command+": "+e, e);
         }
