@@ -12,8 +12,7 @@ public class FilenameSuffixFilter implements FilenameFilter {
 
     @Getter @Setter private String suffix;
 
-    @Override
-    public boolean accept(File dir, String name) {
+    @Override public boolean accept(File dir, String name) {
         return name.endsWith(suffix);
     }
 
