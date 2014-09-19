@@ -22,4 +22,12 @@ public class DnsRecordBase {
     public DnsRecordMatch getMatcher() {
         return (DnsRecordMatch) new DnsRecordMatch().setFqdn(fqdn).setType(type).setValue(value);
     }
+
+    public boolean match(DnsRecordMatch match) {
+        if (match.hasSubdomain() && !getFqdn().endsWith(match.getSubdomain())) return false;
+        if (match.hasType() && getType() != match.getType()) return false;
+        if (match.hasFqdn() && !getFqdn().equalsIgnoreCase(match.getFqdn())) return false;
+        if (match.hasValue() && !getValue().equalsIgnoreCase(match.getValue())) return false;
+        return true;
+    }
 }
