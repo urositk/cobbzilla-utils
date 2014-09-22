@@ -90,6 +90,7 @@ public class JsonUtil {
                 pathPart = pathPart.substring(0, bracketPos);
             }
             node = node.get(pathPart);
+            if (node == null) throw new IllegalArgumentException("JSON path '"+path+"' not found");
             nodePath.add(node);
             if (index != -1) {
                 node = node.get(index);
