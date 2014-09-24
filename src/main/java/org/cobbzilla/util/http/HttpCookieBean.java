@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.util.string.StringUtil;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -26,6 +27,10 @@ public class HttpCookieBean {
         this.name = name;
         this.value = value;
         this.domain = domain;
+    }
+
+    public HttpCookieBean (HttpCookieBean other) {
+        ReflectionUtil.copy(this, other);
     }
 
     public boolean hasDomain () { return !StringUtil.empty(domain); }

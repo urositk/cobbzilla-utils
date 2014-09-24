@@ -3,6 +3,9 @@ package org.cobbzilla.util.http;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.cobbzilla.util.collection.CaseInsensitiveStringKeyMap;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CookieJar extends CaseInsensitiveStringKeyMap<HttpCookieBean> {
 
     public void add (HttpCookieBean cookie) {
@@ -22,5 +25,8 @@ public class CookieJar extends CaseInsensitiveStringKeyMap<HttpCookieBean> {
         }
         return sb.toString();
     }
+
+    public List<HttpCookieBean> getCookiesList () { return new ArrayList<>(values()); }
+
 
 }
