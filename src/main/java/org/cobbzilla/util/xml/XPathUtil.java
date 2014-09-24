@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.xpath.XPathAPI;
+import org.apache.xpath.objects.XObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
@@ -40,7 +41,8 @@ public class XPathUtil {
         final Map<String, List<Node>> matchMap = applyXPaths(in);
         final Map<String, String> firstMatches = new HashMap<>();
         for (String key : matchMap.keySet()) {
-            firstMatches.put(key, matchMap.get(key).get(0).getTextContent());
+            final List<Node> found = matchMap.get(key);
+            if (!found.isEmpty()) firstMatches.put(key, found.get(0).getTextContent());
         }
         return firstMatches;
     }
@@ -53,24 +55,20 @@ public class XPathUtil {
         return getFirstMatch(in).getTextContent();
     }
 
+    public List<String> getStrings (InputStream in) throws IOException, SAXException, ParserConfigurationException, TransformerException {
+        final List<String> results = new ArrayList<>();
+        final Document doc = getDocument(in);
+        for (String xpath : this.pathExpressions) {
+            final XObject found = XPathAPI.eval(doc, xpath);
+            if (found != null) results.add(found.toString());
+        }
+        return results;
+    }
+
     public Map<String, List<Node>> applyXPaths(InputStream in) throws ParserConfigurationException, IOException, SAXException, TransformerException {
 
         final Map<String, List<Node>> allFound = new HashMap<>();
-        InputStream inStream = in;
-        if (useTidy) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            TidyUtil.parse(in, out, true);
-            inStream = new ByteArrayInputStream(out.toByteArray());
-        }
-
-        final InputSource inputSource = new InputSource(inStream);
-        final DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
-        dfactory.setNamespaceAware(false);
-        dfactory.setValidating(false);
-        // dfactory.setExpandEntityReferences(true);
-        final DocumentBuilder documentBuilder = dfactory.newDocumentBuilder();
-        documentBuilder.setEntityResolver(new CommonEntityResolver());
-        final Document doc = documentBuilder.parse(inputSource);
+        final Document doc = getDocument(in);
 
         // Use the simple XPath API to select a nodeIterator.
         // System.out.println("Querying DOM using "+pathExpression);
@@ -107,6 +105,24 @@ public class XPathUtil {
             allFound.put(xpath, found);
         }
         return allFound;
+    }
+
+    protected Document getDocument(InputStream in) throws ParserConfigurationException, SAXException, IOException {
+        InputStream inStream = in;
+        if (useTidy) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            TidyUtil.parse(in, out, true);
+            inStream = new ByteArrayInputStream(out.toByteArray());
+        }
+
+        final InputSource inputSource = new InputSource(inStream);
+        final DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+        dfactory.setNamespaceAware(false);
+        dfactory.setValidating(false);
+        // dfactory.setExpandEntityReferences(true);
+        final DocumentBuilder documentBuilder = dfactory.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new CommonEntityResolver());
+        return documentBuilder.parse(inputSource);
     }
 
     /** Decide if the node is text, and so must be handled specially */
