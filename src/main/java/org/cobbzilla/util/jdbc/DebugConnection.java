@@ -1,12 +1,10 @@
 package org.cobbzilla.util.jdbc;
+
 import lombok.Delegate;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.sql.*;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Executor;
+import java.sql.Connection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j

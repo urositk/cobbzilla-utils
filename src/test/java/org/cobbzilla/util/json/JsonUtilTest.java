@@ -2,7 +2,7 @@ package org.cobbzilla.util.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.string.StringUtil;

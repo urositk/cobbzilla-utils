@@ -1,6 +1,6 @@
 package org.cobbzilla.util.string;
 
-import org.apache.commons.lang.LocaleUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.cobbzilla.util.security.MD5Util;
 import org.cobbzilla.util.time.ImprovedTimezone;
 import org.joda.time.DateTimeZone;
