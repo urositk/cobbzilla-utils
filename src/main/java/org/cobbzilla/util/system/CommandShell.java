@@ -57,7 +57,9 @@ public class CommandShell {
     }
 
     public static Map<String, String> loadShellExportsOrDie (String f) {
-        return loadShellExportsOrDie(new File(f));
+        try { return loadShellExports(f); } catch (Exception e) {
+            throw new IllegalStateException("loadShellExportsOrDie: "+e, e);
+        }
     }
 
     public static Map<String, String> loadShellExportsOrDie (File f) {
