@@ -55,8 +55,20 @@ public class JsonUtil {
         return JsonUtil.NOTNULL_MAPPER.writeValueAsString(o);
     }
 
+    public static String toJsonOrDie (Object o) {
+        try {
+            return toJson(o);
+        } catch (Exception e) {
+            throw new IllegalStateException("toJson: exception writing object ("+o+"): "+e, e);
+        }
+    }
+
     public static <T> T fromJson(String json, Class<T> clazz) throws Exception {
         return JsonUtil.FULL_MAPPER.readValue(json, clazz);
+    }
+
+    public static <T> T fromJson(String json, JavaType type) throws Exception {
+        return JsonUtil.FULL_MAPPER.readValue(json, type);
     }
 
     public static <T> T fromJsonOrDie(String json, Class<T> clazz) {
