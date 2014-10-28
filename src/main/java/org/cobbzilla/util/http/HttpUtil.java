@@ -89,7 +89,8 @@ public class HttpUtil {
         if (contentType != null) {
             bean.setContentType(contentType.getValue());
         }
-        bean.setEntity(response.getEntity().getContent());
+        @Cleanup final InputStream content = response.getEntity().getContent();
+        bean.setEntity(content);
 
         return bean;
     }
