@@ -22,6 +22,9 @@ public class HttpCookieBean {
     @Getter @Setter private String name;
     @Getter @Setter private String value;
     @Getter @Setter private String domain;
+    public boolean hasDomain () { return !StringUtil.empty(domain); }
+
+    public HttpCookieBean(String name, String value) { this(name, value, null); }
 
     public HttpCookieBean(String name, String value, String domain) {
         this.name = name;
@@ -32,8 +35,6 @@ public class HttpCookieBean {
     public HttpCookieBean (HttpCookieBean other) {
         ReflectionUtil.copy(this, other);
     }
-
-    public boolean hasDomain () { return !StringUtil.empty(domain); }
 
     @Getter @Setter private String path;
     @Getter @Setter private String expires;

@@ -50,8 +50,26 @@ public class ReflectionUtil {
 
     public static <T> T copyFromMap (T dest, Map<String, Object> src) {
         for (Map.Entry<String, Object> entry : src.entrySet()) {
-            if (hasSetter(dest, entry.getKey(), entry.getValue().getClass())) {
-                set(dest, entry.getKey(), entry.getValue());
+            final String key = entry.getKey();
+            final Object value = entry.getValue();
+            if (value != null && Map.class.isAssignableFrom(value.getClass())) {
+                if (hasGetter(dest, key)) {
+                    Map m = (Map) value;
+                    if (m.isEmpty()) continue;
+                    if (m.keySet().iterator().next().getClass().equals(String.class)) {
+                        copyFromMap(get(dest, key), (Map<String, Object>) m);
+                    } else {
+                        log.info("copyFromMap: not recursively copying Map (has non-String keys): " + key);
+                    }
+                }
+            } else {
+                if (Map.class.isAssignableFrom(dest.getClass())) {// || dest.getClass().getName().equals(HashMap.class.getName())) {
+                    ((Map) dest).put(key, value);
+                } else {
+                    if (hasSetter(dest, key, value.getClass())) {
+                        set(dest, key, value);
+                    }
+                }
             }
         }
         return dest;

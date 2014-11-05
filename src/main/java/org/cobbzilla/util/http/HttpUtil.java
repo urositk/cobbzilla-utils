@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.*;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -113,7 +114,7 @@ public class HttpUtil {
         return bean;
     }
 
-    public static HttpUriRequest initHttpRequest(HttpRequestBean<String> requestBean) {
+    public static HttpUriRequest initHttpRequest(HttpRequestBean requestBean) {
         try {
             final HttpUriRequest request;
             switch (requestBean.getMethod()) {
@@ -123,12 +124,10 @@ public class HttpUtil {
 
                 case HttpMethods.POST:
                     request = new HttpPost(requestBean.getUri());
-                    if (requestBean.hasData()) ((HttpPost) request).setEntity(new StringEntity(requestBean.getData()));
                     break;
 
                 case HttpMethods.PUT:
                     request = new HttpPut(requestBean.getUri());
-                    if (requestBean.hasData()) ((HttpPut) request).setEntity(new StringEntity(requestBean.getData()));
                     break;
 
                 case HttpMethods.DELETE:
@@ -138,10 +137,26 @@ public class HttpUtil {
                 default:
                     throw new IllegalStateException("Invalid request method: "+requestBean.getMethod());
             }
+
+            if (requestBean.hasData() && request instanceof HttpEntityEnclosingRequestBase) {
+                setData(requestBean.getData(), (HttpEntityEnclosingRequestBase) request);
+            }
+
             return request;
 
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("initHttpRequest: " + e, e);
+        }
+    }
+
+    private static void setData(Object data, HttpEntityEnclosingRequestBase request) throws UnsupportedEncodingException {
+        if (data == null) return;
+        if (data instanceof String) {
+            request.setEntity(new StringEntity((String) data));
+        } else if (data instanceof InputStream) {
+            request.setEntity(new InputStreamEntity((InputStream) data));
+        } else {
+            throw new IllegalArgumentException("Unsupported request entity type: "+data.getClass().getName());
         }
     }
 }

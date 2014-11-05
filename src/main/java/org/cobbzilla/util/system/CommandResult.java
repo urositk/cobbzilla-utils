@@ -1,21 +1,29 @@
 package org.cobbzilla.util.system;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.Setter;
+
+import static org.cobbzilla.util.string.StringUtil.empty;
 
 public class CommandResult {
 
-    @Getter private Integer exitStatus;
-    @Getter private String stdout;
-    @Getter private String stderr;
-    @Getter private Exception exception;
+    @Getter @Setter private String stdout;
+    @Getter @Setter private String stderr;
 
+    @Getter @Setter private Integer exitStatus;
+
+    @JsonIgnore public boolean isZeroExitStatus () { return exitStatus != null && exitStatus == 0; }
+
+    @JsonIgnore @Getter private Exception exception;
     public boolean hasException () { return exception != null; }
-    public boolean isZeroExitStatus () { return exitStatus != null && exitStatus == 0; }
-
-    public String getExitStatusString () { return exitStatus == null ? "null" : exitStatus.toString(); }
+    public String getExceptionString () { return hasException() ? exception.toString() : null; }
+    public void setExceptionString (String ex) { exception = new Exception(ex); }
 
     public CommandResult (Integer exitStatus, String stdout, String stderr) {
-        this.exitStatus = exitStatus; this.stdout = stdout; this.stderr = stderr;
+        this.exitStatus = (exitStatus == null) ? -1 : exitStatus;
+        this.stdout = stdout;
+        this.stderr = stderr;
     }
 
     public CommandResult (Exception e) { this.exception = e; }
@@ -26,7 +34,7 @@ public class CommandResult {
                 "exitStatus=" + exitStatus +
                 ", stdout='" + stdout + '\'' +
                 ", stderr='" + stderr + '\'' +
-                ", exception=" + exception +
+                ", exception=" + getExceptionString() +
                 '}';
     }
 }

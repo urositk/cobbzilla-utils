@@ -10,9 +10,9 @@ import java.util.List;
 @NoArgsConstructor
 public class CookieJar extends CaseInsensitiveStringKeyMap<HttpCookieBean> {
 
-    public CookieJar(List<HttpCookieBean> cookies) {
-        for (HttpCookieBean cookie : cookies) add(cookie);
-    }
+    public CookieJar(List<HttpCookieBean> cookies) { for (HttpCookieBean cookie : cookies) add(cookie); }
+
+    public CookieJar(HttpCookieBean cookie) { add(cookie); }
 
     public void add (HttpCookieBean cookie) {
         if (cookie.expired()) {
@@ -33,6 +33,5 @@ public class CookieJar extends CaseInsensitiveStringKeyMap<HttpCookieBean> {
     }
 
     public List<HttpCookieBean> getCookiesList () { return new ArrayList<>(values()); }
-
 
 }
