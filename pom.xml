@@ -139,6 +139,12 @@ cobbzilla-utils is available under the Apache License, version 2: http://www.apa
             <version>${xalan.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>${args4j.version}</version>
+        </dependency>
+
     </dependencies>
 
 

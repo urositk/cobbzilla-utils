@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
 import org.cobbzilla.util.io.FileSuffixFilter;
 import org.cobbzilla.util.io.FilenameSuffixFilter;
-import org.cobbzilla.util.string.StringUtil;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -16,7 +15,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.cobbzilla.util.string.StringUtil.empty;
+
 public class JsonUtil {
+
+    public static final JsonNode MISSING = MissingNode.getInstance();
 
     public static final FileFilter JSON_FILES = new FileSuffixFilter(".json");
     public static final FilenameFilter JSON_FILENAMES = new FilenameSuffixFilter(".json");
@@ -72,7 +75,7 @@ public class JsonUtil {
     }
 
     public static <T> T fromJsonOrDie(String json, Class<T> clazz) {
-        if (StringUtil.empty(json)) return null;
+        if (empty(json)) return null;
         try {
             return JsonUtil.FULL_MAPPER.readValue(json, clazz);
         } catch (IOException e) {
@@ -87,11 +90,17 @@ public class JsonUtil {
 
     public static JsonNode findNode(JsonNode node, String path) throws IOException {
         final List<JsonNode> nodePath = findNodePath(node, path);
-        return nodePath == null || nodePath.isEmpty() ? null : nodePath.get(nodePath.size()-1);
+        if (nodePath == null || nodePath.isEmpty()) return null;
+        final JsonNode lastNode = nodePath.get(nodePath.size()-1);
+        return lastNode == MISSING ? null : lastNode;
     }
 
     public static List<JsonNode> findNodePath(JsonNode node, String path) throws IOException {
+
         final List<JsonNode> nodePath = new ArrayList<>();
+        nodePath.add(node);
+        if (empty(path)) return nodePath;
+
         final String[] pathParts = path.split("\\.");
         for (String pathPart : pathParts) {
             int index = -1;
@@ -102,7 +111,10 @@ public class JsonUtil {
                 pathPart = pathPart.substring(0, bracketPos);
             }
             node = node.get(pathPart);
-            if (node == null) throw new IllegalArgumentException("JSON path '"+path+"' not found");
+            if (node == null) {
+                nodePath.add(MISSING);
+                return nodePath;
+            }
             nodePath.add(node);
             if (index != -1) {
                 node = node.get(index);
@@ -128,7 +140,9 @@ public class JsonUtil {
             index = Integer.parseInt(simplePath.substring(simplePath.indexOf("[")+1, simplePath.indexOf("]")));
         }
         final List<JsonNode> found = findNodePath(document, path);
-        if (found == null || found.isEmpty()) throw new IllegalArgumentException("path not found: "+path);
+        if (found == null || found.isEmpty() || found.get(found.size()-1).equals(MISSING)) {
+            throw new IllegalArgumentException("path not found: "+path);
+        }
 
         final JsonNode parent = found.size() > 1 ? found.get(found.size()-2) : document;
         if (index != null) {
