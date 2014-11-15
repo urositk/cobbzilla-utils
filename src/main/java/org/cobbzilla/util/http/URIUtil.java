@@ -14,6 +14,11 @@ public class URIUtil {
     public static String getHost(String uri) { return toUri(uri).getHost(); }
     public static String getPath(String uri) { return toUri(uri).getPath(); }
 
+    public static String getHostUri(String uri) {
+        final URI u = toUri(uri);
+        return u.getScheme() + "://" + u.getHost();
+    }
+
     /**
      * getTLD("foo.bar.baz") == "baz"
      * @param uri A URI that includes a host part
