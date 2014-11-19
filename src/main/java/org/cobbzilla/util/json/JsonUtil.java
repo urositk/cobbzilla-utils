@@ -1,6 +1,7 @@
 package org.cobbzilla.util.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
 import org.cobbzilla.util.io.FileSuffixFilter;
@@ -93,6 +94,14 @@ public class JsonUtil {
         if (nodePath == null || nodePath.isEmpty()) return null;
         final JsonNode lastNode = nodePath.get(nodePath.size()-1);
         return lastNode == MISSING ? null : lastNode;
+    }
+
+    public static String toString(Object node) throws JsonProcessingException {
+        return node == null ? null : FULL_MAPPER.writeValueAsString(node);
+    }
+
+    public static String nodeValue (JsonNode node, String path) throws IOException {
+        return fromJsonOrDie(toString(findNode(node, path)), String.class);
     }
 
     public static List<JsonNode> findNodePath(JsonNode node, String path) throws IOException {

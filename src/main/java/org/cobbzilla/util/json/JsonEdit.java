@@ -1,7 +1,6 @@
 package org.cobbzilla.util.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,14 +39,10 @@ public class JsonEdit {
 
         JsonNode root = FULL_MAPPER.readTree(jsonStream);
         for (JsonEditOperation operation : operations) {
-            if (operation.isRead()) return toString(JsonUtil.findNode(root, operation.getPath()));
+            if (operation.isRead()) return JsonUtil.nodeValue(root, operation.getPath());
             root = apply(root, operation);
         }
-        return toString(FULL_MAPPER.treeToValue(root, Object.class));
-    }
-
-    private String toString(Object node) throws JsonProcessingException {
-        return node == null ? null : FULL_MAPPER.writeValueAsString(node);
+        return JsonUtil.toString(FULL_MAPPER.treeToValue(root, Object.class));
     }
 
     private JsonNode apply(JsonNode root, JsonEditOperation operation) throws IOException {
