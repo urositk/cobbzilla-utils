@@ -39,7 +39,7 @@ public class JsonEdit {
 
         JsonNode root = FULL_MAPPER.readTree(jsonStream);
         for (JsonEditOperation operation : operations) {
-            if (operation.isRead()) return JsonUtil.nodeValue(root, operation.getPath());
+            if (operation.isRead()) return JsonUtil.toString(findNode(root, operation.getPath()));
             root = apply(root, operation);
         }
         return JsonUtil.toString(FULL_MAPPER.treeToValue(root, Object.class));
