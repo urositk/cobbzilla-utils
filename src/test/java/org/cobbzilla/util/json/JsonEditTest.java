@@ -1,13 +1,15 @@
 package org.cobbzilla.util.json;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.json.data.TestData;
 import org.cobbzilla.util.string.StringUtil;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Random;
 
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -25,7 +27,7 @@ public class JsonEditTest {
         // replace a node (overwrite an object with an integer)
         final Integer toReplace = random.nextInt();
         jsonEdit = new JsonEdit()
-                .setJsonStream(StreamUtil.loadResourceAsStream(TEST_JSON))
+                .setJsonStream(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field2")
@@ -36,7 +38,7 @@ public class JsonEditTest {
         // replace a node within an array
         final Integer toReplace2 = random.nextInt();
         jsonEdit = new JsonEdit()
-                .setJsonStream(StreamUtil.loadResourceAsStream(TEST_JSON))
+                .setJsonStream(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field1[2]")
@@ -45,10 +47,10 @@ public class JsonEditTest {
         assertEquals(toReplace2, JsonUtil.fromJson(result, "thing.field1[2]", Integer.class));
 
         // add a node
-        final String rand0 = RandomStringUtils.randomAlphanumeric(10);
+        final String rand0 = randomAlphanumeric(10);
         final String toAdd0 = "{\"sub1\": true, \"sub2\": \"" + rand0 + "\"}";
         jsonEdit = new JsonEdit()
-                .setJsonStream(StreamUtil.loadResourceAsStream(TEST_JSON))
+                .setJsonStream(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field3")
@@ -57,10 +59,10 @@ public class JsonEditTest {
         assertEquals(rand0, JsonUtil.fromJson(result, "thing.field3.sub2", String.class));
 
         // add a node
-        final String rand = RandomStringUtils.randomAlphanumeric(10);
+        final String rand = randomAlphanumeric(10);
         final String toAdd = "{\"subC\": \""+ rand + "\"}";
         jsonEdit = new JsonEdit()
-                .setJsonStream(StreamUtil.loadResourceAsStream(TEST_JSON))
+                .setJsonStream(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field2")
@@ -69,10 +71,10 @@ public class JsonEditTest {
         assertEquals(rand, JsonUtil.fromJson(result, "thing.field2.subC", String.class));
 
         // add a node at the root
-        final String rand2 = RandomStringUtils.randomAlphanumeric(10);
+        final String rand2 = randomAlphanumeric(10);
         final String rootAdd = "{\"rootfoo\": \""+ rand2 + "\"}";
         jsonEdit = new JsonEdit()
-                .setJsonStream(StreamUtil.loadResourceAsStream(TEST_JSON))
+                .setJsonStream(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setJson(rootAdd));
@@ -82,7 +84,7 @@ public class JsonEditTest {
         // add a numeric node at the root
         final Integer rootAdd2 = random.nextInt();
         jsonEdit = new JsonEdit()
-                .setJsonStream(StreamUtil.loadResourceAsStream(TEST_JSON))
+                .setJsonStream(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("newguy")
@@ -91,10 +93,10 @@ public class JsonEditTest {
         assertEquals(rootAdd2, JsonUtil.fromJson(result, "newguy", Integer.class));
 
         // replace something that doesn't exist -- should add it
-        final String rand3 = RandomStringUtils.randomAlphanumeric(10);
+        final String rand3 = randomAlphanumeric(10);
         final String toReplace3 = "\""+rand3+"\"";
         jsonEdit = new JsonEdit()
-                .setJsonStream(StreamUtil.loadResourceAsStream(TEST_JSON))
+                .setJsonStream(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field3")
@@ -102,14 +104,31 @@ public class JsonEditTest {
         result = jsonEdit.edit();
         assertEquals(rand3, JsonUtil.fromJson(result, "thing.field3", String.class));
 
+        // append to a list
+        final String rand4 = randomAlphanumeric(10);
+        final String toReplace4 = "\""+rand4+"\"";
+        jsonEdit = new JsonEdit()
+                .setJsonStream(testJson())
+                .addOperation(new JsonEditOperation()
+                        .setType(JsonEditOperationType.write)
+                        .setPath("thing.field1[]")
+                        .setJson(toReplace4));
+        result = jsonEdit.edit();
+        assertEquals(rand4, JsonUtil.fromJson(result, "thing.field1[3]", String.class));
+        assertEquals(4, JsonUtil.fromJson(result, "thing.field1", String[].class).length);
+
         // delete a node
         jsonEdit = new JsonEdit()
-                .setJsonStream(StreamUtil.loadResourceAsStream(TEST_JSON))
+                .setJsonStream(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.delete)
                         .setPath("thing.field2"));
         result = jsonEdit.edit();
         assertNull(JsonUtil.fromJson(result, TestData.class).thing.field2);
+    }
+
+    private InputStream testJson() throws IOException {
+        return StreamUtil.loadResourceAsStream(TEST_JSON);
     }
 
 }

@@ -113,7 +113,11 @@ public class JsonEdit {
         if (parent instanceof ObjectNode) {
             ((ObjectNode) parent).set(operation.getName(), data);
         } else if (parent instanceof ArrayNode) {
-            ((ArrayNode) parent).set(operation.getIndex(), data);
+            if (operation.isEmptyBrackets()) {
+                ((ArrayNode) parent).add(data);
+            } else {
+                ((ArrayNode) parent).set(operation.getIndex(), data);
+            }
         } else {
             throw new IllegalArgumentException("Cannot append to node (is a "+parent.getClass().getName()+"): "+parent);
         }

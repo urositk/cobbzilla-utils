@@ -23,6 +23,12 @@ public class JsonEditOperation {
 
     public boolean hasIndex () { return getIndex() != null; }
 
+    public boolean isEmptyBrackets () {
+        int bracketPos = path.indexOf("[");
+        int bracketClosePos = path.indexOf("]");
+        return bracketPos != -1 && bracketClosePos != -1 && bracketClosePos == bracketPos+1;
+    }
+
     public Integer getIndex() {
         int dotPos = path.lastIndexOf(".");
         if (dotPos == -1) return index(path);

@@ -115,8 +115,14 @@ public class JsonUtil {
             int index = -1;
             int bracketPos = pathPart.indexOf("[");
             int bracketClosePos = pathPart.indexOf("]");
+            boolean isEmptyBrackets = false;
             if (bracketPos != -1 && bracketClosePos != -1 && bracketClosePos > bracketPos) {
-                index = Integer.parseInt(pathPart.substring(bracketPos+1, bracketClosePos));
+                if (bracketClosePos == bracketPos+1) {
+                    // ends with [], they mean to append
+                    isEmptyBrackets = true;
+                } else {
+                    index = Integer.parseInt(pathPart.substring(bracketPos + 1, bracketClosePos));
+                }
                 pathPart = pathPart.substring(0, bracketPos);
             }
             node = node.get(pathPart);
@@ -128,6 +134,10 @@ public class JsonUtil {
             if (index != -1) {
                 node = node.get(index);
                 nodePath.add(node);
+
+            } else if (isEmptyBrackets) {
+                nodePath.add(MISSING);
+                return nodePath;
             }
         }
         return nodePath;
