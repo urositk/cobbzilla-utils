@@ -10,6 +10,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 
@@ -20,9 +21,14 @@ public class Tarball {
      * @param tarball the tarball to unroll. Can be .tar.gz or .tar.bz2
      * @return a File representing the temp directory where the tarball was unrolled
      */
-    public static File unroll (File tarball) throws IOException, ArchiveException {
+    public static File unroll (File tarball) throws Exception {
         File tempDirectory = Files.createTempDir();
-        return unroll(tarball, tempDirectory);
+        try {
+            return unroll(tarball, tempDirectory);
+        } catch (Exception e) {
+            FileUtils.deleteDirectory(tempDirectory);
+            throw e;
+        }
     }
 
     public static File unroll(File tarball, File dir) throws IOException, ArchiveException {
