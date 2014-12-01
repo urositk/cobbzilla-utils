@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -27,7 +28,7 @@ public class JsonEditTest {
         // replace a node (overwrite an object with an integer)
         final Integer toReplace = random.nextInt();
         jsonEdit = new JsonEdit()
-                .setJsonStream(testJson())
+                .setJsonData(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field2")
@@ -38,7 +39,7 @@ public class JsonEditTest {
         // replace a node within an array
         final Integer toReplace2 = random.nextInt();
         jsonEdit = new JsonEdit()
-                .setJsonStream(testJson())
+                .setJsonData(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field1[2]")
@@ -50,7 +51,7 @@ public class JsonEditTest {
         final String rand0 = randomAlphanumeric(10);
         final String toAdd0 = "{\"sub1\": true, \"sub2\": \"" + rand0 + "\"}";
         jsonEdit = new JsonEdit()
-                .setJsonStream(testJson())
+                .setJsonData(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field3")
@@ -62,7 +63,7 @@ public class JsonEditTest {
         final String rand = randomAlphanumeric(10);
         final String toAdd = "{\"subC\": \""+ rand + "\"}";
         jsonEdit = new JsonEdit()
-                .setJsonStream(testJson())
+                .setJsonData(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field2")
@@ -74,7 +75,7 @@ public class JsonEditTest {
         final String rand2 = randomAlphanumeric(10);
         final String rootAdd = "{\"rootfoo\": \""+ rand2 + "\"}";
         jsonEdit = new JsonEdit()
-                .setJsonStream(testJson())
+                .setJsonData(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setJson(rootAdd));
@@ -84,7 +85,7 @@ public class JsonEditTest {
         // add a numeric node at the root
         final Integer rootAdd2 = random.nextInt();
         jsonEdit = new JsonEdit()
-                .setJsonStream(testJson())
+                .setJsonData(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("newguy")
@@ -96,7 +97,7 @@ public class JsonEditTest {
         final String rand3 = randomAlphanumeric(10);
         final String toReplace3 = "\""+rand3+"\"";
         jsonEdit = new JsonEdit()
-                .setJsonStream(testJson())
+                .setJsonData(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field3")
@@ -108,7 +109,7 @@ public class JsonEditTest {
         final String rand4 = randomAlphanumeric(10);
         final String toReplace4 = "\""+rand4+"\"";
         jsonEdit = new JsonEdit()
-                .setJsonStream(testJson())
+                .setJsonData(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.write)
                         .setPath("thing.field1[]")
@@ -117,9 +118,35 @@ public class JsonEditTest {
         assertEquals(rand4, JsonUtil.fromJson(result, "thing.field1[3]", String.class));
         assertEquals(4, JsonUtil.fromJson(result, "thing.field1", String[].class).length);
 
+        // write a new, deep node at the root level of the tree.
+        // ObjectNodes should be created along the way for missing nodes.
+        final Integer deepNodeValue = random.nextInt();
+        final String deepNodePath = "newRootField."+randomAlphabetic(4)+"."+randomAlphabetic(4);
+        jsonEdit = new JsonEdit()
+                .setJsonData(testJson())
+                .addOperation(new JsonEditOperation()
+                        .setType(JsonEditOperationType.write)
+                        .setPath(deepNodePath)
+                        .setJson(deepNodeValue.toString()));
+        result = jsonEdit.edit();
+        assertEquals(deepNodeValue, JsonUtil.fromJson(result, deepNodePath, Integer.class));
+
+        // write a new, deep node within the tree.
+        // ObjectNodes should be created along the way for missing nodes.
+        final Integer deepNodeValue2 = random.nextInt();
+        final String deepNodePath2 = "thing.newField."+randomAlphabetic(4)+"."+randomAlphabetic(4);
+        jsonEdit = new JsonEdit()
+                .setJsonData(testJson())
+                .addOperation(new JsonEditOperation()
+                        .setType(JsonEditOperationType.write)
+                        .setPath(deepNodePath2)
+                        .setJson(deepNodeValue2.toString()));
+        result = jsonEdit.edit();
+        assertEquals(deepNodeValue2, JsonUtil.fromJson(result, deepNodePath2, Integer.class));
+
         // delete a node
         jsonEdit = new JsonEdit()
-                .setJsonStream(testJson())
+                .setJsonData(testJson())
                 .addOperation(new JsonEditOperation()
                         .setType(JsonEditOperationType.delete)
                         .setPath("thing.field2"));

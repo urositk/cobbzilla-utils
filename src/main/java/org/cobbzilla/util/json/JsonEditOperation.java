@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.cobbzilla.util.string.StringUtil;
 
 import java.io.IOException;
 
@@ -52,10 +51,8 @@ public class JsonEditOperation {
         return path.substring(dotPos+1);
     }
 
-    public String getParentPath() {
-        if (StringUtil.empty(path)) return null;
-        final int dotPos = path.lastIndexOf(".");
-        return dotPos == -1 ? null : path.substring(0, dotPos);
-    }
+    public int getNumPathSegments() { return path.split("\\.").length; }
+
+    public String getName(int part) { return path.split("\\.")[part]; }
 
 }

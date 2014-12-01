@@ -40,7 +40,7 @@ public class JsonEditor {
     public void run() throws Exception {
         @Cleanup InputStream in = getInputStream();
         JsonEdit edit = new JsonEdit()
-                .setJsonStream(in)
+                .setJsonData(in)
                 .addOperation(new JsonEditOperation()
                         .setType(options.getOperationType())
                         .setPath(options.getPath())

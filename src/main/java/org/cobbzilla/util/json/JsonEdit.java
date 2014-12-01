@@ -9,8 +9,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -23,12 +26,12 @@ import static org.cobbzilla.util.json.JsonUtil.*;
  *
  * Notes:
  *  - only one read operation can be specified. the 'edit' method will return the value of the first read operation processed.
- *  - if you 'replace' a node that does not exist, it will be created
+ *  - if you write a node that does not exist, it will be created (if it can be)
  */
 @Accessors(chain=true)
 public class JsonEdit {
 
-    @Getter @Setter private InputStream jsonStream;
+    @Getter @Setter private Object jsonData;
     @Getter @Setter private List<JsonEditOperation> operations = new ArrayList<>();
 
     public JsonEdit addOperation (JsonEditOperation operation) { operations.add(operation); return this; }
@@ -37,12 +40,22 @@ public class JsonEdit {
 
         FULL_MAPPER.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
 
-        JsonNode root = FULL_MAPPER.readTree(jsonStream);
+        JsonNode root = readJson();
         for (JsonEditOperation operation : operations) {
             if (operation.isRead()) return JsonUtil.toString(findNode(root, operation.getPath()));
             root = apply(root, operation);
         }
         return JsonUtil.toString(FULL_MAPPER.treeToValue(root, Object.class));
+    }
+
+    private JsonNode readJson() throws IOException {
+        if (jsonData instanceof JsonNode) return (JsonNode) jsonData;
+        if (jsonData instanceof InputStream) return FULL_MAPPER.readTree((InputStream) jsonData);
+        if (jsonData instanceof Reader) return FULL_MAPPER.readTree((Reader) jsonData);
+        if (jsonData instanceof String) return FULL_MAPPER.readTree((String) jsonData);
+        if (jsonData instanceof File) return FULL_MAPPER.readTree((File) jsonData);
+        if (jsonData instanceof URL) return FULL_MAPPER.readTree((URL) jsonData);
+        throw new IllegalArgumentException("jsonData is not a JsonNode, InputStream, Reader, String, File or URL");
     }
 
     private JsonNode apply(JsonNode root, JsonEditOperation operation) throws IOException {
@@ -69,8 +82,8 @@ public class JsonEdit {
         final JsonNode data = operation.getNode();
 
         if (current == MISSING) {
-            // replacing root with single object node
-            return addToParent(root, operation, parent, data);
+            // add a new node to parent
+            return addToParent(root, operation, path);
         }
 
         if (current instanceof ObjectNode) {
@@ -82,7 +95,7 @@ public class JsonEdit {
                     node.set(entry.getKey(), entry.getValue());
                 }
             } else {
-                return addToParent(root, operation, parent, data);
+                return addToParent(root, operation, path);
             }
 
         } else if (current instanceof ArrayNode) {
@@ -94,10 +107,10 @@ public class JsonEdit {
             }
 
         } else if (current instanceof ValueNode) {
-            if (parent == null) return new ObjectNode(FULL_MAPPER.getNodeFactory()).set(operation.getName(), data);
+            if (parent == null) return newObjectNode().set(operation.getName(), data);
 
             // overwrite value node at location
-            addToParent(root, operation, parent, data);
+            addToParent(root, operation, path);
 
         } else {
             throw new IllegalArgumentException("Cannot append to node (is a "+current.getClass().getName()+"): "+current);
@@ -106,12 +119,28 @@ public class JsonEdit {
         return root;
     }
 
-    private JsonNode addToParent(JsonNode root, JsonEditOperation operation, JsonNode parent, JsonNode data) {
+    private JsonNode addToParent(JsonNode root, JsonEditOperation operation, List<JsonNode> path) throws IOException {
 
-        if (parent == null) return new ObjectNode(FULL_MAPPER.getNodeFactory()).set(operation.getName(), data);
+        JsonNode current = path.get(path.size()-1);
+        JsonNode parent = path.size() > 1 ? path.get(path.size()-2) : null;
+        final JsonNode data = operation.getNode();
+
+        if (parent == null) return newObjectNode().set(operation.getName(), data);
 
         if (parent instanceof ObjectNode) {
+            // more than one missing node?
+            while (path.size() <= operation.getNumPathSegments()) {
+                final String childName = operation.getName(path.size()-2);
+                final ObjectNode newNode = newObjectNode();
+                ((ObjectNode) parent).set(childName, newNode);
+
+                // re-generate path now that we've created one missing parent
+                path = findNodePath(root, operation.getPath());
+                parent = newNode;
+            }
+
             ((ObjectNode) parent).set(operation.getName(), data);
+
         } else if (parent instanceof ArrayNode) {
             if (operation.isEmptyBrackets()) {
                 ((ArrayNode) parent).add(data);
@@ -123,6 +152,10 @@ public class JsonEdit {
         }
 
         return root;
+    }
+
+    private ObjectNode newObjectNode() {
+        return new ObjectNode(FULL_MAPPER.getNodeFactory());
     }
 
     private void delete(List<JsonNode> path, JsonEditOperation operation) throws IOException {

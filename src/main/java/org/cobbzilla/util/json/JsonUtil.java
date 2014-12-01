@@ -188,4 +188,16 @@ public class JsonUtil {
         throw new IllegalArgumentException("Path "+path+" refers to an unsupported ValueNode: "+ nodeClass);
     }
 
+    public static JsonNode getValueNode(Object data) {
+        if (data == null) return NullNode.getInstance();
+        if (data instanceof Integer) return new IntNode((Integer) data);
+        if (data instanceof Boolean) return BooleanNode.valueOf((Boolean) data);
+        if (data instanceof Long) return new LongNode((Long) data);
+        if (data instanceof Float) return new DoubleNode((Float) data);
+        if (data instanceof Double) return new DoubleNode((Double) data);
+        if (data instanceof BigDecimal) return new DecimalNode((BigDecimal) data);
+        if (data instanceof BigInteger) return new BigIntegerNode((BigInteger) data);
+        throw new IllegalArgumentException("Cannot create value node from: "+data+" (type "+data.getClass().getName()+")");
+    }
+
 }
