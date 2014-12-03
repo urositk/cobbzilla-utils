@@ -254,23 +254,19 @@ public class CommandShell {
         return executor.execute(command);
     }
 
-    public static int chown(String group, File path) throws IOException {
-        return chown(group, path, false);
+    public static int chown(String owner, File path) throws IOException { return chown(owner, path, false); }
+
+    public static int chown(String owner, File path, boolean recursive) throws IOException {
+        return chown(owner, path.getAbsolutePath(), recursive);
     }
 
-    public static int chown(String group, File path, boolean recursive) throws IOException {
-        return chown(group, path.getAbsolutePath(), recursive);
-    }
+    public static int chown(String owner, String path) throws IOException { return chown(owner, path, false); }
 
-    public static int chown(String group, String path) throws IOException {
-        return chown(group, path, false);
-    }
-
-    public static int chown(String group, String path, boolean recursive) throws IOException {
+    public static int chown(String owner, String path, boolean recursive) throws IOException {
         final Executor executor = new DefaultExecutor();
         final CommandLine command = new CommandLine(CHOWN);
         if (recursive) command.addArgument("-R");
-        command.addArgument(group).addArgument(path);
+        command.addArgument(owner).addArgument(path);
         return executor.execute(command);
     }
 
