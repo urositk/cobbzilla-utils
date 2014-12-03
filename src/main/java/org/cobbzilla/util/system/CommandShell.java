@@ -290,6 +290,14 @@ public class CommandShell {
         }
     }
 
+    public static String whoami() {
+        try {
+            return exec("whoami").getStdout().trim();
+        } catch (IOException e) {
+            throw new IllegalStateException("CommandShell.whoami() error: "+e, e);
+        }
+    }
+
     public static File tempScript (String contents) {
         contents = "#!/bin/bash\n\n"+contents;
         try {
@@ -311,5 +319,4 @@ public class CommandShell {
             throw new IllegalStateException("Error executing: "+e);
         }
     }
-
 }
