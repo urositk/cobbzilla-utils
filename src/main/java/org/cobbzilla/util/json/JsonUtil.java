@@ -85,7 +85,11 @@ public class JsonUtil {
     }
 
     public static <T> T fromJson(String json, String path, Class<T> clazz) throws Exception {
-        JsonNode node = findNode(FULL_MAPPER.readTree(json), path);
+        return fromJson(FULL_MAPPER.readTree(json), path, clazz);
+    }
+
+    public static <T> T fromJson(JsonNode node, String path, Class<T> clazz) throws Exception {
+        node = findNode(node, path);
         return FULL_MAPPER.convertValue(node, clazz);
     }
 
