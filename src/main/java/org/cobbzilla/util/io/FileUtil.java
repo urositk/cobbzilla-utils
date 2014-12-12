@@ -29,7 +29,7 @@ public class FileUtil {
     }
 
     public static File createTempDir(File parentDir, String prefix) throws IOException {
-        Path parent = FileSystems.getDefault().getPath(parentDir.getAbsolutePath());
+        final Path parent = FileSystems.getDefault().getPath(parentDir.getAbsolutePath());
         return new File(Files.createTempDirectory(parent, prefix).toAbsolutePath().toString());
     }
 
