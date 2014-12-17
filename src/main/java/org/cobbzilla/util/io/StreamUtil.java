@@ -46,6 +46,17 @@ public class StreamUtil {
         return in;
     }
 
+    public static File loadResourceAsFile (String path) throws IOException {
+        return loadResourceAsFile(path, StreamUtil.class);
+    }
+
+    public static File loadResourceAsFile (String path, Class clazz) throws IOException {
+        final File tmp = File.createTempFile("resource", ".tmp");
+        @Cleanup final FileOutputStream out = new FileOutputStream(tmp);
+        IOUtils.copy(loadResourceAsStream(path, clazz), out);
+        return tmp;
+    }
+
     public static String loadResourceAsStringOrDie(String path) {
         try {
             return loadResourceAsString(path, StreamUtil.class);

@@ -10,6 +10,7 @@ import org.cobbzilla.util.json.JsonUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 
 @Slf4j
 public class HttpResponseBean {
@@ -41,4 +42,10 @@ public class HttpResponseBean {
         return entity == null ? null : JsonUtil.fromJsonOrDie(getEntityString(), clazz);
     }
 
+    public Collection<String> getHeaderValues (String name) { return headers.get(name); }
+
+    public String getFirstHeaderValue (String name) {
+        final Collection<String> values = headers.get(name);
+        return values == null || values.isEmpty() ? null : values.iterator().next();
+    }
 }

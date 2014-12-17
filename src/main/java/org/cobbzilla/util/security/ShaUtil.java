@@ -49,12 +49,16 @@ public class ShaUtil {
         }
     }
 
-    public static String sha256_file (String file) throws Exception { return sha256_file(new File(file)); }
+    public static String sha256_file (String file) { return sha256_file(new File(file)); }
 
-    public static String sha256_file (File file) throws Exception {
-        @Cleanup final InputStream input = new FileInputStream(file);
-        final MessageDigest md = getMessageDigest(input);
-        return StringUtil.tohex(md.digest());
+    public static String sha256_file (File file) {
+        try {
+            @Cleanup final InputStream input = new FileInputStream(file);
+            final MessageDigest md = getMessageDigest(input);
+            return StringUtil.tohex(md.digest());
+        } catch (Exception e) {
+            throw new IllegalStateException("Error calculating sha256 on "+file.getAbsolutePath()+": "+e);
+        }
     }
 
     public static String sha256_url (String urlString) throws Exception {

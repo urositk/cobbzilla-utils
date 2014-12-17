@@ -44,4 +44,18 @@ public class URIUtil {
             default: return parts[parts.length-2] + "." + parts[parts.length-1];
         }
     }
+
+    public static String getFile(String uri) {
+        final String path = toUri(uri).getPath();
+        final int last = path.lastIndexOf('/');
+        if (last == -1 || last == path.length()-1) return null;
+        return path.substring(last+1);
+    }
+
+    public static String getFileExt(String uri) {
+        final String path = toUri(uri).getPath();
+        final int last = path.lastIndexOf('.');
+        if (last == -1 || last == path.length()-1) return null;
+        return path.substring(last+1);
+    }
 }

@@ -43,17 +43,35 @@ public class HttpUtil {
         return urlConnection.getInputStream();
     }
 
+    public static final int DEFAULT_RETRIES = 3;
+
     public static File url2file (String url) throws IOException {
-        return url2file(url, (File) null);
+        return url2file(url, null, DEFAULT_RETRIES);
     }
     public static File url2file (String url, String file) throws IOException {
-        return url2file(url, file == null ? null : new File(file));
+        return url2file(url, file == null ? null : new File(file), DEFAULT_RETRIES);
     }
     public static File url2file (String url, File file) throws IOException {
+        return url2file(url, file, DEFAULT_RETRIES);
+    }
+    public static File url2file (String url, File file, int retries) throws IOException {
         if (file == null) file = File.createTempFile("url2file-", ".tmp");
-        @Cleanup final InputStream in = get(url);
-        @Cleanup final OutputStream out = new FileOutputStream(file);
-        IOUtils.copy(in, out);
+        IOException lastException = null;
+        long sleep = 100;
+        for (int i=0; i<retries; i++) {
+            try {
+                @Cleanup final InputStream in = get(url);
+                @Cleanup final OutputStream out = new FileOutputStream(file);
+                IOUtils.copy(in, out);
+                lastException = null;
+                break;
+            } catch (IOException e) {
+                lastException = e;
+                try { Thread.sleep(sleep); } catch (InterruptedException e1) { throw new IllegalStateException("interrupted while sleeping", lastException); }
+                sleep *= 5;
+            }
+        }
+        if (lastException != null) throw lastException;
         return file;
     }
 
@@ -107,9 +125,13 @@ public class HttpUtil {
         }
 
         bean.setStatus(response.getStatusLine().getStatusCode());
-        bean.setContentLength(response.getEntity().getContentLength());
-        bean.setContentType(response.getEntity().getContentType().getValue());
-        bean.setEntity(response.getEntity().getContent());
+        if (response.getEntity() != null) {
+            final Header contentType = response.getEntity().getContentType();
+            if (contentType != null) bean.setContentType(contentType.getValue());
+
+            bean.setContentLength(response.getEntity().getContentLength());
+            bean.setEntity(response.getEntity().getContent());
+        }
 
         return bean;
     }
