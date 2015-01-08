@@ -31,8 +31,14 @@ public class CommandShell {
     }
 
     public static Map<String, String> loadShellExports (File f) throws IOException {
+        try (InputStream in = new FileInputStream(f)) {
+            return loadShellExports(in);
+        }
+    }
+
+    public static Map<String, String> loadShellExports (InputStream in) throws IOException {
         final Map<String, String> map = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line, key, value;
             int eqPos;
             while ((line = reader.readLine()) != null) {
