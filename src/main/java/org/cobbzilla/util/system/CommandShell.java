@@ -313,10 +313,12 @@ public class CommandShell {
         }
     }
 
-    public static String execScript (String contents){
+    public static String execScript (String contents) { return execScript(contents, null); }
+
+    public static String execScript (String contents, Map<String, String> env) {
         try {
             @Cleanup("delete") final File script = tempScript(contents);
-            return exec(new CommandLine(script)).getStdout();
+            return exec(new CommandLine(script), env).getStdout();
         } catch (Exception e) {
             throw new IllegalStateException("Error executing: "+e);
         }
