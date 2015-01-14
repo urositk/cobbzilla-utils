@@ -19,6 +19,8 @@ import java.net.URLDecoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.cobbzilla.util.system.Sleep.sleep;
+
 public class HttpUtil {
 
     public static Map<String, String> queryParams(URL url) throws UnsupportedEncodingException {
@@ -67,7 +69,7 @@ public class HttpUtil {
                 break;
             } catch (IOException e) {
                 lastException = e;
-                try { Thread.sleep(sleep); } catch (InterruptedException e1) { throw new IllegalStateException("interrupted while sleeping", lastException); }
+                sleep(sleep, lastException);
                 sleep *= 5;
             }
         }

@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import static org.cobbzilla.util.system.Sleep.sleep;
+
 @Slf4j
 public abstract class SimpleDaemon implements Runnable {
 
@@ -80,14 +82,6 @@ public abstract class SimpleDaemon implements Runnable {
         }
         if (getIsAlive()) {
             kill();
-        }
-    }
-
-    private void sleep(long millis, final String methodName) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            log.error(name + ": sleep interrupted in " + methodName, e);
         }
     }
 

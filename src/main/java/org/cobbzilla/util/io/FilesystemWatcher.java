@@ -8,6 +8,8 @@ import java.nio.file.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.cobbzilla.util.system.Sleep.sleep;
+
 @Slf4j
 public class FilesystemWatcher implements Runnable {
 
@@ -30,11 +32,7 @@ public class FilesystemWatcher implements Runnable {
         thread.interrupt();
         long start = System.currentTimeMillis();
         while (thread.isAlive() && System.currentTimeMillis() - start < STOP_TIMEOUT) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new IllegalStateException("interrupted while trying to stop " + this + ": " + e, e);
-            }
+            sleep(100, "stopping FilesystemWatcher");
         }
         if (thread.isAlive()) {
             log.warn("Watcher thread did not die, killing it");
