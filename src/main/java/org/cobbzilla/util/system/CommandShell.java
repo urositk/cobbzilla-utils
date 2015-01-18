@@ -22,6 +22,8 @@ public class CommandShell {
     public static final String CHGRP = "chgrp";
     public static final String CHOWN = "chown";
 
+    private static final int[] DEFAULT_EXIT_VALUES = {0};
+
     public static Map<String, String> loadShellExports (String userFile) throws IOException {
         File file = new File(System.getProperty("user.home") + File.separator + userFile);
         if (!file.exists()) {
@@ -139,18 +141,22 @@ public class CommandShell {
     }
 
     public static CommandResult exec (CommandLine command) throws IOException {
-        MultiCommandResult result = exec(command, null, null);
+        return exec(command, DEFAULT_EXIT_VALUES);
+    }
+
+    public static CommandResult exec (CommandLine command, int[] exitValues) throws IOException {
+        MultiCommandResult result = exec(command, null, null, null, null, exitValues);
         return result.getResults().values().iterator().next();
     }
 
     public static CommandResult exec (CommandLine command, Map<String, String> environment) throws IOException {
-        MultiCommandResult result = exec(command, null, null, null, environment);
+        MultiCommandResult result = exec(command, null, null, null, environment, DEFAULT_EXIT_VALUES);
         return result.getResults().values().iterator().next();
     }
 
     public static CommandResult exec (CommandLine command, String input,
                                       File workingDir, Map<String, String> environment) throws IOException {
-        MultiCommandResult result = exec(command, null, input, workingDir, environment);
+        MultiCommandResult result = exec(command, null, input, workingDir, environment, DEFAULT_EXIT_VALUES);
         return result.getResults().values().iterator().next();
     }
 
@@ -177,17 +183,17 @@ public class CommandShell {
     }
 
     public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result, String input) throws IOException {
-        return exec(cmdLine, result, input, null);
+        return exec(cmdLine, result, input, null, null, DEFAULT_EXIT_VALUES);
     }
 
     public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result,
                                            String input, File workingDir) throws IOException {
-        return exec(cmdLine, result, input, workingDir, null);
+        return exec(cmdLine, result, input, workingDir, null, DEFAULT_EXIT_VALUES);
     }
 
     public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result,
                                            String input, File workingDir,
-                                           Map<String, String> environment) throws IOException {
+                                           Map<String, String> environment, int[] exitValues) throws IOException {
         if (result == null) result = new MultiCommandResult();
         final DefaultExecutor executor = new DefaultExecutor();
 
