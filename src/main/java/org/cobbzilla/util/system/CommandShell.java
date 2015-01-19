@@ -207,6 +207,7 @@ public class CommandShell {
         final ExecuteStreamHandler handler = new PumpStreamHandler(teeOut, teeErr, in);
         executor.setStreamHandler(handler);
         if (workingDir != null) executor.setWorkingDirectory(workingDir);
+        if (exitValues != null) executor.setExitValues(exitValues);
         int exitValue = -1;
         try {
             exitValue = executor.execute(cmdLine, environment);
