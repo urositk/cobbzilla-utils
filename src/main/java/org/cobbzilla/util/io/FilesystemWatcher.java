@@ -97,49 +97,51 @@ public class FilesystemWatcher implements Runnable {
 
     @Override
     public void run() {
-        try {
-            log.info("Registering watch service on "+path);
-            final WatchService watchService = path.getFileSystem().newWatchService();
-            path.register(watchService,
-                    StandardWatchEventKinds.ENTRY_CREATE,
-                    StandardWatchEventKinds.ENTRY_MODIFY,
-                    StandardWatchEventKinds.ENTRY_DELETE);
+        while (!done.get()) {
+            try {
+                log.info("Registering watch service on " + path);
+                final WatchService watchService = path.getFileSystem().newWatchService();
+                path.register(watchService,
+                        StandardWatchEventKinds.ENTRY_CREATE,
+                        StandardWatchEventKinds.ENTRY_MODIFY,
+                        StandardWatchEventKinds.ENTRY_DELETE);
 
-            // loop forever to watch directory
-            while (!done.get()) {
-                final WatchKey watchKey;
-                watchKey = watchService.take(); // this call is blocking until events are present
+                // loop forever to watch directory
+                while (!done.get()) {
+                    final WatchKey watchKey;
+                    watchKey = watchService.take(); // this call is blocking until events are present
 
-                // poll for file system events on the WatchKey
-                log.info("Waiting for FS events on "+path);
-                for (final WatchEvent<?> event : watchKey.pollEvents()) {
-                    log.info("Handling event: "+event.kind().name()+" "+event.context());
-                    handleEvent(event);
+                    // poll for file system events on the WatchKey
+                    log.info("Waiting for FS events on " + path);
+                    for (final WatchEvent<?> event : watchKey.pollEvents()) {
+                        log.info("Handling event: " + event.kind().name() + " " + event.context());
+                        handleEvent(event);
+                    }
+
+                    // if the watched directed gets deleted, get out of run method
+                    if (!watchKey.reset()) {
+                        log.warn("watchKey could not be reset, perhaps path (" + path + ") was removed?");
+                        watchKey.cancel();
+                        watchService.close();
+                        break;
+                    }
                 }
 
-                // if the watched directed gets deleted, get out of run method
-                if (!watchKey.reset()) {
-                    log.warn("watchKey could not be reset, perhaps path ("+path+") was removed?");
-                    watchKey.cancel();
-                    watchService.close();
-                    break;
+            } catch (InterruptedException e) {
+                throw new IllegalStateException("watch thread interrupted, exiting: " + e, e);
+
+            } catch (NoSuchFileException e) {
+                log.warn("watch dir does not exist, waiting for it to exist: " + e);
+                Sleep.sleep(getSleepWhileNotExists(), "waiting for path to exist: " + path.toFile().getAbsolutePath());
+
+            } catch (Exception e) {
+                if (getSleepAfterUnexpectedError() != null) {
+                    log.warn("error in watch thread, waiting to re-create the watch: " + e, e);
+                    Sleep.sleep(getSleepAfterUnexpectedError());
+
+                } else {
+                    throw new IllegalStateException("error in watch thread, exiting: " + e, e);
                 }
-            }
-
-        } catch (InterruptedException e) {
-            throw new IllegalStateException("watch thread interrupted, exiting: " + e, e);
-
-        } catch (NoSuchFileException e) {
-            log.warn("watch dir does not exist, waiting for it to exist: "+ e);
-            Sleep.sleep(getSleepWhileNotExists(), "waiting for path to exist: "+path.toFile().getAbsolutePath());
-
-        } catch (Exception e) {
-            if (getSleepAfterUnexpectedError() != null) {
-                log.warn("error in watch thread, waiting to re-create the watch: "+e, e);
-                Sleep.sleep(getSleepAfterUnexpectedError());
-
-            } else {
-                throw new IllegalStateException("error in watch thread, exiting: " + e, e);
             }
         }
     }
