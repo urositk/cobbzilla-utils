@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import static org.cobbzilla.util.string.StringUtil.empty;
 
@@ -113,8 +114,8 @@ public class JsonUtil {
         final List<JsonNode> nodePath = new ArrayList<>();
         nodePath.add(node);
         if (empty(path)) return nodePath;
+        final List<String> pathParts = tokenize(path);
 
-        final String[] pathParts = path.split("\\.");
         for (String pathPart : pathParts) {
             int index = -1;
             int bracketPos = pathPart.indexOf("[");
@@ -145,6 +146,32 @@ public class JsonUtil {
             }
         }
         return nodePath;
+    }
+
+    public static List<String> tokenize(String path) {
+        final List<String> pathParts = new ArrayList<>();
+        final StringTokenizer st = new StringTokenizer(path, ".'", true);
+        boolean collectingQuotedToken = false;
+        StringBuffer pathToken = new StringBuffer();
+        while (st.hasMoreTokens()) {
+            final String token = st.nextToken();
+            if (token.equals("'")) {
+                collectingQuotedToken = !collectingQuotedToken;
+
+            } else if (collectingQuotedToken) {
+                pathToken.append(token);
+
+            } else if (token.equals(".") && pathToken.length() > 0) {
+                pathParts.add(pathToken.toString());
+                pathToken = new StringBuffer();
+
+            } else {
+                pathToken.append(token);
+            }
+        }
+        if (collectingQuotedToken) throw new IllegalArgumentException("Unterminated single quote in: "+path);
+        if (pathToken.length() > 0) pathParts.add(pathToken.toString());
+        return pathParts;
     }
 
     public static ObjectNode replaceNode(File file, String path, String replacement) throws Exception {

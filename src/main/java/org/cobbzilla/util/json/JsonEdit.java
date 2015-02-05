@@ -139,7 +139,16 @@ public class JsonEdit {
                 parent = newNode;
             }
 
-            ((ObjectNode) parent).set(operation.getName(), data);
+            // creating a new array node under parent?
+            if (operation.isEmptyBrackets()) {
+                final ArrayNode newArrayNode = new ArrayNode(FULL_MAPPER.getNodeFactory());
+                ((ObjectNode) parent).set(operation.getName(), newArrayNode);
+                newArrayNode.add(data);
+
+            } else {
+                // otherwise, just set a field on the parent object
+                ((ObjectNode) parent).set(operation.getName(), data);
+            }
 
         } else if (parent instanceof ArrayNode) {
             if (operation.isEmptyBrackets()) {
