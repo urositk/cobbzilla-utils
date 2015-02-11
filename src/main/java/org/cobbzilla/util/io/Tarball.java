@@ -11,6 +11,7 @@ import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
+import org.cobbzilla.util.system.CommandShell;
 
 import java.io.*;
 
@@ -69,11 +70,13 @@ public class Tarball {
             // when "./" gets squashed to "", we skip the entry
             if (name.trim().length() == 0) continue;
 
-            try (OutputStream out = new FileOutputStream(new File(dir, name))) {
+            final File file = new File(dir, name);
+            try (OutputStream out = new FileOutputStream(file)) {
                 if (StreamUtil.copyNbytes(tarIn, out, entry.getSize()) != entry.getSize()) {
                     throw new IllegalStateException("Expected to copy "+entry.getSize()+ " bytes for "+entry.getName()+" in tarball "+ path);
                 }
             }
+            CommandShell.chmod(file, Integer.toOctalString(entry.getMode()));
         }
 
         return dir;
