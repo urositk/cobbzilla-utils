@@ -1,6 +1,5 @@
 package org.cobbzilla.util.xml;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,20 +17,33 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
-@Slf4j @NoArgsConstructor @AllArgsConstructor
+@Slf4j @NoArgsConstructor
 public class XPathUtil {
+
+    public static final String DOC_ROOT_XPATH = "/";
 
     @Getter @Setter private Collection<String> pathExpressions;
     @Getter @Setter private boolean useTidy = true;
+    @Getter private transient Document document;
 
     public XPathUtil (String expr) { this(new String[] { expr }, true); }
     public XPathUtil (String expr, boolean useTidy) { this(new String[] { expr }, useTidy); }
 
     public XPathUtil(String[] exprs) { this(Arrays.asList(exprs), true); }
     public XPathUtil(String[] exprs, boolean useTidy) { this(Arrays.asList(exprs), useTidy); }
+
+    public XPathUtil(Collection<String> passThruXPaths) { this(passThruXPaths, true); }
+
+    public XPathUtil(Collection<String> exprs, boolean useTidy) {
+        this.pathExpressions = exprs;
+        this.useTidy = useTidy;
+    }
 
     public List<Node> getFirstMatchList(InputStream in) throws ParserConfigurationException, IOException, SAXException, TransformerException {
         return applyXPaths(in).values().iterator().next();
@@ -68,13 +80,13 @@ public class XPathUtil {
     public Map<String, List<Node>> applyXPaths(InputStream in) throws ParserConfigurationException, IOException, SAXException, TransformerException {
 
         final Map<String, List<Node>> allFound = new HashMap<>();
-        final Document doc = getDocument(in);
+        document = getDocument(in);
 
         // Use the simple XPath API to select a nodeIterator.
         // System.out.println("Querying DOM using "+pathExpression);
         for (String xpath : this.pathExpressions) {
             final List<Node> found = new ArrayList<>();
-            NodeIterator nl = XPathAPI.selectNodeIterator(doc, xpath);
+            NodeIterator nl = XPathAPI.selectNodeIterator(document, xpath);
 
             // Serialize the found nodes to System.out.
             // System.out.println("<output>");
@@ -92,7 +104,7 @@ public class XPathUtil {
                             ) {
                         sb.append(nn.getNodeValue());
                     }
-                    Text textNode = doc.createTextNode(sb.toString());
+                    Text textNode = document.createTextNode(sb.toString());
                     found.add(textNode);
 
                 } else {
