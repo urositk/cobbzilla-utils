@@ -45,7 +45,7 @@ public class StringUtil {
 
     public static String lastPathElement(String url) { return url.substring(url.lastIndexOf("/")+1); }
 
-    public static String safeHostname (String s) {
+    public static String safeFunctionName (String s) {
         return s.replaceAll("\\W", "");
     }
 
