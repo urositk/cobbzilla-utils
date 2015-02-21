@@ -1,0 +1,11 @@
+#!/bin/bash
+
+JAR="$(cd $(dirname ${1}) && pwd)/$(basename ${1})"
+PATCH_SOURCE_POM_DIR="$(cd ${2} && pwd)"
+DESTINATION="${3}"
+
+cd ${PATCH_SOURCE_POM_DIR} \
+  && mvn -DskipTests=true compile \
+  && cd target/classes \
+  && jar uvf ${JAR} ./* \
+  && scp ${JAR} ${DESTINATION}
