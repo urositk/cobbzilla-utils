@@ -211,20 +211,23 @@ public class CommandShell {
         int exitValue = -1;
         try {
             exitValue = executor.execute(cmdLine, environment);
-            result.add(cmdLine, new CommandResult(exitValue, out.toString(UTF8), err.toString(UTF8)));
+            result.add(cmdLine, getResult(out, err, exitValue));
             if (exitValue != 0) {
                 // shouldn't happen since executor.execute will throw an exception on a non-zero exit status
                 final String baseMessage = "non-zero value (" + exitValue + ") returned from cmdLine: " + cmdLine;
                 final String message = baseMessage + ": out=" + out.toString(UTF8) + ", err=" + err.toString(UTF8);
                 log.info(message);
-                result.exception(cmdLine, new IllegalStateException(baseMessage));
+                result.exception(cmdLine, getResult(out, err, exitValue), new IllegalStateException(baseMessage));
             }
 
         } catch (Exception e) {
-            result.add(cmdLine, new CommandResult(exitValue, out.toString(UTF8), err.toString(UTF8)));
-            result.exception(cmdLine, e);
+            result.exception(cmdLine, getResult(out, err, exitValue), e);
         }
         return result;
+    }
+
+    public static CommandResult getResult(ByteArrayOutputStream out, ByteArrayOutputStream err, int exitValue) throws UnsupportedEncodingException {
+        return new CommandResult(exitValue, out.toString(UTF8), err.toString(UTF8));
     }
 
     public static int chmod (File file, String perms) throws IOException {
@@ -329,5 +332,10 @@ public class CommandShell {
         } catch (Exception e) {
             throw new IllegalStateException("Error executing: "+e);
         }
+    }
+
+    public static CommandResult okResult(CommandResult result) {
+        if (!result.isZeroExitStatus()) throw new IllegalStateException("error: "+result);
+        return result;
     }
 }

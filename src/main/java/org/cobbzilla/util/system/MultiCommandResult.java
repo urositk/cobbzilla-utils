@@ -17,8 +17,8 @@ public class MultiCommandResult {
 
     public void add(CommandLine command, CommandResult commandResult) { results.put(command, commandResult); }
 
-    public void exception(CommandLine command, Exception exception) {
-        add(command, new CommandResult(exception));
+    public void exception(CommandLine command, CommandResult result, Exception exception) {
+        add(command, result);
         this.exception = exception;
     }
 

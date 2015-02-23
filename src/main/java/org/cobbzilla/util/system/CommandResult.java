@@ -3,8 +3,7 @@ package org.cobbzilla.util.system;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-
-import static org.cobbzilla.util.string.StringUtil.empty;
+import lombok.ToString;
 
 public class CommandResult {
 
