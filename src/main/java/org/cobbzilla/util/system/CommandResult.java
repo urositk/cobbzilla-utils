@@ -3,9 +3,11 @@ package org.cobbzilla.util.system;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 public class CommandResult {
+
+    // useful for mocks
+    public static final CommandResult OK = new CommandResult(0, null, null);
 
     @Getter @Setter private String stdout;
     @Getter @Setter private String stderr;
