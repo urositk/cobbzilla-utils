@@ -2,6 +2,7 @@ package org.cobbzilla.util.collection;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,6 +19,15 @@ public class ArrayUtil {
             updated.add(element);
             return updated.toArray(array);
         }
+    }
+
+    public static <T> T[] remove(T[] array, int indexToRemove) {
+        if (array == null) throw new NullPointerException("remove: array was null");
+        if (indexToRemove >= array.length || indexToRemove < 0) throw new IndexOutOfBoundsException("remove: cannot remove element "+indexToRemove+" from array of length "+array.length);
+        final List<T> list = new ArrayList<>(Arrays.asList(array));
+        list.remove(indexToRemove);
+        final T[] newArray = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length-1);
+        return list.toArray(newArray);
     }
 
 }
