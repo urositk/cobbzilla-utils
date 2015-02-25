@@ -1,11 +1,20 @@
 #!/bin/bash
 
-JAR="$(cd $(dirname ${1}) && pwd)/$(basename ${1})"
-PATCH_SOURCE_POM_DIR="$(cd ${2} && pwd)"
-DESTINATION="${3}"
+function die () {
+  echo >&2 "${1}"
+  exit 1
+}
 
-cd ${PATCH_SOURCE_POM_DIR} \
+JAR="$(cd $(dirname ${1}) && pwd)/$(basename ${1})"
+DESTINATION="${2}"
+shift 2
+
+for dir in ${@} ; do
+  cd $(cd ${dir} && pwd) \
   && mvn -DskipTests=true compile \
   && cd target/classes \
   && jar uvf ${JAR} ./* \
-  && scp ${JAR} ${DESTINATION}
+  || die "Error building: ${dir}"
+done
+
+scp ${JAR} ${DESTINATION}
