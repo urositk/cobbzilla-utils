@@ -3,6 +3,7 @@ package org.cobbzilla.util.io;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.cobbzilla.util.string.StringUtil;
 
 import java.io.*;
 import java.nio.file.FileSystems;
@@ -193,6 +194,10 @@ public class FileUtil {
         return toFile(new File(file), data);
     }
 
+    public static File toFile(File file, InputStream in) throws IOException {
+        return toFile(file, StreamUtil.toString(in));
+    }
+
     public static File toFile(File file, String data) throws IOException {
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
             throw new IOException("Error creating directory: "+file.getParentFile());
@@ -256,4 +261,18 @@ public class FileUtil {
         return sb.toString();
     }
 
+    public static String dirname(String path) {
+        if (StringUtil.empty(path)) throw new NullPointerException("dirname: path was empty");
+        int pos = path.lastIndexOf('/');
+        if (pos == -1) return ".";
+        return path.substring(0, pos);
+    }
+
+    public static String basename(String path) {
+        if (StringUtil.empty(path)) throw new NullPointerException("basename: path was empty");
+        int pos = path.lastIndexOf('/');
+        if (pos == -1) return path;
+        if (pos == path.length()-1) throw new IllegalArgumentException("basename: invalid path: "+path);
+        return path.substring(pos + 1);
+    }
 }

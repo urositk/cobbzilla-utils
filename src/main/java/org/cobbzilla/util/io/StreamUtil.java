@@ -36,6 +36,12 @@ public class StreamUtil {
         return new ByteArrayInputStream(s.getBytes(StringUtil.UTF8));
     }
 
+    public static String toString(InputStream in) throws IOException {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        IOUtils.copy(in, out);
+        return out.toString();
+    }
+
     public static InputStream loadResourceAsStream(String path) throws IOException {
         return loadResourceAsStream(path, StreamUtil.class);
     }
@@ -111,4 +117,5 @@ public class StreamUtil {
         }
         return copied;
     }
+
 }
