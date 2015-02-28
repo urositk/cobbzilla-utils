@@ -1,6 +1,8 @@
 package org.cobbzilla.util.security;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.cobbzilla.util.string.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -74,6 +76,29 @@ public class CryptoUtil {
     public static byte[] encryptOrDie(byte[] data, String passphrase) {
         try { return encrypt(data, passphrase); } catch (Exception e) {
             throw new IllegalStateException("Error encrypting: "+e, e);
+        }
+    }
+
+    private static final String PADDING_SUFFIX = "__PADDING__";
+
+    public static String pad(String data) throws Exception { return data + PADDING_SUFFIX + RandomStringUtils.random(128); }
+
+    public static String unpad(String data) {
+        if (data == null) return null;
+        int paddingPos = data.indexOf(PADDING_SUFFIX);
+        if (paddingPos == -1) return null;
+        return data.substring(0, paddingPos);
+    }
+
+    public static String string_encrypt(String data, String key) {
+        try { return Base64.encodeBytes(CryptoUtil.encryptOrDie(pad(data).getBytes(), key)); } catch (Exception e) {
+            throw new IllegalStateException("Error encrypting: "+e, e);
+        }
+    }
+
+    public static String string_decrypt(String data, String key) {
+        try { return unpad(new String(CryptoUtil.decrypt(Base64.decode(data), key))); } catch (Exception e) {
+            throw new IllegalStateException("Error decrypting: "+e, e);
         }
     }
 }
