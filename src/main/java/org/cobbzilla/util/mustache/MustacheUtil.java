@@ -26,9 +26,13 @@ public class MustacheUtil {
 
     public static String render(String value, Map<String, Object> scope) {
         final StringWriter w = new StringWriter();
-        final Mustache mustache = MustacheUtil.getMustache(value);
+        final Mustache mustache = getMustache(value);
         mustache.execute(w, scope);
         return w.toString();
+    }
+
+    public static boolean renderBoolean(String value, Map<String, Object> scope) {
+        return Boolean.valueOf(render(value, scope));
     }
 
 }
