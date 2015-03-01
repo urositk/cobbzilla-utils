@@ -30,4 +30,10 @@ public class ArrayUtil {
         return list.toArray(newArray);
     }
 
+    public static <T> T[] slice(T[] array, int from, int to) {
+        if (array == null) throw new NullPointerException("slice: array was null");
+        final T[] newArray = (T[]) Array.newInstance(array.getClass().getComponentType(), to-from);
+        for (int i=from; i<=to; i++) newArray[from-i] = array[i];
+        return newArray;
+    }
 }
