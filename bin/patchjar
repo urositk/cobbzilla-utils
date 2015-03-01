@@ -14,7 +14,8 @@ for dir in ${@} ; do
   cd ${START_DIR} && cd $(cd ${dir} && pwd) \
   && mvn -DskipTests=true compile \
   && cd target/classes \
-  && jar uvf ${JAR} ./* \
+  && classes="$(find . -type f -amin -2)" && if [ -z "${classes}" ] ; then classes="./*" ; fi \
+  && jar uvf ${JAR} ${classes} \
   || die "Error building: ${dir}"
 done
 
