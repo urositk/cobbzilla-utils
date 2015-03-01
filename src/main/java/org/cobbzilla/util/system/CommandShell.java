@@ -10,9 +10,6 @@ import org.cobbzilla.util.io.FileUtil;
 import java.io.*;
 import java.util.*;
 
-import static org.cobbzilla.util.string.StringUtil.UTF8;
-import static org.cobbzilla.util.string.StringUtil.UTF8cs;
-
 @Slf4j
 public class CommandShell {
 
@@ -128,11 +125,11 @@ public class CommandShell {
 
     public static MultiCommandResult exec (Collection<String> commands) throws IOException {
         final MultiCommandResult result = new MultiCommandResult();
-        for (String command : commands) {
-            exec(command, result);
+        for (String c : commands) {
+            Command command = new Command(c);
+            result.add(command, exec(c));
             if (result.hasException()) return result;
         }
-        result.setSuccess(true);
         return result;
     }
 
@@ -141,98 +138,40 @@ public class CommandShell {
     }
 
     public static CommandResult exec (CommandLine command) throws IOException {
-        return exec(command, DEFAULT_EXIT_VALUES);
+        return exec(new Command(command));
     }
 
-    public static CommandResult exec (CommandLine command, int[] exitValues) throws IOException {
-        MultiCommandResult result = exec(command, null, null, null, null, exitValues);
-        return result.getResults().values().iterator().next();
-    }
+    public static CommandResult exec (Command command) throws IOException {
 
-    public static CommandResult exec (CommandLine command, Map<String, String> environment) throws IOException {
-        MultiCommandResult result = exec(command, null, null, null, environment, DEFAULT_EXIT_VALUES);
-        return result.getResults().values().iterator().next();
-    }
-
-    public static CommandResult exec (CommandLine command, String input,
-                                      File workingDir, Map<String, String> environment) throws IOException {
-        MultiCommandResult result = exec(command, null, input, workingDir, environment, DEFAULT_EXIT_VALUES);
-        return result.getResults().values().iterator().next();
-    }
-
-    public static CommandResult exec (CommandLine command, File workingDir) throws IOException {
-        MultiCommandResult result = exec(command, null, null, workingDir);
-        return result.getResults().values().iterator().next();
-    }
-
-    public static CommandResult exec (String command, String input) throws IOException {
-        return exec(CommandLine.parse(command), input);
-    }
-
-    public static CommandResult exec (CommandLine commandLine, String input) throws IOException {
-        MultiCommandResult result = exec(commandLine, null, input);
-        return result.getResults().values().iterator().next();
-    }
-
-    public static MultiCommandResult exec (String command, MultiCommandResult result) throws IOException {
-        return exec(command, result, null);
-    }
-
-    public static MultiCommandResult exec (String cmdLine, MultiCommandResult result, String input) throws IOException {
-        return exec(CommandLine.parse(cmdLine), result, input);
-    }
-
-    public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result, String input) throws IOException {
-        return exec(cmdLine, result, input, null, null, DEFAULT_EXIT_VALUES);
-    }
-
-    public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result,
-                                           String input, File workingDir) throws IOException {
-        return exec(cmdLine, result, input, workingDir, null, DEFAULT_EXIT_VALUES);
-    }
-
-    public static MultiCommandResult exec (CommandLine cmdLine, MultiCommandResult result,
-                                           String input, File workingDir,
-                                           Map<String, String> environment, int[] exitValues) throws IOException {
-        if (result == null) result = new MultiCommandResult();
         final DefaultExecutor executor = new DefaultExecutor();
 
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final TeeOutputStream teeOut = new TeeOutputStream(out, System.out);
+        final ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
+        OutputStream out = command.hasOut() ? new TeeOutputStream(outBuffer, command.getOut()) : outBuffer;
+        if (command.isCopyToStandard()) out = new TeeOutputStream(out, System.out);
 
-        final ByteArrayOutputStream err = new ByteArrayOutputStream();
-        final TeeOutputStream teeErr = new TeeOutputStream(err, System.err);
+        final ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+        OutputStream err = command.hasErr() ? new TeeOutputStream(errBuffer, command.getErr()) : errBuffer;
+        if (command.isCopyToStandard()) err = new TeeOutputStream(err, System.err);
 
-        final ByteArrayInputStream in = (input == null) ? null : new ByteArrayInputStream(input.getBytes(UTF8cs));
-        final ExecuteStreamHandler handler = new PumpStreamHandler(teeOut, teeErr, in);
+        final ExecuteStreamHandler handler = new PumpStreamHandler(out, err, command.getInputStream());
         executor.setStreamHandler(handler);
-        if (workingDir != null) executor.setWorkingDirectory(workingDir);
-        if (exitValues != null) executor.setExitValues(exitValues);
-        int exitValue = -1;
+
+        if (command.hasDir()) executor.setWorkingDirectory(command.getDir());
+        executor.setExitValues(command.getExitValues());
+
         try {
-            exitValue = executor.execute(cmdLine, environment);
-            result.add(cmdLine, getResult(out, err, exitValue));
-            if (exitValue != 0) {
-                // shouldn't happen since executor.execute will throw an exception on a non-zero exit status
-                final String baseMessage = "non-zero value (" + exitValue + ") returned from cmdLine: " + cmdLine;
-                final String message = baseMessage + ": out=" + out.toString(UTF8) + ", err=" + err.toString(UTF8);
-                log.info(message);
-                result.exception(cmdLine, getResult(out, err, exitValue), new IllegalStateException(baseMessage));
-            }
+            final int exitValue = executor.execute(command.getCommandLine(), command.getEnv());
+            return new CommandResult(exitValue, outBuffer, errBuffer);
 
         } catch (Exception e) {
-            result.exception(cmdLine, getResult(out, err, exitValue), e);
+            return new CommandResult(e);
         }
-        return result;
-    }
-
-    public static CommandResult getResult(ByteArrayOutputStream out, ByteArrayOutputStream err, int exitValue) throws UnsupportedEncodingException {
-        return new CommandResult(exitValue, out.toString(UTF8), err.toString(UTF8));
     }
 
     public static int chmod (File file, String perms) throws IOException {
         return chmod(file.getAbsolutePath(), perms, false);
     }
+
     public static int chmod (File file, String perms, boolean recursive) throws IOException {
         return chmod(file.getAbsolutePath(), perms, recursive);
     }
@@ -328,7 +267,8 @@ public class CommandShell {
     public static String execScript (String contents, Map<String, String> env) {
         try {
             @Cleanup("delete") final File script = tempScript(contents);
-            return exec(new CommandLine(script), env).getStdout();
+            final Command command = new Command(new CommandLine(script)).setEnv(env);
+            return exec(command).getStdout();
         } catch (Exception e) {
             throw new IllegalStateException("Error executing: "+e);
         }

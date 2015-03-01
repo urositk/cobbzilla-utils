@@ -4,6 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
+
+import static org.cobbzilla.util.string.StringUtil.UTF8;
+
 public class CommandResult {
 
     // useful for mocks
@@ -25,6 +30,17 @@ public class CommandResult {
         this.exitStatus = (exitStatus == null) ? -1 : exitStatus;
         this.stdout = stdout;
         this.stderr = stderr;
+    }
+
+    public CommandResult (int exitValue, ByteArrayOutputStream out, ByteArrayOutputStream err) {
+        this.exitStatus = exitValue;
+        try {
+            this.stdout = out == null ? null : out.toString(UTF8);
+            this.stderr = err == null ? null : err.toString(UTF8);
+        } catch (UnsupportedEncodingException e) {
+            // should never happen
+            throw new IllegalStateException("CommandResult: couldn't convert stream to string: "+e, e);
+        }
     }
 
     public CommandResult (Exception e) { this.exception = e; }
