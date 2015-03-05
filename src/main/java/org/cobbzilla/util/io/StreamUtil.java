@@ -118,4 +118,18 @@ public class StreamUtil {
         return copied;
     }
 
+    // incredibly inefficient. do not use frequently. meant for command-line tools that call it no more than a few times
+    public static String readLineFromStdin() {
+        final String line;
+        final BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+        try { line = r.readLine(); } catch (Exception e) {
+            throw new IllegalStateException("Error reading from stdin: "+e);
+        }
+        return line == null ? null : line.trim();
+    }
+
+    public static String readLineFromStdin(String prompt) {
+        System.out.print(prompt);
+        return readLineFromStdin();
+    }
 }
