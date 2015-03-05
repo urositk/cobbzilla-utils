@@ -3,6 +3,7 @@ package org.cobbzilla.util.io;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.io.*;
@@ -12,6 +13,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import static org.apache.commons.lang3.StringUtils.chop;
 
 @Slf4j
 public class FileUtil {
@@ -265,6 +268,7 @@ public class FileUtil {
         if (StringUtil.empty(path)) throw new NullPointerException("dirname: path was empty");
         int pos = path.lastIndexOf('/');
         if (pos == -1) return ".";
+        if (path.endsWith("/")) path = chop(path);
         return path.substring(0, pos);
     }
 
