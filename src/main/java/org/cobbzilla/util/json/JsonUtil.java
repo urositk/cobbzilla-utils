@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
 import org.cobbzilla.util.io.FileSuffixFilter;
+import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.FilenameSuffixFilter;
 
 import java.io.File;
@@ -95,6 +96,7 @@ public class JsonUtil {
     }
 
     public static JsonNode findNode(JsonNode node, String path) throws IOException {
+        if (node == null) return null;
         final List<JsonNode> nodePath = findNodePath(node, path);
         if (nodePath == null || nodePath.isEmpty()) return null;
         final JsonNode lastNode = nodePath.get(nodePath.size()-1);
@@ -230,5 +232,7 @@ public class JsonUtil {
         if (data instanceof BigInteger) return new BigIntegerNode((BigInteger) data);
         throw new IllegalArgumentException("Cannot create value node from: "+data+" (type "+data.getClass().getName()+")");
     }
+
+    public static JsonNode toNode (File f) { return fromJsonOrDie(FileUtil.toStringOrDie(f), JsonNode.class); }
 
 }
