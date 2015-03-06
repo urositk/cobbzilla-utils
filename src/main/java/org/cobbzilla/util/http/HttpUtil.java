@@ -19,6 +19,7 @@ import java.net.URLDecoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 public class HttpUtil {
@@ -159,7 +160,7 @@ public class HttpUtil {
                     break;
 
                 default:
-                    throw new IllegalStateException("Invalid request method: "+requestBean.getMethod());
+                    return die("Invalid request method: " + requestBean.getMethod());
             }
 
             if (requestBean.hasData() && request instanceof HttpEntityEnclosingRequestBase) {
@@ -169,7 +170,7 @@ public class HttpUtil {
             return request;
 
         } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("initHttpRequest: " + e, e);
+            return die("initHttpRequest: " + e, e);
         }
     }
 

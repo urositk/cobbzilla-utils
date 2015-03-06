@@ -8,6 +8,8 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 public class MD5Util {
 
     private MD5Util () {}
@@ -21,7 +23,7 @@ public class MD5Util {
             md5.update( bytes, start, len );
             return md5.digest();
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Error calculating MD5: " + e);
+            return die("Error calculating MD5: " + e);
         }
     }
 
@@ -39,8 +41,7 @@ public class MD5Util {
             return StringUtil.tohex(md5.digest());
 
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Error calculating MD5: " + e);
-
+            return die("Error calculating MD5: " + e);
         }
 
     }
@@ -72,7 +73,7 @@ public class MD5Util {
         try {
             return new MD5InputStream(in);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Bad algorithm: " + e);
+            return die("Bad algorithm: " + e);
         }
     }
 

@@ -12,6 +12,9 @@ import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.io.FileUtil.abs;
+
 public class ShaUtil {
 
     private static MessageDigest md() throws NoSuchAlgorithmException { return MessageDigest.getInstance("SHA-256"); }
@@ -57,7 +60,7 @@ public class ShaUtil {
             final MessageDigest md = getMessageDigest(input);
             return StringUtil.tohex(md.digest());
         } catch (Exception e) {
-            throw new IllegalStateException("Error calculating sha256 on "+file.getAbsolutePath()+": "+e);
+            return die("Error calculating sha256 on " + abs(file) + ": " + e);
         }
     }
 

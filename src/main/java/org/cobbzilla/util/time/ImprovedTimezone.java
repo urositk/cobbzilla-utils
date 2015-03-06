@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 @Slf4j
 public class ImprovedTimezone {
 
@@ -34,7 +36,7 @@ public class ImprovedTimezone {
         } catch (IOException e) {
             String msg = "Error initializing ImprovedTimezone from timezones.txt: "+e;
             log.error(msg, e);
-            throw new IllegalStateException(msg, e);
+            die(msg, e);
         }
         final TimeZone sysTimezone = TimeZone.getDefault();
         ImprovedTimezone tz = TIMEZONES_BY_JNAME.get(sysTimezone.getDisplayName());
@@ -144,12 +146,12 @@ public class ImprovedTimezone {
             if (!gmtOffset.equals("GMT") && isGMT(tz)) {
                 String msg = "Error looking up timezone: " + timezoneName + ": got GMT, expected " + gmtOffset;
                 log.error(msg);
-                throw new IllegalStateException(msg);
+                die(msg);
             }
             return new ImprovedTimezone(id, gmtOffset, tz, displayName, linuxName);
 
         } catch (Exception e) {
-            throw new IllegalStateException("Error processing line: "+line+": "+e, e);
+            return die("Error processing line: "+line+": "+e, e);
         }
     }
 

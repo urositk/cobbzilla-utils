@@ -3,6 +3,8 @@ package org.cobbzilla.util.system;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 public class PortPicker {
 
     public static int pick() throws IOException {
@@ -15,7 +17,7 @@ public class PortPicker {
         try {
             return pick();
         } catch (IOException e) {
-            throw new IllegalStateException("Error picking port: "+e, e);
+            return die("Error picking port: "+e, e);
         }
     }
 

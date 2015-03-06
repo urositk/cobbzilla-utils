@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.string.StringUtil.UTF8cs;
 import static org.cobbzilla.util.string.StringUtil.empty;
 
@@ -41,7 +42,7 @@ public class Command {
 
     public Command(CommandLine commandLine) { this.commandLine = commandLine; }
     public Command(String command) { this(CommandLine.parse(command)); }
-    public Command(File executable) { this(executable.getAbsolutePath()); }
+    public Command(File executable) { this(abs(executable)); }
 
     public boolean hasDir () { return !empty(dir); }
     public boolean hasInput () { return !empty(input); }

@@ -3,11 +3,13 @@ package org.cobbzilla.util.http;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 public class URIUtil {
 
     public static URI toUri(String uri) {
         try { return new URI(uri); } catch (URISyntaxException e) {
-            throw new IllegalStateException("Invalid URI: "+ uri);
+            return die("Invalid URI: " + uri);
         }
     }
 

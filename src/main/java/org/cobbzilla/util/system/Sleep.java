@@ -1,5 +1,7 @@
 package org.cobbzilla.util.system;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 public class Sleep {
 
     public static void sleep (long millis) {
@@ -18,7 +20,7 @@ public class Sleep {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            throw new IllegalStateException("sleep interrupted ("+reason+")", cause);
+            die("sleep interrupted (" + reason + ")", cause);
         }
     }
 }

@@ -1,9 +1,6 @@
 package org.cobbzilla.util.collection;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class InspectCollection {
 
@@ -27,6 +24,16 @@ public class InspectCollection {
             // no "else" clause here: we don't care about anything not in the graph, it can't create a circular reference.
         }
         return false;
+    }
+
+    public static boolean isLargerThan (Collection c, int size) {
+        int count = 0;
+        final Iterator i = c.iterator();
+        while (i.hasNext() && count <= size) {
+            i.next();
+            count++;
+        }
+        return count > size;
     }
 
 }

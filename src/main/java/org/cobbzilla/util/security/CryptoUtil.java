@@ -14,6 +14,8 @@ import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 public class CryptoUtil {
 
     public static final String CONFIG_BLOCK_CIPHER = "AES/CBC/PKCS5Padding";
@@ -27,7 +29,7 @@ public class CryptoUtil {
         try {
             MESSAGE_DIGEST = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("error creating SHA-256 MessageDigest: "+e);
+            throw (RuntimeException) die("error creating SHA-256 MessageDigest: "+e);
         }
     }
 
@@ -75,7 +77,7 @@ public class CryptoUtil {
 
     public static byte[] encryptOrDie(byte[] data, String passphrase) {
         try { return encrypt(data, passphrase); } catch (Exception e) {
-            throw new IllegalStateException("Error encrypting: "+e, e);
+            return die("Error encrypting: "+e, e);
         }
     }
 
@@ -92,13 +94,13 @@ public class CryptoUtil {
 
     public static String string_encrypt(String data, String key) {
         try { return Base64.encodeBytes(CryptoUtil.encryptOrDie(pad(data).getBytes(), key)); } catch (Exception e) {
-            throw new IllegalStateException("Error encrypting: "+e, e);
+            return die("Error encrypting: "+e, e);
         }
     }
 
     public static String string_decrypt(String data, String key) {
         try { return unpad(new String(CryptoUtil.decrypt(Base64.decode(data), key))); } catch (Exception e) {
-            throw new IllegalStateException("Error decrypting: "+e, e);
+            return die("Error decrypting: "+e, e);
         }
     }
 }

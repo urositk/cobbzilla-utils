@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
 @Slf4j
 public class ReflectionUtil {
@@ -161,7 +162,7 @@ public class ReflectionUtil {
             try {
                 target = MethodUtils.invokeMethod(target, isMethod, null);
             } catch (Exception e2) {
-                throw new IllegalStateException("Error calling "+methodName+" and "+isMethod+": "+e+", "+e2);
+                return die("Error calling "+methodName+" and "+isMethod+": "+e+", "+e2);
             }
         }
         return target;
@@ -175,7 +176,7 @@ public class ReflectionUtil {
         try {
             MethodUtils.invokeMethod(target, methodName, value == null ? new Object[] { null } : value);
         } catch (Exception e) {
-            throw new IllegalStateException("Error calling "+methodName+": "+e);
+            die("Error calling "+methodName+": "+e);
         }
     }
 
@@ -184,7 +185,7 @@ public class ReflectionUtil {
         try {
             MethodUtils.invokeMethod(target, methodName, new Object[] { null }, new Class[] { type });
         } catch (Exception e) {
-            throw new IllegalStateException("Error calling "+methodName+": "+e);
+            die("Error calling "+methodName+": "+e);
         }
     }
 
@@ -236,7 +237,7 @@ public class ReflectionUtil {
                 }
             }
         }
-        throw new IllegalStateException("Cannot figure out type parameterization for " + klass.getName());
+        return die("Cannot figure out type parameterization for " + klass.getName());
     }
 
     @SuppressWarnings("unchecked")

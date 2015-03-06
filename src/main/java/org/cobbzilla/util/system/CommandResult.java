@@ -7,6 +7,7 @@ import lombok.Setter;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.string.StringUtil.UTF8;
 
 public class CommandResult {
@@ -39,7 +40,7 @@ public class CommandResult {
             this.stderr = err == null ? null : err.toString(UTF8);
         } catch (UnsupportedEncodingException e) {
             // should never happen
-            throw new IllegalStateException("CommandResult: couldn't convert stream to string: "+e, e);
+            die("CommandResult: couldn't convert stream to string: " + e, e);
         }
     }
 

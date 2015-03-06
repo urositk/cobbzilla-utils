@@ -84,7 +84,7 @@ public class LocaleAwareMustacheFactory extends DefaultMustacheFactory {
     private class LAMFCacheLoader extends CacheLoader<String, Mustache> {
         @Override
         public Mustache load(String key) throws Exception {
-//            return mc.compile(superFileRoot.getAbsolutePath()+"/"+key);
+//            return mc.compile(abs(superFileRoot)+"/"+key);
             return mc.compile(key);
         }
     }

@@ -4,6 +4,8 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 
 import java.beans.PropertyDescriptor;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 public class BeanMerger {
 
     private static final PropertyUtilsBean propertyUtils = new PropertyUtilsBean();
@@ -37,7 +39,7 @@ public class BeanMerger {
                 } catch (NoSuchMethodException e) {
                     // Should not happen
                 } catch (Exception e) {
-                    throw new IllegalStateException("Error copying properties: "+e, e);
+                    die("Error copying properties: " + e, e);
                 }
             }
         }

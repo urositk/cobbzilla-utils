@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 @Slf4j
 public class HttpResponseBean {
 
@@ -30,7 +32,7 @@ public class HttpResponseBean {
         try {
             this.entity = entity == null ? null : IOUtils.toByteArray(entity);
         } catch (IOException e) {
-            throw new IllegalStateException("setEntity: error reading stream: "+e, e);
+            die("setEntity: error reading stream: " + e, e);
         }
     }
 

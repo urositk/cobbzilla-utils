@@ -15,6 +15,9 @@ import org.cobbzilla.util.system.CommandShell;
 
 import java.io.*;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.io.FileUtil.abs;
+
 @Slf4j
 public class Tarball {
 
@@ -34,7 +37,7 @@ public class Tarball {
 
     public static File unroll(File tarball, File dir) throws IOException, ArchiveException {
 
-        final String path = tarball.getAbsolutePath();
+        final String path = abs(tarball);
         final FileInputStream fileIn = new FileInputStream(tarball);
         final CompressorInputStream zipIn;
 
@@ -62,7 +65,7 @@ public class Tarball {
                 final String subdirName = name.substring(0, name.length() - 1);
                 final File subdir = new File(dir, subdirName);
                 if (!subdir.mkdirs()) {
-                    throw new IllegalStateException("Error creating directory: "+subdir.getAbsolutePath());
+                    die("Error creating directory: " + abs(subdir));
                 }
                 continue;
             }
@@ -73,7 +76,7 @@ public class Tarball {
             final File file = new File(dir, name);
             try (OutputStream out = new FileOutputStream(file)) {
                 if (StreamUtil.copyNbytes(tarIn, out, entry.getSize()) != entry.getSize()) {
-                    throw new IllegalStateException("Expected to copy "+entry.getSize()+ " bytes for "+entry.getName()+" in tarball "+ path);
+                    die("Expected to copy "+entry.getSize()+ " bytes for "+entry.getName()+" in tarball "+ path);
                 }
             }
             CommandShell.chmod(file, Integer.toOctalString(entry.getMode()));

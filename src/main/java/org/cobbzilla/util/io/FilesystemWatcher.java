@@ -1,18 +1,23 @@
 package org.cobbzilla.util.io;
 
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.system.Sleep;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.cobbzilla.util.system.Sleep.sleep;
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.terminate;
+import static org.cobbzilla.util.io.FileUtil.abs;
 
-@Slf4j
-public class FilesystemWatcher implements Runnable {
+@Slf4j @ToString(of={"path", "done"})
+public class FilesystemWatcher implements Runnable, Closeable {
 
     public static final long STOP_TIMEOUT = TimeUnit.SECONDS.toMillis(5);
 
@@ -20,6 +25,7 @@ public class FilesystemWatcher implements Runnable {
     private final AtomicBoolean done = new AtomicBoolean(false);
     @Getter private final Path path;
 
+    public FilesystemWatcher(File path) { this.path = path.toPath(); }
     public FilesystemWatcher(Path path) { this.path = path; }
 
     public synchronized void start () {
@@ -30,23 +36,22 @@ public class FilesystemWatcher implements Runnable {
 
     public synchronized void stop () {
         done.set(true);
-        thread.interrupt();
-        long start = System.currentTimeMillis();
-        while (thread.isAlive() && System.currentTimeMillis() - start < STOP_TIMEOUT) {
-            sleep(100, "stopping FilesystemWatcher");
-        }
-        if (thread.isAlive()) {
-            log.warn("Watcher thread did not die, killing it");
-            thread.stop();
-        }
+        terminate(thread, STOP_TIMEOUT);
     }
 
+    @Override public void close() throws IOException { stop(); }
+
     // print the events and the affected file
-    private void handleEvent(WatchEvent<?> event) {
+    protected void handleEvent(WatchEvent<?> event) {
 
         WatchEvent.Kind<?> kind = event.kind();
         Path path = event.context() instanceof Path ? (Path) event.context() : null;
         File file = path == null ? null : path.toFile();
+
+        if (file == null) {
+            log.warn("null path in event: "+event);
+            return;
+        }
 
         if (kind.equals(StandardWatchEventKinds.ENTRY_CREATE)) {
             if (file.isDirectory()) {
@@ -69,17 +74,14 @@ public class FilesystemWatcher implements Runnable {
         }
     }
 
-    private String abs(Path path) { return path.toFile().getAbsolutePath(); }
-    private String abs(File path) { return path.getAbsolutePath(); }
+    protected void onDirCreated(File path) { log.info("dir created: "+ abs(path)); }
+    protected void onFileCreated(File path) { log.info("file created: "+ abs(path)); }
 
-    protected void onDirCreated(File path) { log.info("dir created: "+abs(path)); }
-    protected void onFileCreated(File path) { log.info("file created: "+abs(path)); }
+    protected void onDirModified(File path) { log.info("dir modified: "+ abs(path)); }
+    protected void onFileModified(File path) { log.info("file modified: "+ abs(path)); }
 
-    protected void onDirModified(File path) { log.info("dir modified: "+abs(path)); }
-    protected void onFileModified(File path) { log.info("file modified: "+abs(path)); }
-
-    protected void onDirDeleted(File path) { log.info("dir deleted: "+abs(path)); }
-    protected void onFileDeleted(File path) { log.info("file deleted: "+abs(path)); }
+    protected void onDirDeleted(File path) { log.info("dir deleted: "+ abs(path)); }
+    protected void onFileDeleted(File path) { log.info("file deleted: "+ abs(path)); }
 
     public File toFile(Path p) { return new File(path.toFile(), p.toFile().getName()); }
 
@@ -128,11 +130,11 @@ public class FilesystemWatcher implements Runnable {
                 }
 
             } catch (InterruptedException e) {
-                throw new IllegalStateException("watch thread interrupted, exiting: " + e, e);
+                die("watch thread interrupted, exiting: " + e, e);
 
             } catch (NoSuchFileException e) {
                 log.warn("watch dir does not exist, waiting for it to exist: " + e);
-                Sleep.sleep(getSleepWhileNotExists(), "waiting for path to exist: " + path.toFile().getAbsolutePath());
+                Sleep.sleep(getSleepWhileNotExists(), "waiting for path to exist: " + abs(path));
 
             } catch (Exception e) {
                 if (getSleepAfterUnexpectedError() != null) {
@@ -140,7 +142,7 @@ public class FilesystemWatcher implements Runnable {
                     Sleep.sleep(getSleepAfterUnexpectedError());
 
                 } else {
-                    throw new IllegalStateException("error in watch thread, exiting: " + e, e);
+                    die("error in watch thread, exiting: " + e, e);
                 }
             }
         }

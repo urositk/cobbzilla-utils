@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 /**
  * A handy utility for creating and initializing Maps in a single statement.
  * @author Jonathan Cobb.
@@ -59,7 +61,7 @@ public class MapBuilder {
 
         final Map<K,V> map;
         try { map = mapClass.newInstance(); } catch (Exception e) {
-            throw new IllegalStateException("Couldn't create new instance of class: "+mapClass.getName(), e);
+            return die("Couldn't create new instance of class: "+mapClass.getName(), e);
         }
         return build(map, values);
     }

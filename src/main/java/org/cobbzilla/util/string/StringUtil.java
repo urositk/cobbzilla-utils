@@ -32,7 +32,9 @@ public class StringUtil {
     }
 
     public static boolean empty(String s) { return s == null || s.length() == 0; }
-    public static boolean empty(Object s) { return s == null || s.toString().length() == 0; }
+    public static boolean empty(Object s) {
+        return s == null || s.getClass().isArray() && ((Object[]) s).length == 0 || s.toString().length() == 0;
+    }
 
     public static List<String> split (String s, String delim) {
         final StringTokenizer st = new StringTokenizer(s, delim);

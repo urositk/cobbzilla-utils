@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.string.StringUtil.empty;
 
 public class JsonUtil {
@@ -65,7 +66,7 @@ public class JsonUtil {
         try {
             return toJson(o);
         } catch (Exception e) {
-            throw new IllegalStateException("toJson: exception writing object ("+o+"): "+e, e);
+            return die("toJson: exception writing object ("+o+"): "+e, e);
         }
     }
 
@@ -82,7 +83,7 @@ public class JsonUtil {
         try {
             return JsonUtil.FULL_MAPPER.readValue(json, clazz);
         } catch (IOException e) {
-            throw new IllegalStateException("fromJson: exception while reading: "+json+": "+e, e);
+            return die("fromJson: exception while reading: "+json+": "+e, e);
         }
     }
 
@@ -210,7 +211,7 @@ public class JsonUtil {
 
     public static JsonNode getValueNode(JsonNode node, String path, String replacement) {
         final String nodeClass = node.getClass().getName();
-        if ( ! (node instanceof ValueNode) ) throw new IllegalStateException("Path "+path+" does not refer to a value (it is a "+ nodeClass +")");
+        if ( ! (node instanceof ValueNode) ) die("Path "+path+" does not refer to a value (it is a "+ nodeClass +")");
         if (node instanceof TextNode) return new TextNode(replacement);
         if (node instanceof BooleanNode) return BooleanNode.valueOf(Boolean.parseBoolean(replacement));
         if (node instanceof IntNode) return new IntNode(Integer.parseInt(replacement));

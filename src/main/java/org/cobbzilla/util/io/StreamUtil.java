@@ -6,6 +6,8 @@ import org.cobbzilla.util.string.StringUtil;
 
 import java.io.*;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 public class StreamUtil {
 
     public static final String SUFFIX = ".tmp";
@@ -123,7 +125,7 @@ public class StreamUtil {
         final String line;
         final BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
         try { line = r.readLine(); } catch (Exception e) {
-            throw new IllegalStateException("Error reading from stdin: "+e);
+            return die("Error reading from stdin: " + e);
         }
         return line == null ? null : line.trim();
     }

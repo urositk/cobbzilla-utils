@@ -10,6 +10,9 @@ import org.cobbzilla.util.io.FileUtil;
 import java.io.*;
 import java.util.*;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.io.FileUtil.abs;
+
 @Slf4j
 public class CommandShell {
 
@@ -24,7 +27,7 @@ public class CommandShell {
     public static Map<String, String> loadShellExports (String userFile) throws IOException {
         File file = new File(System.getProperty("user.home") + File.separator + userFile);
         if (!file.exists()) {
-            throw new IllegalArgumentException("file does not exist: "+file.getAbsolutePath());
+            throw new IllegalArgumentException("file does not exist: "+abs(file));
         }
         return loadShellExports(file);
     }
@@ -63,13 +66,13 @@ public class CommandShell {
 
     public static Map<String, String> loadShellExportsOrDie (String f) {
         try { return loadShellExports(f); } catch (Exception e) {
-            throw new IllegalStateException("loadShellExportsOrDie: "+e, e);
+            return die("loadShellExportsOrDie: "+e, e);
         }
     }
 
     public static Map<String, String> loadShellExportsOrDie (File f) {
         try { return loadShellExports(f); } catch (Exception e) {
-            throw new IllegalStateException("loadShellExportsOrDie: "+e, e);
+            return die("loadShellExportsOrDie: "+e, e);
         }
     }
 
@@ -169,11 +172,11 @@ public class CommandShell {
     }
 
     public static int chmod (File file, String perms) throws IOException {
-        return chmod(file.getAbsolutePath(), perms, false);
+        return chmod(abs(file), perms, false);
     }
 
     public static int chmod (File file, String perms, boolean recursive) throws IOException {
-        return chmod(file.getAbsolutePath(), perms, recursive);
+        return chmod(abs(file), perms, recursive);
     }
 
     public static int chmod (String file, String perms) throws IOException {
@@ -194,7 +197,7 @@ public class CommandShell {
     }
 
     public static int chgrp(String group, File path, boolean recursive) throws IOException {
-        return chgrp(group, path.getAbsolutePath(), recursive);
+        return chgrp(group, abs(path), recursive);
     }
 
     public static int chgrp(String group, String path) throws IOException {
@@ -212,7 +215,7 @@ public class CommandShell {
     public static int chown(String owner, File path) throws IOException { return chown(owner, path, false); }
 
     public static int chown(String owner, File path, boolean recursive) throws IOException {
-        return chown(owner, path.getAbsolutePath(), recursive);
+        return chown(owner, abs(path), recursive);
     }
 
     public static int chown(String owner, String path) throws IOException { return chown(owner, path, false); }
@@ -229,7 +232,7 @@ public class CommandShell {
         try {
             return exec(command).getStdout().trim();
         } catch (IOException e) {
-            throw new IllegalStateException("Error executing: "+command+": "+e, e);
+            return die("Error executing: "+command+": "+e, e);
         }
     }
 
@@ -237,7 +240,7 @@ public class CommandShell {
         try {
             return exec("hostname").getStdout().trim();
         } catch (IOException e) {
-            throw new IllegalStateException("CommandShell.hostname() error: "+e, e);
+            return die("CommandShell.hostname() error: "+e, e);
         }
     }
 
@@ -245,7 +248,7 @@ public class CommandShell {
         try {
             return exec("whoami").getStdout().trim();
         } catch (IOException e) {
-            throw new IllegalStateException("CommandShell.whoami() error: "+e, e);
+            return die("CommandShell.whoami() error: "+e, e);
         }
     }
 
@@ -258,7 +261,7 @@ public class CommandShell {
             return temp;
 
         } catch (Exception e) {
-            throw new IllegalStateException("tempScript("+contents+") failed: "+e, e);
+            return die("tempScript("+contents+") failed: "+e, e);
         }
     }
 
@@ -270,12 +273,12 @@ public class CommandShell {
             final Command command = new Command(new CommandLine(script)).setEnv(env);
             return exec(command).getStdout();
         } catch (Exception e) {
-            throw new IllegalStateException("Error executing: "+e);
+            return die("Error executing: "+e);
         }
     }
 
     public static CommandResult okResult(CommandResult result) {
-        if (!result.isZeroExitStatus()) throw new IllegalStateException("error: "+result);
+        if (!result.isZeroExitStatus()) die("error: "+result);
         return result;
     }
 }

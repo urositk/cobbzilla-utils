@@ -6,6 +6,8 @@ import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.auth.DigestScheme;
 import org.apache.http.impl.auth.KerberosScheme;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+
 public enum HttpAuthType {
 
     basic (BasicScheme.class),
@@ -16,7 +18,7 @@ public enum HttpAuthType {
     HttpAuthType(Class<? extends AuthScheme> scheme) { this.scheme = scheme; }
 
     public AuthScheme newScheme () {
-        try { return scheme.newInstance(); } catch (Exception e) { throw new IllegalStateException("newScheme: "+e, e); }
+        try { return scheme.newInstance(); } catch (Exception e) { return die("newScheme: " + e, e); }
     }
 
     @JsonCreator public static HttpAuthType create(String value) { return valueOf(value.toLowerCase()); }

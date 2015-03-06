@@ -3,7 +3,6 @@ package org.cobbzilla.util.io;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.io.*;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.apache.commons.lang3.StringUtils.chop;
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
 @Slf4j
 public class FileUtil {
@@ -23,7 +23,7 @@ public class FileUtil {
 
     public static File[] list(File dir) {
         final File[] files = dir.listFiles();
-        if (files == null) throw new IllegalStateException("Dir could not be listed: "+dir.getAbsolutePath());
+        if (files == null) die("Dir could not be listed: "+abs(dir));
         return files;
     }
 
@@ -39,7 +39,7 @@ public class FileUtil {
     }
 
     public static File createTempDir(File parentDir, String prefix) throws IOException {
-        final Path parent = FileSystems.getDefault().getPath(parentDir.getAbsolutePath());
+        final Path parent = FileSystems.getDefault().getPath(abs(parentDir));
         return new File(Files.createTempDirectory(parent, prefix).toAbsolutePath().toString());
     }
 
@@ -51,13 +51,13 @@ public class FileUtil {
         try {
             return createTempDir(parentDir, prefix);
         } catch (IOException e) {
-            throw new IllegalStateException("createTempDirOrDie: error creating directory with prefix="+parentDir.getAbsolutePath()+"/"+prefix+": "+e, e);
+            return die("createTempDirOrDie: error creating directory with prefix="+abs(parentDir)+"/"+prefix+": "+e, e);
         }
     }
 
     public static void writeResourceToFile(String resourcePath, File outFile, Class clazz) throws IOException {
         if (!outFile.getParentFile().exists() || !outFile.getParentFile().canWrite() || (outFile.exists() && !outFile.canWrite())) {
-            throw new IllegalArgumentException("outFile is not writeable: "+outFile.getAbsolutePath());
+            throw new IllegalArgumentException("outFile is not writeable: "+abs(outFile));
         }
         try (InputStream in = clazz.getClassLoader().getResourceAsStream(resourcePath);
              OutputStream out = new FileOutputStream(outFile)) {
@@ -117,10 +117,10 @@ public class FileUtil {
         try {
             return toString(f);
         } catch (FileNotFoundException e) {
-            log.warn("toStringOrDie: returning null; file not found: "+f.getAbsolutePath());
+            log.warn("toStringOrDie: returning null; file not found: "+abs(f));
             return null;
         } catch (IOException e) {
-            final String path = f == null ? "null" : f.getAbsolutePath();
+            final String path = f == null ? "null" : abs(f);
             throw new IllegalArgumentException("Error reading file ("+ path +"): "+e, e);
         }
     }
@@ -153,7 +153,7 @@ public class FileUtil {
         try {
             return toProperties(f);
         } catch (IOException e) {
-            final String path = f == null ? "null" : f.getAbsolutePath();
+            final String path = f == null ? "null" : abs(f);
             throw new IllegalArgumentException("Error reading properties file ("+ path +"): "+e, e);
         }
     }
@@ -194,8 +194,8 @@ public class FileUtil {
         try {
             return toFile(file, data);
         } catch (IOException e) {
-            String path = (file == null) ? "null" : file.getAbsolutePath();
-            throw new IllegalStateException("toFileOrDie: error writing to file: "+ path);
+            String path = (file == null) ? "null" : abs(file);
+            return die("toFileOrDie: error writing to file: "+ path);
         }
     }
 
@@ -208,7 +208,7 @@ public class FileUtil {
     }
 
     public static File toFile(File file, String data) throws IOException {
-        if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+        if (!ensureDirExists(file.getParentFile())) {
             throw new IOException("Error creating directory: "+file.getParentFile());
         }
         try (OutputStream out = new FileOutputStream(file)) {
@@ -218,7 +218,7 @@ public class FileUtil {
     }
 
     public static void renameOrDie (File from, File to) {
-        if (!from.renameTo(to)) throw new IllegalStateException("Error renaming "+from.getAbsolutePath()+" -> "+to.getAbsolutePath());
+        if (!from.renameTo(to)) die("Error renaming "+abs(from)+" -> "+abs(to));
     }
 
     public static void writeString (File target, String data) throws IOException {
@@ -231,7 +231,7 @@ public class FileUtil {
         try {
             writeString(target, data);
         } catch (IOException e) {
-            throw new IllegalStateException("Error writing to file ("+target.getAbsolutePath()+"): "+e, e);
+            die("Error writing to file ("+abs(target)+"): "+e, e);
         }
     }
 
@@ -246,13 +246,13 @@ public class FileUtil {
             // do nothing -- if append is false, we truncate the file,
             // otherwise just update the mtime/atime, and possible create an empty file if it doesn't already exist
         } catch (IOException e) {
-            final String path = (file == null) ? "null" : file.getAbsolutePath();
+            final String path = (file == null) ? "null" : abs(file);
             throw new IllegalArgumentException("error "+(append ? "touching" : "truncating")+" "+path +": "+e, e);
         }
     }
 
     public static Path path(File f) {
-        return FileSystems.getDefault().getPath(f.getAbsolutePath());
+        return FileSystems.getDefault().getPath(abs(f));
     }
 
     public static boolean isSymlink(File file) {
@@ -284,5 +284,40 @@ public class FileUtil {
         if (pos == -1) return path;
         if (pos == path.length()-1) throw new IllegalArgumentException("basename: invalid path: "+path);
         return path.substring(pos + 1);
+    }
+
+    // quick alias for getting an absolute path
+    public static String abs(File path) { return path.getAbsolutePath(); }
+    public static String abs(Path path) { return abs(path.toFile()); }
+    public static String abs(String path) { return abs(new File(path)); }
+
+    public static File mkdirOrDie(File dir) {
+        if (!dir.exists() && !dir.mkdirs()) {
+            final String msg = "mkdirOrDie: error creating: " + abs(dir);
+            log.error(msg);
+            die(msg);
+        }
+        assertIsDir(dir);
+        return dir;
+    }
+
+    public static boolean ensureDirExists(File dir) {
+        if (!dir.exists() && !dir.mkdirs()) {
+            log.error("ensureDirExists: error creating: " + abs(dir));
+            return false;
+        }
+        if (!dir.isDirectory()) {
+            log.error("ensureDirExists: not a directory: " + abs(dir));
+            return false;
+        }
+        return true;
+    }
+
+    public static void assertIsDir(File dir) {
+        if (!dir.isDirectory()) {
+            final String msg = "assertIsDir: not a dir: " + abs(dir);
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
     }
 }
