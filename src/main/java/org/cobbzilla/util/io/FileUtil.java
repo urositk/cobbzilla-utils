@@ -21,6 +21,12 @@ public class FileUtil {
 
     public static final File DEFAULT_TEMPDIR = new File(System.getProperty("java.io.tmpdir"));
 
+    public static File[] list(File dir) {
+        final File[] files = dir.listFiles();
+        if (files == null) throw new IllegalStateException("Dir could not be listed: "+dir.getAbsolutePath());
+        return files;
+    }
+
     public static String chopSuffix(String path) {
         if (path == null) return null;
         final int lastDot = path.lastIndexOf('.');
