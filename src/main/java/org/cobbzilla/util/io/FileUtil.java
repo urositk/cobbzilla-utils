@@ -320,4 +320,17 @@ public class FileUtil {
             throw new IllegalArgumentException(msg);
         }
     }
+
+    public static String extension(File f) { return extension(abs(f)); }
+
+    public static String extension(String name) {
+        int lastDot = name.lastIndexOf('.');
+        if (lastDot == -1) return "";
+        return name.substring(lastDot);
+    }
+
+    public static String removeExtension(File f, String ext) {
+        return f.getName().substring(0, f.getName().length() - ext.length());
+    }
+
 }
