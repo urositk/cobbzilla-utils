@@ -23,7 +23,13 @@ public class FileUtil {
 
     public static File[] list(File dir) {
         final File[] files = dir.listFiles();
-        if (files == null) die("Dir could not be listed: "+abs(dir));
+        if (files == null) die("list: dir could not be listed: "+abs(dir));
+        return files;
+    }
+
+    public static File[] listFiles(File dir) {
+        final File[] files = dir.listFiles(RegularFileFilter.instance);
+        if (files == null) die("listFiles: dir could not be listed: "+abs(dir));
         return files;
     }
 
