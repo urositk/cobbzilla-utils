@@ -33,7 +33,10 @@ public class StringUtil {
 
     public static boolean empty(String s) { return s == null || s.length() == 0; }
     public static boolean empty(Object s) {
-        return s == null || s.getClass().isArray() && ((Object[]) s).length == 0 || s.toString().length() == 0;
+        return s == null
+                || (s.getClass().isArray() && ((Object[]) s).length == 0)
+                || (Collection.class.isAssignableFrom(s.getClass()) && ((Collection)s).isEmpty())
+                || s.toString().length() == 0;
     }
 
     public static List<String> split (String s, String delim) {
@@ -43,6 +46,13 @@ public class StringUtil {
             results.add(st.nextToken());
         }
         return results;
+    }
+
+    public static String replaceLast(String s, String find, String replace) {
+        if (empty(s)) return s;
+        int lastIndex = s.lastIndexOf(find);
+        if (lastIndex < 0) return s;
+        return s.substring(0, lastIndex) + s.substring(lastIndex).replaceFirst(find, replace);
     }
 
     public static String lastPathElement(String url) { return url.substring(url.lastIndexOf("/")+1); }
