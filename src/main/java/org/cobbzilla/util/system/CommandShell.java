@@ -244,6 +244,14 @@ public class CommandShell {
         }
     }
 
+    public static String locale () {
+        return execScript("locale | grep LANG= | tr '=.' ' ' | awk '{print $2}'").trim();
+    }
+
+    public static String lang () {
+        return execScript("locale | grep LANG= | tr '=_' ' ' | awk '{print $2}'").trim();
+    }
+
     public static String whoami() {
         try {
             return exec("whoami").getStdout().trim();
