@@ -289,4 +289,16 @@ public class CommandShell {
         if (!result.isZeroExitStatus()) die("error: "+result);
         return result;
     }
+
+    /**
+     * The return value will always end in 000 since we simply multiply the UNIX timestamp by 1000.
+     * @param dir The directory to search
+     * @return The most recent file modification time, as a Java long epoch time.
+     * @throws java.lang.IllegalStateException if the dir does not exist, is not a directory, or does not contain any files
+     */
+    public static long mostRecentFileMod(File dir) {
+        return Long.parseLong(
+                execScript("stat --format=%Y $(find " + abs(dir) + " -type f -printf '%T@ %p\\n' | sort -n | tail -1 | cut -f2- -d\" \")"
+            ).trim()) * 1000;
+    }
 }
