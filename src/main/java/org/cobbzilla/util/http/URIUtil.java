@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.string.StringUtil.empty;
 
 public class URIUtil {
 
@@ -59,5 +60,9 @@ public class URIUtil {
         final int last = path.lastIndexOf('.');
         if (last == -1 || last == path.length()-1) return null;
         return path.substring(last+1);
+    }
+
+    public static boolean isHost(String uriString, String host) {
+        return !empty(uriString) && toUri(uriString).getHost().equals(host);
     }
 }
