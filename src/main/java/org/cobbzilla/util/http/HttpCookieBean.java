@@ -1,28 +1,45 @@
 package org.cobbzilla.util.http;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.util.string.StringUtil;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.Date;
 import java.util.StringTokenizer;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.string.StringUtil.empty;
 
 @NoArgsConstructor @Accessors(chain=true) @Slf4j
 public class HttpCookieBean {
 
-    public static final DateTimeFormatter EXPIRES_PATTERN = DateTimeFormat.forPattern("E, dd-MMM-yyyy HH:mm:ss z");
+    public static final DateTimeFormatter[] EXPIRES_PATTERNS = {
+            DateTimeFormat.forPattern("E, dd MMM yyyy HH:mm:ss Z"),
+            DateTimeFormat.forPattern("E, dd-MMM-yyyy HH:mm:ss Z"),
+            DateTimeFormat.forPattern("E, dd MMM yyyy HH:mm:ss z"),
+            DateTimeFormat.forPattern("E, dd-MMM-yyyy HH:mm:ss z")
+    };
 
     @Getter @Setter private String name;
     @Getter @Setter private String value;
     @Getter @Setter private String domain;
     public boolean hasDomain () { return !StringUtil.empty(domain); }
+
+    @Getter @Setter private String path;
+    @Getter @Setter private String expires;
+    @Getter @Setter private Long maxAge;
+    @Getter @Setter private boolean secure;
+    @Getter @Setter private boolean httpOnly;
 
     public HttpCookieBean(String name, String value) { this(name, value, null); }
 
@@ -36,11 +53,15 @@ public class HttpCookieBean {
         ReflectionUtil.copy(this, other);
     }
 
-    @Getter @Setter private String path;
-    @Getter @Setter private String expires;
-    @Getter @Setter private Long maxAge;
-    @Getter @Setter private boolean secure;
-    @Getter @Setter private boolean httpOnly;
+    public HttpCookieBean(Cookie cookie) {
+        this(cookie.getName(), cookie.getValue(), cookie.getDomain());
+        path = cookie.getPath();
+        secure = cookie.isSecure();
+        final Date expiryDate = cookie.getExpiryDate();
+        if (expiryDate != null) {
+            expires = EXPIRES_PATTERNS[0].print(expiryDate.getTime());
+        }
+    }
 
     public static HttpCookieBean parse (String setCookie) {
         final HttpCookieBean cookie = new HttpCookieBean();
@@ -89,6 +110,36 @@ public class HttpCookieBean {
 
     public boolean expired () {
         return (maxAge != null && maxAge <= 0)
-                || (expires != null && EXPIRES_PATTERN.parseDateTime(expires).toDateTime().isBeforeNow());
+                || (expires != null && getExpiredDateTime().isBeforeNow());
+    }
+
+    public boolean expired (long expiration) {
+        return (maxAge != null && System.currentTimeMillis() + maxAge < expiration)
+                || (expires != null && getExpiredDateTime().isBefore(expiration));
+    }
+
+    @JsonIgnore public Date getExpiryDate () {
+        if (maxAge != null) return new Date(System.currentTimeMillis() + maxAge);
+        if (expires != null) return getExpiredDateTime().toDate();
+        return null;
+    }
+
+    protected DateTime getExpiredDateTime() {
+        if (empty(expires)) return null;
+        for (DateTimeFormatter formatter : EXPIRES_PATTERNS) {
+            try {
+                return formatter.parseDateTime(expires);
+            } catch (Exception ignored) {}
+        }
+        return die("getExpiredDateTime: unparseable 'expires' value for cookie "+name+": '"+expires+"'");
+    }
+
+    public Cookie toHttpClientCookie() {
+        final BasicClientCookie cookie = new BasicClientCookie(name, value);
+        cookie.setExpiryDate(getExpiryDate());
+        cookie.setPath(path);
+        cookie.setDomain(domain);
+        cookie.setSecure(secure);
+        return cookie;
     }
 }

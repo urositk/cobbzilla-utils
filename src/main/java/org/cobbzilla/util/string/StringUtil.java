@@ -35,7 +35,8 @@ public class StringUtil {
     public static boolean empty(Object s) {
         return s == null
                 || (s.getClass().isArray() && ((Object[]) s).length == 0)
-                || (Collection.class.isAssignableFrom(s.getClass()) && ((Collection)s).isEmpty())
+                || ((s instanceof Collection) && ((Collection)s).isEmpty())
+                || ((s instanceof Map) && ((Map)s).isEmpty())
                 || s.toString().length() == 0;
     }
 
