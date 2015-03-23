@@ -47,6 +47,7 @@ public abstract class BufferedFilesystemWatcher extends FilesystemWatcher implem
         super(path);
         bfsMonitor = new BfsMonitor();
         monitor = new Thread(bfsMonitor, "bfs-monitor("+abs(path)+")");
+        monitor.setDaemon(true);
         monitor.start();
         this.timeout = timeout;
         this.maxEvents = maxEvents;
