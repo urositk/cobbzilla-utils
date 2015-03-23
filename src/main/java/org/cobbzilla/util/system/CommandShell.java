@@ -286,7 +286,7 @@ public class CommandShell {
     }
 
     public static CommandResult okResult(CommandResult result) {
-        if (!result.isZeroExitStatus()) die("error: "+result);
+        if (result == null || !result.isZeroExitStatus()) die("error: "+result);
         return result;
     }
 
