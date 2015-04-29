@@ -1,10 +1,9 @@
 package org.cobbzilla.util.collection;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static org.cobbzilla.util.string.StringUtil.empty;
 
 public class ArrayUtil {
 
@@ -36,4 +35,12 @@ public class ArrayUtil {
         for (int i=from; i<=to; i++) newArray[from-i] = array[i];
         return newArray;
     }
+
+    public static <T> List<T> merge(Collection<T>... collections) {
+        if (empty(collections)) return Collections.emptyList();
+        final Set<T> result = new HashSet<>();
+        for (Collection<T> c : collections) result.addAll(c);
+        return new ArrayList<>(result);
+    }
+
 }
