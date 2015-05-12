@@ -16,6 +16,14 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 @Slf4j
 public class ReflectionUtil {
 
+    public static <T> T instantiate(String clazz) {
+        try {
+            return (T) Class.forName(clazz).newInstance();
+        } catch (Exception e) {
+            return die("Error instantiating "+clazz+": "+e, e);
+        }
+    }
+
     private enum Accessor { get, set }
 
     public static <T> T copy (T dest, T src) {

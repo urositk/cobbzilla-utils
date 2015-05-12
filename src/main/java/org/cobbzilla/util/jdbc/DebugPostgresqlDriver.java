@@ -2,6 +2,7 @@ package org.cobbzilla.util.jdbc;
 
 import lombok.Delegate;
 import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.util.reflect.ReflectionUtil;
 
 import java.sql.*;
 import java.util.Properties;
@@ -22,17 +23,7 @@ public class DebugPostgresqlDriver implements Driver, DebugDriver {
     }
 
     @Delegate(excludes = DebugDriver.class)
-    private Driver driver;
-
-    public DebugPostgresqlDriver() {
-        try {
-            driver = (Driver) Class.forName(DRIVER_CLASS_NAME).newInstance();
-        } catch (Exception e) {
-            String msg = "Error instantiating driver: "+DRIVER_CLASS_NAME+": "+e;
-            log.error(msg, e);
-            throw new IllegalArgumentException(msg, e);
-        }
-    }
+    private Driver driver = ReflectionUtil.instantiate(DRIVER_CLASS_NAME);
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {

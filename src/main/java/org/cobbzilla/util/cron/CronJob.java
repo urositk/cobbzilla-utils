@@ -2,6 +2,7 @@ package org.cobbzilla.util.cron;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.cobbzilla.util.reflect.ReflectionUtil;
 
 import java.util.Properties;
 
@@ -20,8 +21,8 @@ public class CronJob {
 //    @Getter @Setter private String user;
 //    @Getter @Setter private String shellCommand;
 
-    public CronCommand getCommandInstance() throws Exception {
-        CronCommand command = (CronCommand) Class.forName(commandClass).newInstance();
+    public CronCommand getCommandInstance() {
+        CronCommand command = ReflectionUtil.instantiate(commandClass);
         command.init(properties);
         return command;
     }
