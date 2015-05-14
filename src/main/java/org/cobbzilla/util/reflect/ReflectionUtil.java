@@ -18,7 +18,15 @@ public class ReflectionUtil {
 
     public static <T> T instantiate(String clazz) {
         try {
-            return (T) Class.forName(clazz).newInstance();
+            return instantiate((Class<? extends T>) Class.forName(clazz));
+        } catch (Exception e) {
+            return die("Error instantiating "+clazz+": "+e, e);
+        }
+    }
+
+    public static <T> T instantiate(Class<T> clazz) {
+        try {
+            return clazz.newInstance();
         } catch (Exception e) {
             return die("Error instantiating "+clazz+": "+e, e);
         }
