@@ -7,11 +7,9 @@ import com.fasterxml.jackson.databind.node.*;
 import org.cobbzilla.util.io.FileSuffixFilter;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.FilenameSuffixFilter;
+import org.cobbzilla.util.io.StreamUtil;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -68,6 +66,10 @@ public class JsonUtil {
         } catch (Exception e) {
             return die("toJson: exception writing object ("+o+"): "+e, e);
         }
+    }
+
+    public static <T> T fromJson(InputStream json, Class<T> clazz) throws Exception {
+        return fromJson(StreamUtil.toString(json), clazz);
     }
 
     public static <T> T fromJson(String json, Class<T> clazz) throws Exception {
