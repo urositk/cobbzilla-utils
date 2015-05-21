@@ -33,6 +33,12 @@ public class FileUtil {
         return files;
     }
 
+    public static File[] listDirs(File dir) {
+        final File[] files = dir.listFiles(DirFilter.instance);
+        if (files == null) die("listDirs: dir could not be listed: "+abs(dir));
+        return files;
+    }
+
     public static String chopSuffix(String path) {
         if (path == null) return null;
         final int lastDot = path.lastIndexOf('.');
