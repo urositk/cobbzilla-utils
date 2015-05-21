@@ -10,7 +10,9 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.exec.CommandLine;
 import org.apache.commons.io.FileUtils;
+import org.cobbzilla.util.system.Command;
 import org.cobbzilla.util.system.CommandShell;
 
 import java.io.*;
@@ -85,4 +87,56 @@ public class Tarball {
         return dir;
     }
 
+    /**
+     * Roll a gzipped tarball. The tarball will be created from within the directory to be tarred (paths will be relative to .)
+     * @param dir The directory to tar
+     * @return The created tarball (will be a temp file)
+     */
+    public static File roll (File dir) throws IOException {
+        return roll(File.createTempFile("temp-tarball-", ".tar.gz"), dir, dir);
+    }
+
+    /**
+     * Roll a gzipped tarball. The tarball will be created from within the directory to be tarred (paths will be relative to .)
+     * @param tarball The path to the tarball to create
+     * @param dir The directory to tar
+     * @return The created tarball
+     */
+    public static File roll (File tarball, File dir) throws IOException {
+        return roll(tarball, dir, dir);
+    }
+
+    /**
+     * Roll a gzipped tarball. The tarball will be created from "cwd", which must above the directory to be tarred.
+     * @param tarball The path to the tarball to create
+     * @param dir The directory to tar
+     * @param cwd A directory that is somewhere above dir in the filesystem hierarchy
+     * @return The created tarball
+     */
+    public static File roll (File tarball, File dir, File cwd) throws IOException {
+
+        if (cwd == null) cwd = dir;
+        final String dirAbsPath = dir.getAbsolutePath();
+        final String cwdAbsPath = cwd.getAbsolutePath();
+
+        final String dirPath;
+        if (dirAbsPath.equals(cwdAbsPath)) {
+            dirPath = ".";
+
+        } else if (dirAbsPath.startsWith(cwdAbsPath)) {
+            dirPath = cwdAbsPath.substring(dirAbsPath.length());
+
+        } else {
+            return die("tarball dir is not within cwd");
+        }
+
+        final CommandLine command = new CommandLine("tar")
+                .addArgument("czf")
+                .addArgument(tarball.getAbsolutePath())
+                .addArgument(dirPath);
+
+        CommandShell.exec(new Command(command).setDir(cwd));
+
+        return tarball;
+    }
 }

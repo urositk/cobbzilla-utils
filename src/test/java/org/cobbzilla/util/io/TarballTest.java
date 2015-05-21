@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -17,18 +18,11 @@ public class TarballTest {
 
     private File tempDir;
 
-    @Before
-    public void createTempDir () throws Exception {
-        tempDir = Files.createTempDir();
-    }
+    @Before public void createTempDir () throws Exception { tempDir = Files.createTempDir(); }
 
-    @After
-    public void deleteTempDir () throws Exception {
-        FileUtils.deleteDirectory(tempDir);
-    }
+    @After public void deleteTempDir () throws Exception { FileUtils.deleteDirectory(tempDir); }
 
-    @Test
-    public void testUnroll () throws Exception {
+    @Test public void testUnrollAndReroll () throws Exception {
 
         // copy tarball from resources to temp file
         final File tarball = StreamUtil.stream2temp(StreamUtil.loadResourceAsStream(StringUtil.packagePath(getClass()) + "/test.tar.gz"));
@@ -37,7 +31,21 @@ public class TarballTest {
         Tarball.unroll(tarball, tempDir);
 
         // list files in tempDir, we expect file1 and subdir
-        final File[] files = tempDir.listFiles();
+        validateUnrolledTarball(tempDir);
+
+        final File newTar = File.createTempFile("temp", ".tar");
+        Tarball.roll(newTar, this.tempDir);
+
+        // reset tempdir
+        deleteTempDir(); createTempDir();
+        Tarball.unroll(tarball, tempDir);
+
+        // re-validate, should still pass
+        validateUnrolledTarball(tempDir);
+    }
+
+    protected void validateUnrolledTarball(File unrolledDir) throws IOException {
+        final File[] files = unrolledDir.listFiles();
         assertEquals(2, files.length);
 
         int fileIndex, subdirIndex;
