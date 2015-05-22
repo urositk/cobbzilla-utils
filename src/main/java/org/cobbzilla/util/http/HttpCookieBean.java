@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.cobbzilla.util.reflect.ReflectionUtil;
-import org.cobbzilla.util.string.StringUtil;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -18,7 +17,7 @@ import java.util.Date;
 import java.util.StringTokenizer;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
-import static org.cobbzilla.util.string.StringUtil.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @NoArgsConstructor @Accessors(chain=true) @Slf4j
 public class HttpCookieBean {
@@ -33,7 +32,7 @@ public class HttpCookieBean {
     @Getter @Setter private String name;
     @Getter @Setter private String value;
     @Getter @Setter private String domain;
-    public boolean hasDomain () { return !StringUtil.empty(domain); }
+    public boolean hasDomain () { return !empty(domain); }
 
     @Getter @Setter private String path;
     @Getter @Setter private String expires;
@@ -125,7 +124,9 @@ public class HttpCookieBean {
     }
 
     protected DateTime getExpiredDateTime() {
-        if (empty(expires)) return null;
+        if (empty(expires)) {
+            return null;
+        }
         for (DateTimeFormatter formatter : EXPIRES_PATTERNS) {
             try {
                 return formatter.parseDateTime(expires);

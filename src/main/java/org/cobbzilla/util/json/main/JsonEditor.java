@@ -3,6 +3,7 @@ package org.cobbzilla.util.json.main;
 import lombok.Cleanup;
 import lombok.Getter;
 import lombok.Setter;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.json.JsonEdit;
 import org.cobbzilla.util.json.JsonEditOperation;
@@ -13,7 +14,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import static org.cobbzilla.util.string.StringUtil.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.*;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class JsonEditor {
 

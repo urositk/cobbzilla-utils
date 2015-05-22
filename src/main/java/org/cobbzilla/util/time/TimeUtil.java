@@ -1,10 +1,12 @@
 package org.cobbzilla.util.time;
 
-import org.cobbzilla.util.string.StringUtil;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.util.concurrent.TimeUnit;
+
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class TimeUtil {
 
@@ -14,7 +16,7 @@ public class TimeUtil {
     public static final long SECOND = TimeUnit.SECONDS.toMillis(1);
 
     public static Long parse(String time, DateTimeFormatter formatter) {
-        return StringUtil.empty(time) ? null : formatter.parseDateTime(time).getMillis();
+        return empty(time) ? null : formatter.parseDateTime(time).getMillis();
     }
 
     public static String format(Long time, DateTimeFormatter formatter) {

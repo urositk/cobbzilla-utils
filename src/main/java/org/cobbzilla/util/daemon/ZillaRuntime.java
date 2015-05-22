@@ -2,6 +2,9 @@ package org.cobbzilla.util.daemon;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collection;
+import java.util.Map;
+
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 /**
@@ -29,4 +32,13 @@ public class ZillaRuntime {
 
     public static <T> T die (Exception e) { throw new IllegalStateException("(no message)", e); }
 
+    public static boolean empty(String s) { return s == null || s.length() == 0; }
+
+    public static boolean empty(Object s) {
+        return s == null
+                || (s.getClass().isArray() && ((Object[]) s).length == 0)
+                || ((s instanceof Collection) && ((Collection)s).isEmpty())
+                || ((s instanceof Map) && ((Map)s).isEmpty())
+                || s.toString().length() == 0;
+    }
 }

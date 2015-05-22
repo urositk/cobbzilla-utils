@@ -1,10 +1,12 @@
 package org.cobbzilla.util.http;
 
+import org.cobbzilla.util.daemon.ZillaRuntime;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
-import static org.cobbzilla.util.string.StringUtil.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class URIUtil {
 

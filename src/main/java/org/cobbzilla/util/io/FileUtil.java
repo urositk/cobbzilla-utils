@@ -3,7 +3,7 @@ package org.cobbzilla.util.io;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.cobbzilla.util.string.StringUtil;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 
 import java.io.*;
 import java.nio.file.FileSystems;
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.apache.commons.lang3.StringUtils.chop;
+import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
 @Slf4j
@@ -283,7 +284,7 @@ public class FileUtil {
     }
 
     public static String dirname(String path) {
-        if (StringUtil.empty(path)) throw new NullPointerException("dirname: path was empty");
+        if (empty(path)) throw new NullPointerException("dirname: path was empty");
         int pos = path.lastIndexOf('/');
         if (pos == -1) return ".";
         if (path.endsWith("/")) path = chop(path);
@@ -291,7 +292,7 @@ public class FileUtil {
     }
 
     public static String basename(String path) {
-        if (StringUtil.empty(path)) throw new NullPointerException("basename: path was empty");
+        if (empty(path)) throw new NullPointerException("basename: path was empty");
         int pos = path.lastIndexOf('/');
         if (pos == -1) return path;
         if (pos == path.length()-1) throw new IllegalArgumentException("basename: invalid path: "+path);

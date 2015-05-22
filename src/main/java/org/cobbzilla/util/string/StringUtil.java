@@ -1,6 +1,7 @@
 package org.cobbzilla.util.string;
 
 import org.apache.commons.lang3.LocaleUtils;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.security.MD5Util;
 import org.cobbzilla.util.time.ImprovedTimezone;
 import org.joda.time.DateTimeZone;
@@ -12,6 +13,8 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.*;
+
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class StringUtil {
 
@@ -29,15 +32,6 @@ public class StringUtil {
 
     public static String packagePath(Class clazz) {
         return clazz.getPackage().getName().replace(".","/");
-    }
-
-    public static boolean empty(String s) { return s == null || s.length() == 0; }
-    public static boolean empty(Object s) {
-        return s == null
-                || (s.getClass().isArray() && ((Object[]) s).length == 0)
-                || ((s instanceof Collection) && ((Collection)s).isEmpty())
-                || ((s instanceof Map) && ((Map)s).isEmpty())
-                || s.toString().length() == 0;
     }
 
     public static List<String> split (String s, String delim) {
@@ -63,7 +57,7 @@ public class StringUtil {
     }
 
     public static Integer safeParseInt(String s) {
-        if (StringUtil.empty(s)) return null;
+        if (empty(s)) return null;
         try {
             return Integer.parseInt(s);
         } catch (NumberFormatException e) {

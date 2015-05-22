@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.lang3.ArrayUtils;
 import org.cobbzilla.util.collection.SingletonList;
+import org.cobbzilla.util.daemon.ZillaRuntime;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -18,7 +19,7 @@ import java.util.Map;
 
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.string.StringUtil.UTF8cs;
-import static org.cobbzilla.util.string.StringUtil.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @NoArgsConstructor @Accessors(chain=true)
 public class Command {
