@@ -3,7 +3,6 @@ package org.cobbzilla.util.io;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 
 import java.io.*;
 import java.nio.file.FileSystems;
@@ -14,8 +13,8 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.apache.commons.lang3.StringUtils.chop;
-import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @Slf4j
 public class FileUtil {
@@ -300,9 +299,9 @@ public class FileUtil {
     }
 
     // quick alias for getting an absolute path
-    public static String abs(File path) { return path.getAbsolutePath(); }
-    public static String abs(Path path) { return abs(path.toFile()); }
-    public static String abs(String path) { return abs(new File(path)); }
+    public static String abs(File path) { return path == null ? "null" : path.getAbsolutePath(); }
+    public static String abs(Path path) { return path == null ? "null" : abs(path.toFile()); }
+    public static String abs(String path) { return path == null ? "null" : abs(new File(path)); }
 
     public static File mkdirOrDie(File dir) {
         if (!dir.exists() && !dir.mkdirs()) {
