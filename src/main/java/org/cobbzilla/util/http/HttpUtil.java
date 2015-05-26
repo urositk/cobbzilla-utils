@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import lombok.Cleanup;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.InputStreamEntity;
@@ -183,5 +184,10 @@ public class HttpUtil {
         } else {
             throw new IllegalArgumentException("Unsupported request entity type: "+data.getClass().getName());
         }
+    }
+
+    public static String getContentType(HttpResponse response) {
+        final Header contentTypeHeader = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+        return (contentTypeHeader == null) ? null : contentTypeHeader.getValue();
     }
 }
