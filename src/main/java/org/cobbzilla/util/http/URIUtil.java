@@ -1,7 +1,5 @@
 package org.cobbzilla.util.http;
 
-import org.cobbzilla.util.daemon.ZillaRuntime;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -16,7 +14,9 @@ public class URIUtil {
         }
     }
 
+    public static String getScheme(String uri) { return toUri(uri).getScheme(); }
     public static String getHost(String uri) { return toUri(uri).getHost(); }
+    public static int getPort(String uri) { return toUri(uri).getPort(); }
     public static String getPath(String uri) { return toUri(uri).getPath(); }
 
     public static String getHostUri(String uri) {
@@ -67,4 +67,5 @@ public class URIUtil {
     public static boolean isHost(String uriString, String host) {
         return !empty(uriString) && toUri(uriString).getHost().equals(host);
     }
+
 }
