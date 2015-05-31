@@ -12,6 +12,7 @@ import java.util.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.io.FileUtil.toString;
 
 @Slf4j
 public class CommandShell {
@@ -236,13 +237,9 @@ public class CommandShell {
         }
     }
 
-    public static String hostname () {
-        try {
-            return exec("hostname").getStdout().trim();
-        } catch (IOException e) {
-            return die("CommandShell.hostname() error: "+e, e);
-        }
-    }
+    public static String hostname () { return toString("hostname"); }
+    public static String domainname() { return toString("hostname -d"); }
+    public static String whoami() { return toString("whoami"); }
 
     public static String locale () {
         return execScript("locale | grep LANG= | tr '=.' ' ' | awk '{print $2}'").trim();
@@ -250,14 +247,6 @@ public class CommandShell {
 
     public static String lang () {
         return execScript("locale | grep LANG= | tr '=_' ' ' | awk '{print $2}'").trim();
-    }
-
-    public static String whoami() {
-        try {
-            return exec("whoami").getStdout().trim();
-        } catch (IOException e) {
-            return die("CommandShell.whoami() error: "+e, e);
-        }
     }
 
     public static File tempScript (String contents) {
@@ -301,4 +290,5 @@ public class CommandShell {
                 execScript("stat --format=%Y $(find " + abs(dir) + " -type f -printf '%T@ %p\\n' | sort -n | tail -1 | cut -f2- -d\" \")"
             ).trim()) * 1000;
     }
+
 }
