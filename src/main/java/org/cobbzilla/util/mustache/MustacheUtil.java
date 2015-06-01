@@ -9,6 +9,8 @@ import java.io.StringWriter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+
 public class MustacheUtil {
 
     public static final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
@@ -25,6 +27,7 @@ public class MustacheUtil {
     }
 
     public static String render(String value, Map<String, Object> scope) {
+        if (empty(value)) return value;
         final StringWriter w = new StringWriter();
         final Mustache mustache = getMustache(value);
         mustache.execute(w, scope);
