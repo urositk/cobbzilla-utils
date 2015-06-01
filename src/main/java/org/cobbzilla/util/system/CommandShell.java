@@ -12,7 +12,6 @@ import java.util.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.io.FileUtil.abs;
-import static org.cobbzilla.util.io.FileUtil.toString;
 
 @Slf4j
 public class CommandShell {
@@ -240,6 +239,7 @@ public class CommandShell {
     public static String hostname () { return toString("hostname"); }
     public static String domainname() { return toString("hostname -d"); }
     public static String whoami() { return toString("whoami"); }
+    public static boolean isRoot() { return "root".equals(whoami()); }
 
     public static String locale () {
         return execScript("locale | grep LANG= | tr '=.' ' ' | awk '{print $2}'").trim();
