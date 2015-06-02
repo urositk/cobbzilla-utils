@@ -21,6 +21,10 @@ public class FileUtil {
 
     public static final File DEFAULT_TEMPDIR = new File(System.getProperty("java.io.tmpdir"));
 
+    public static boolean isReadableNonEmptyFile (File f) {
+        return f != null && f.exists() && f.canRead() && f.length() > 0;
+    }
+
     public static File[] list(File dir) {
         final File[] files = dir.listFiles();
         if (files == null) die("list: dir could not be listed: "+abs(dir));

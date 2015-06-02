@@ -1,13 +1,13 @@
 package org.cobbzilla.util.collection;
 
-import org.cobbzilla.util.daemon.ZillaRuntime;
-
 import java.lang.reflect.Array;
 import java.util.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class ArrayUtil {
+
+    public static final Object[] SINGLE_NULL_OBJECT = new Object[]{null};
 
     public static <T> T[] append (T[] array, T element) {
         if (array == null || array.length == 0) {

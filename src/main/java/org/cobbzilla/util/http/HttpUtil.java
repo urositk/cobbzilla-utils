@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.http.URIUtil.getFileExt;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 public class HttpUtil {
@@ -59,7 +60,7 @@ public class HttpUtil {
         return url2file(url, file, DEFAULT_RETRIES);
     }
     public static File url2file (String url, File file, int retries) throws IOException {
-        if (file == null) file = File.createTempFile("url2file-", ".tmp");
+        if (file == null) file = File.createTempFile("url2file-", getFileExt((url)));
         IOException lastException = null;
         long sleep = 100;
         for (int i=0; i<retries; i++) {

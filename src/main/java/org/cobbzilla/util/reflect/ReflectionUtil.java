@@ -2,11 +2,9 @@ package org.cobbzilla.util.reflect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.MethodUtils;
+import org.cobbzilla.util.collection.ArrayUtil;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -185,14 +183,31 @@ public class ReflectionUtil {
     }
 
     private static void invoke_set(Object target, String token, Object value) {
-        if (value == null) {
-            throw new IllegalArgumentException("invoke_set: "+token+" cannot have null value, use setNull");
-        }
         final String methodName = getAccessorMethodName(Accessor.set, token);
-        try {
-            MethodUtils.invokeMethod(target, methodName, value == null ? new Object[] { null } : value);
-        } catch (Exception e) {
-            die("Error calling "+methodName+": "+e);
+        if (value == null) {
+            // try to find a single-arg method named methodName...
+            Method found = null;
+            for (Method m : target.getClass().getMethods()) {
+                if (m.getName().equals(methodName) && m.getParameterTypes().length == 1) {
+                    if (found != null) {
+                        die("invoke_set: value was null and multiple single-arg methods named " + methodName + " exist");
+                    } else {
+                        found = m;
+                    }
+                }
+            }
+            if (found == null) die("invoke_set: no method " + methodName + " found on target: " + target);
+            try {
+                found.invoke(target, ArrayUtil.SINGLE_NULL_OBJECT);
+            } catch (Exception e) {
+                die("Error calling " + methodName + ": " + e);
+            }
+        } else {
+            try {
+                MethodUtils.invokeMethod(target, methodName, value);
+            } catch (Exception e) {
+                die("Error calling " + methodName + ": " + e);
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 package org.cobbzilla.util.io;
 
-import com.google.common.io.Files;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.ArchiveException;
@@ -27,17 +26,19 @@ public class Tarball {
      * @param tarball the tarball to unroll. Can be .tar.gz or .tar.bz2
      * @return a File representing the temp directory where the tarball was unrolled
      */
-    public static File unroll (File tarball) throws Exception {
-        File tempDirectory = Files.createTempDir();
+    public static TempDir unroll (File tarball) throws Exception {
+        TempDir tempDirectory = new TempDir();
         try {
-            return unroll(tarball, tempDirectory);
+            unroll(tarball, tempDirectory);
+            return tempDirectory;
+
         } catch (Exception e) {
             FileUtils.deleteDirectory(tempDirectory);
             throw e;
         }
     }
 
-    public static File unroll(File tarball, File dir) throws IOException, ArchiveException {
+    public static void unroll(File tarball, File dir) throws IOException, ArchiveException {
 
         final String path = abs(tarball);
         final FileInputStream fileIn = new FileInputStream(tarball);
@@ -83,8 +84,6 @@ public class Tarball {
             }
             CommandShell.chmod(file, Integer.toOctalString(entry.getMode()));
         }
-
-        return dir;
     }
 
     /**
