@@ -1,7 +1,7 @@
 package org.cobbzilla.util.json;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.cobbzilla.util.json.JsonUtil.*;
+import static org.cobbzilla.util.json.JsonUtil.FULL_MAPPER_ALLOW_COMMENTS;
 
 /**
  * Facilitates editing JSON files.
@@ -31,6 +32,8 @@ import static org.cobbzilla.util.json.JsonUtil.*;
 @Accessors(chain=true)
 public class JsonEdit {
 
+    public static final ObjectMapper JSON = FULL_MAPPER_ALLOW_COMMENTS;
+
     @Getter @Setter private Object jsonData;
     @Getter @Setter private List<JsonEditOperation> operations = new ArrayList<>();
 
@@ -38,23 +41,21 @@ public class JsonEdit {
 
     public String edit () throws Exception {
 
-        FULL_MAPPER.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
-
         JsonNode root = readJson();
         for (JsonEditOperation operation : operations) {
             if (operation.isRead()) return JsonUtil.toString(findNode(root, operation.getPath()));
             root = apply(root, operation);
         }
-        return JsonUtil.toString(FULL_MAPPER.treeToValue(root, Object.class));
+        return JsonUtil.toString(JSON.treeToValue(root, Object.class));
     }
 
     private JsonNode readJson() throws IOException {
         if (jsonData instanceof JsonNode) return (JsonNode) jsonData;
-        if (jsonData instanceof InputStream) return FULL_MAPPER.readTree((InputStream) jsonData);
-        if (jsonData instanceof Reader) return FULL_MAPPER.readTree((Reader) jsonData);
-        if (jsonData instanceof String) return FULL_MAPPER.readTree((String) jsonData);
-        if (jsonData instanceof File) return FULL_MAPPER.readTree((File) jsonData);
-        if (jsonData instanceof URL) return FULL_MAPPER.readTree((URL) jsonData);
+        if (jsonData instanceof InputStream) return JSON.readTree((InputStream) jsonData);
+        if (jsonData instanceof Reader) return JSON.readTree((Reader) jsonData);
+        if (jsonData instanceof String) return JSON.readTree((String) jsonData);
+        if (jsonData instanceof File) return JSON.readTree((File) jsonData);
+        if (jsonData instanceof URL) return JSON.readTree((URL) jsonData);
         throw new IllegalArgumentException("jsonData is not a JsonNode, InputStream, Reader, String, File or URL");
     }
 
@@ -141,7 +142,7 @@ public class JsonEdit {
 
             // creating a new array node under parent?
             if (operation.isEmptyBrackets()) {
-                final ArrayNode newArrayNode = new ArrayNode(FULL_MAPPER.getNodeFactory());
+                final ArrayNode newArrayNode = new ArrayNode(JSON.getNodeFactory());
                 ((ObjectNode) parent).set(operation.getName(), newArrayNode);
                 newArrayNode.add(data);
 
@@ -164,7 +165,7 @@ public class JsonEdit {
     }
 
     private ObjectNode newObjectNode() {
-        return new ObjectNode(FULL_MAPPER.getNodeFactory());
+        return new ObjectNode(JSON.getNodeFactory());
     }
 
     private void delete(List<JsonNode> path, JsonEditOperation operation) throws IOException {

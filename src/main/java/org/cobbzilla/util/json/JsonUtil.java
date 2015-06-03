@@ -1,10 +1,10 @@
 package org.cobbzilla.util.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.io.FileSuffixFilter;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.FilenameSuffixFilter;
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
@@ -32,6 +31,12 @@ public class JsonUtil {
             .configure(SerializationFeature.INDENT_OUTPUT, true);
 
     public static final ObjectWriter FULL_WRITER = FULL_MAPPER.writer();
+
+    public static final ObjectMapper FULL_MAPPER_ALLOW_COMMENTS = new ObjectMapper()
+            .configure(SerializationFeature.INDENT_OUTPUT, true);
+    static {
+        FULL_MAPPER_ALLOW_COMMENTS.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
+    }
 
     public static final ObjectMapper NOTNULL_MAPPER = FULL_MAPPER
             .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)

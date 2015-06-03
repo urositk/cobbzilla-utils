@@ -19,8 +19,7 @@ public class JsonEditTest {
     public static final String TEST_JSON = StringUtil.getPackagePath(JsonEditTest.class)+"/test.json";
     private final Random random = new Random();
 
-    @Test
-    public void testEditJson() throws Exception {
+    @Test public void testEditJson() throws Exception {
 
         JsonEdit jsonEdit;
         String result;
