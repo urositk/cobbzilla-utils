@@ -1,7 +1,6 @@
 package org.cobbzilla.util.string;
 
 import org.apache.commons.lang3.LocaleUtils;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.cobbzilla.util.security.MD5Util;
 import org.cobbzilla.util.time.ImprovedTimezone;
 import org.joda.time.DateTimeZone;
@@ -121,6 +120,8 @@ public class StringUtil {
         }
         return sb.toString();
     }
+
+    public static String toString (Collection c) { return toString(c, ","); }
 
     public static String toString (Collection c, String sep) {
         StringBuilder builder = new StringBuilder();

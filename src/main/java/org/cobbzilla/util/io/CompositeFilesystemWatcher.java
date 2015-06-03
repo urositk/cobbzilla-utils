@@ -1,7 +1,7 @@
 package org.cobbzilla.util.io;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tools.ant.util.CollectionUtils;
+import org.cobbzilla.util.string.StringUtil;
 
 import java.io.Closeable;
 import java.io.File;
@@ -73,7 +73,6 @@ public abstract class CompositeFilesystemWatcher<T extends FilesystemWatcher> im
 
     @Override public String toString() {
         return "CompositeFilesystemWatcher<"+getFirstTypeParam(getClass()).getName()+">{" +
-                "paths=" + CollectionUtils.flattenToString(watchers.keySet()) +
-                '}';
+                "paths=" + StringUtil.toString(watchers.keySet(), " ") + "}";
     }
 }
