@@ -14,17 +14,25 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 @Slf4j
 public class ReflectionUtil {
 
-    public static <T> T instantiate(String clazz) {
+    public static <T> Class<? extends T> forName(String clazz) {
         try {
-            return instantiate((Class<? extends T>) Class.forName(clazz));
+            return (Class<? extends T>) Class.forName(clazz);
         } catch (Exception e) {
-            return die("Error instantiating "+clazz+": "+e, e);
+            return die("Class.forName("+clazz+") error: "+e, e);
         }
     }
 
     public static <T> T instantiate(Class<T> clazz) {
         try {
             return clazz.newInstance();
+        } catch (Exception e) {
+            return die("Error instantiating "+clazz+": "+e, e);
+        }
+    }
+
+    public static <T> T instantiate(String clazz) {
+        try {
+            return (T) instantiate(forName(clazz));
         } catch (Exception e) {
             return die("Error instantiating "+clazz+": "+e, e);
         }
