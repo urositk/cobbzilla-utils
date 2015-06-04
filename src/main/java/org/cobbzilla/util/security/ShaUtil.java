@@ -23,7 +23,7 @@ public class ShaUtil {
         try {
             return sha256(data.getBytes(StringUtil.UTF8));
         } catch (Exception e) {
-            throw new IllegalArgumentException("sha256: bad data: "+e, e);
+            return die("sha256: bad data: "+e, e);
         }
     }
 
@@ -32,7 +32,7 @@ public class ShaUtil {
         try {
             return md().digest(data);
         } catch (Exception e) {
-            throw new IllegalArgumentException("sha256: bad data: "+e, e);
+            return die("sha256: bad data: "+e, e);
         }
     }
 
@@ -48,7 +48,7 @@ public class ShaUtil {
         try {
             return URLEncoder.encode(Base64.encodeBytes(sha256(data)), StringUtil.UTF8);
         } catch (Exception e) {
-            throw new IllegalArgumentException("sha256_filename: bad byte[] data: "+e, e);
+            return die("sha256_filename: bad byte[] data: "+e, e);
         }
     }
 
