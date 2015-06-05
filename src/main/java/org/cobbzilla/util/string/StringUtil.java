@@ -160,4 +160,8 @@ public class StringUtil {
         int i = (int) b;
         return MD5Util.HEX_DIGITS[((i >> 4) + 16) % 16] + MD5Util.HEX_DIGITS[(i + 128) % 16];
     }
+
+    public static String uncapitalize(String s) {
+        return empty(s) ? s : s.length() == 1 ? s.toLowerCase() : s.substring(0, 1).toLowerCase() + s.substring(1);
+    }
 }
