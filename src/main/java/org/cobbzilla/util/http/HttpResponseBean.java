@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.util.Collection;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @Slf4j
 public class HttpResponseBean {
@@ -35,6 +36,8 @@ public class HttpResponseBean {
             die("setEntity: error reading stream: " + e, e);
         }
     }
+
+    public boolean hasEntity () { return !empty(entity); }
 
     public String getEntityString () {
         return entity == null ? null : new String(entity);

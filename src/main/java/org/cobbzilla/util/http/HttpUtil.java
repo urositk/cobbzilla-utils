@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
@@ -88,9 +89,13 @@ public class HttpUtil {
     }
 
     public static HttpResponseBean getResponse(HttpRequestBean requestBean) throws IOException {
+        @Cleanup final CloseableHttpClient client = HttpClients.createDefault();
+        return getResponse(requestBean, client);
+    }
+
+    public static HttpResponseBean getResponse(HttpRequestBean requestBean, HttpClient client) throws IOException {
 
         final HttpResponseBean bean = new HttpResponseBean();
-        @Cleanup final CloseableHttpClient client = HttpClients.createDefault();
 
         final HttpUriRequest request = initHttpRequest(requestBean);
 

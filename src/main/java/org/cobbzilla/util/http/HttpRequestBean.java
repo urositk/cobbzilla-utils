@@ -5,14 +5,15 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScheme;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.auth.DigestScheme;
-import org.apache.http.impl.auth.KerberosScheme;
+import org.apache.http.entity.ContentType;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.net.URI;
+import java.util.Collection;
+
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @NoArgsConstructor @ToString(of={"method", "uri"}) @Accessors(chain=true)
 public class HttpRequestBean<T> {
@@ -28,6 +29,7 @@ public class HttpRequestBean<T> {
     public void setHeader (String name, String value) {
         headers.put(name, value);
     }
+    public boolean hasHeaders () { return !empty(headers); }
 
     public HttpRequestBean (String uri) { this(HttpMethods.GET, uri, null); }
 
@@ -65,5 +67,19 @@ public class HttpRequestBean<T> {
         setAuthType(authType);
         setAuthUsername(name);
         setAuthPassword(password);
+    }
+
+    public ContentType getContentType() {
+        if (!hasHeaders()) return null;
+        final String value = getFirstHeaderValue(HttpHeaders.CONTENT_TYPE);
+        if (empty(value)) return null;
+        return ContentType.parse(value);
+    }
+
+    private String getFirstHeaderValue(String name) {
+        if (!hasHeaders()) return null;
+        final Collection<String> values = headers.get(name);
+        if (empty(values)) return null;
+        return values.iterator().next();
     }
 }
