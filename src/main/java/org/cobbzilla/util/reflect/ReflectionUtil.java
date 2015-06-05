@@ -2,14 +2,20 @@ package org.cobbzilla.util.reflect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.cobbzilla.util.collection.ArrayUtil;
+import org.cobbzilla.util.string.StringUtil;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.string.StringUtil.uncapitalize;
 
 @Slf4j
 public class ReflectionUtil {
@@ -41,28 +47,51 @@ public class ReflectionUtil {
     private enum Accessor { get, set }
 
     public static <T> T copy (T dest, T src) {
+        return copy(dest, src, null);
+    }
+
+    public static <T> T copy (T dest, T src, String[] fields) {
         try {
             for (Method getter : src.getClass().getMethods()) {
+                // only look for getters on the source object (methods with no arguments)
                 final Class<?>[] types = getter.getParameterTypes();
                 if (types.length != 0) continue;
 
+                // and it must be named appropriately
+                final String fieldName = fieldName(getter.getName());
+                if (fieldName == null) continue;
+
+                // if specific fields were given, it must be one of those
+                if (fields != null && !ArrayUtils.contains(fields, fieldName)) continue;
+
+                // what would the setter be called?
                 final String setterName = setterForGetter(getter.getName());
-                if (setterName != null) {
-                    final Method setter;
-                    try {
-                        setter = dest.getClass().getMethod(setterName, getter.getReturnType());
-                    } catch (Exception e) {
-                        log.debug("copy: setter not found: "+setterName);
-                        continue;
-                    }
-                    final Object srcValue = getter.invoke(src);
-                    if (srcValue != null) setter.invoke(dest, srcValue);
+                if (setterName == null) continue;
+
+                // get the setter method on the destination object
+                final Method setter;
+                try {
+                    setter = dest.getClass().getMethod(setterName, getter.getReturnType());
+                } catch (Exception e) {
+                    log.debug("copy: setter not found: "+setterName);
+                    continue;
                 }
+
+                // copy the value from src to dest, if it's not null
+                final Object srcValue = getter.invoke(src);
+                if (srcValue != null) setter.invoke(dest, srcValue);
             }
         } catch (Exception e) {
             throw new IllegalArgumentException("Error copying "+dest.getClass().getSimpleName()+" from src="+src+": "+e, e);
         }
         return dest;
+    }
+
+    public static String fieldName(String method) {
+        if (method.startsWith("get")) return uncapitalize(method.substring(3));
+        if (method.startsWith("set")) return uncapitalize(method.substring(3));
+        if (method.startsWith("is")) return uncapitalize(method.substring(2));
+        return null;
     }
 
     public static String setterForGetter(String getter) {
