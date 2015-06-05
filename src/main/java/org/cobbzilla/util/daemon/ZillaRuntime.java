@@ -34,11 +34,27 @@ public class ZillaRuntime {
 
     public static boolean empty(String s) { return s == null || s.length() == 0; }
 
-    public static boolean empty(Object s) {
-        return s == null
-                || (s.getClass().isArray() && ((Object[]) s).length == 0)
-                || ((s instanceof Collection) && ((Collection)s).isEmpty())
-                || ((s instanceof Map) && ((Map)s).isEmpty())
-                || s.toString().length() == 0;
+    public static boolean empty(Object o) {
+        if (o == null) return true;
+        if (o instanceof Collection) return ((Collection)o).isEmpty();
+        if (o instanceof Map) return ((Map)o).isEmpty();
+        if (o.getClass().isArray()) {
+            if (o.getClass().getComponentType().isPrimitive()) {
+                switch (o.getClass().getComponentType().getName()) {
+                    case "boolean": return ((boolean[]) o).length == 0;
+                    case "byte": return ((byte[]) o).length == 0;
+                    case "short": return ((short[]) o).length == 0;
+                    case "char": return ((char[]) o).length == 0;
+                    case "int": return ((int[]) o).length == 0;
+                    case "long": return ((long[]) o).length == 0;
+                    case "float": return ((float[]) o).length == 0;
+                    case "double": return ((double[]) o).length == 0;
+                    default: return o.toString().length() == 0;
+                }
+            } else {
+                return ((Object[]) o).length == 0;
+            }
+        }
+        return o.toString().length() == 0;
     }
 }
