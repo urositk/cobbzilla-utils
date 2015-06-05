@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.cobbzilla.util.collection.ArrayUtil;
-import org.cobbzilla.util.string.StringUtil;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -17,9 +16,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.string.StringUtil.uncapitalize;
 
+/**
+ * Handy tools for working quickly with reflection APIs, which tend to be verbose.
+ */
 @Slf4j
 public class ReflectionUtil {
 
+    /**
+     * Do a Class.forName and only throw unchecked exceptions.
+     * @param clazz full class name
+     * @param <T> The class type
+     * @return A Class&lt;clazz&gt; object
+     */
     public static <T> Class<? extends T> forName(String clazz) {
         try {
             return (Class<? extends T>) Class.forName(clazz);
@@ -28,6 +36,12 @@ public class ReflectionUtil {
         }
     }
 
+    /**
+     * Create an instance of a class, only throwing unchecked exceptions. The class must have a default constructor.
+     * @param clazz we will instantiate an object of this type
+     * @param <T> The class type
+     * @return An Object that is an instance of Class&lt;clazz&gt; object
+     */
     public static <T> T instantiate(Class<T> clazz) {
         try {
             return clazz.newInstance();
@@ -36,6 +50,12 @@ public class ReflectionUtil {
         }
     }
 
+    /**
+     * Create an instance of a class based on a class name, only throwing unchecked exceptions. The class must have a default constructor.
+     * @param clazz full class name
+     * @param <T> The class type
+     * @return An Object that is an instance of Class&lt;clazz&gt; object
+     */
     public static <T> T instantiate(String clazz) {
         try {
             return (T) instantiate(forName(clazz));
@@ -46,16 +66,38 @@ public class ReflectionUtil {
 
     private enum Accessor { get, set }
 
-    public static <T> T copy (T dest, T src) {
+    /**
+     * Copies fields from src to dest.
+     *
+     * For each field in src that (1) starts with "get" (2) takes zero arguments and (3) has a return value:
+     * The value returned from the source getter will be copied to the destination (via setter), if a setter exists, and:
+     * (1) No getter exists on the destination, or (2) the destination's getter returns a different value (.equals returns false)
+     *
+     * @param dest destination object
+     * @param src source object
+     * @param <T> objects must share a type (can this be relaxed? probably)
+     * @return count of fields copied
+     */
+    public static <T> int copy (T dest, T src) {
         return copy(dest, src, null);
     }
 
-    public static <T> T copy (T dest, T src, String[] fields) {
+    /**
+     * Same as copy(dest, src) but only named fields are copied
+     * @param dest destination object
+     * @param src source object
+     * @param fields only fields with these names will be considered for copying
+     * @param <T> objects must share a type
+     * @return count of fields copied
+     */
+    public static <T> int copy (T dest, T src, String[] fields) {
+        int copyCount = 0;
         try {
             for (Method getter : src.getClass().getMethods()) {
-                // only look for getters on the source object (methods with no arguments)
+                // only look for getters on the source object (methods with no arguments that have a return value)
                 final Class<?>[] types = getter.getParameterTypes();
                 if (types.length != 0) continue;
+                if (getter.getReturnType().equals(Void.class)) continue;;
 
                 // and it must be named appropriately
                 final String fieldName = fieldName(getter.getName());
@@ -77,14 +119,28 @@ public class ReflectionUtil {
                     continue;
                 }
 
-                // copy the value from src to dest, if it's not null
+                // do not copy null fields (should this be configurable?)
                 final Object srcValue = getter.invoke(src);
-                if (srcValue != null) setter.invoke(dest, srcValue);
+                if (srcValue == null) continue;
+
+                // does the dest have a getter? if so grab the current value
+                Object destValue = null;
+                try {
+                    destValue = getter.invoke(dest);
+                } catch (Exception e) {
+                    log.debug("copy: error calling getter on dest: "+e);
+                }
+
+                // copy the value from src to dest, if it's different
+                if (!srcValue.equals(destValue)) {
+                    setter.invoke(dest, srcValue);
+                    copyCount++;
+                }
             }
         } catch (Exception e) {
             throw new IllegalArgumentException("Error copying "+dest.getClass().getSimpleName()+" from src="+src+": "+e, e);
         }
-        return dest;
+        return copyCount;
     }
 
     public static String fieldName(String method) {
@@ -100,6 +156,13 @@ public class ReflectionUtil {
         return null;
     }
 
+    /**
+     * Call setters on an object based on keys and values in a Map
+     * @param dest destination object
+     * @param src map of field name -> value
+     * @param <T> type of object
+     * @return the destination object
+     */
     public static <T> T copyFromMap (T dest, Map<String, Object> src) {
         for (Map.Entry<String, Object> entry : src.entrySet()) {
             final String key = entry.getKey();
@@ -134,6 +197,13 @@ public class ReflectionUtil {
 //        return ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0].getClass();
     }
 
+    /**
+     * Call a getter. getXXX and isXXX will both be checked.
+     * @param object the object to call get(field) on
+     * @param field the field name
+     * @return the value of the field
+     * @throws IllegalArgumentException If no getter for the field exists
+     */
     public static Object get(Object object, String field) {
         Object target = object;
         for (String token : field.split("\\.")) {
@@ -158,6 +228,12 @@ public class ReflectionUtil {
         return true;
     }
 
+    /**
+     * Call a setter
+     * @param object the object to call set(field) on
+     * @param field the field name
+     * @param value the value to set
+     */
     public static void set(Object object, String field, Object value) {
         final String[] tokens = field.split("\\.");
         Object target = getTarget(object, tokens);

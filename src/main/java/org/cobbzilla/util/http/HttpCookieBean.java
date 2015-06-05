@@ -18,6 +18,7 @@ import java.util.StringTokenizer;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.reflect.ReflectionUtil.copy;
 
 @NoArgsConstructor @Accessors(chain=true) @Slf4j
 public class HttpCookieBean {
@@ -48,9 +49,7 @@ public class HttpCookieBean {
         this.domain = domain;
     }
 
-    public HttpCookieBean (HttpCookieBean other) {
-        ReflectionUtil.copy(this, other);
-    }
+    public HttpCookieBean (HttpCookieBean other) { copy(this, other); }
 
     public HttpCookieBean(Cookie cookie) {
         this(cookie.getName(), cookie.getValue(), cookie.getDomain());
