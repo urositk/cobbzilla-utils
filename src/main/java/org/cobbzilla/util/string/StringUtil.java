@@ -1,5 +1,7 @@
 package org.cobbzilla.util.string;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.LocaleUtils;
 import org.cobbzilla.util.security.MD5Util;
 import org.cobbzilla.util.time.ImprovedTimezone;
@@ -24,6 +26,14 @@ public class StringUtil {
     public static final String[] EMPTY_ARRAY = {};
     public static final String DEFAULT_LOCALE = "en_US";
     public static final String BYTES_PATTERN = "(\\d+)(\\s+)?([MgGgTtPpEe][Bb])";
+
+    public static final Transformer XFORM_TO_STRING = new Transformer() {
+        @Override public Object transform(Object o) { return String.valueOf(o); }
+    };
+
+    public static List<String> toStringCollection (Collection c) {
+        return new ArrayList<>(CollectionUtils.collect(c, XFORM_TO_STRING));
+    }
 
     public static String prefix(String s, int count) {
         return s == null ? null : s.length() > count ? s.substring(0, count) : s;
