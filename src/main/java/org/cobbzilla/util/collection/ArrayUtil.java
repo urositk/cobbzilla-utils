@@ -3,6 +3,7 @@ package org.cobbzilla.util.collection;
 import java.lang.reflect.Array;
 import java.util.*;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class ArrayUtil {
@@ -31,10 +32,23 @@ public class ArrayUtil {
         return list.toArray(newArray);
     }
 
+    /**
+     * Return a slice of an array. If from == to then an empty array will be returned.
+     * @param array the source array
+     * @param from the start index, inclusive. If less than zero or greater than the length of the array, an Exception is thrown
+     * @param to the end index, NOT inclusive. If less than zero or greater than the length of the array, an Exception is thrown
+     * @param <T> the of the array
+     * @return A slice of the array. The source array is not modified.
+     */
     public static <T> T[] slice(T[] array, int from, int to) {
+
         if (array == null) throw new NullPointerException("slice: array was null");
+        if (from < 0 || from > array.length) die("slice: invalid 'from' index ("+from+") for array of size "+array.length);
+        if (to < 0 || to < from || to > array.length) die("slice: invalid 'to' index ("+to+") for array of size "+array.length);
+
         final T[] newArray = (T[]) Array.newInstance(array.getClass().getComponentType(), to-from);
-        for (int i=from; i<=to; i++) newArray[from-i] = array[i];
+        if (to == from) return newArray;
+        System.arraycopy(array, from, newArray, 0, to-from);
         return newArray;
     }
 
