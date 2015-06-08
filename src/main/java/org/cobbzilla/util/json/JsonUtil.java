@@ -19,6 +19,7 @@ import java.util.StringTokenizer;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.io.FileUtil.abs;
 
 public class JsonUtil {
 
@@ -79,6 +80,10 @@ public class JsonUtil {
         return fromJson(StreamUtil.toString(json), clazz);
     }
 
+    public static <T> T fromJson(File json, Class<T> clazz) throws Exception {
+        return fromJson(FileUtil.toString(json), clazz);
+    }
+
     public static <T> T fromJson(String json, Class<T> clazz) throws Exception {
         return JsonUtil.FULL_MAPPER.readValue(json, clazz);
     }
@@ -87,16 +92,24 @@ public class JsonUtil {
         return JsonUtil.FULL_MAPPER.readValue(json, type);
     }
 
+    public static <T> T fromJsonOrDie(File json, Class<T> clazz) {
+        return fromJsonOrDie(FileUtil.toStringOrDie(json), clazz);
+    }
+
     public static <T> T fromJsonOrDie(String json, Class<T> clazz) {
         if (empty(json)) return null;
         try {
             return JsonUtil.FULL_MAPPER.readValue(json, clazz);
         } catch (IOException e) {
-            return die("fromJson: exception while reading: "+json+": "+e, e);
+            return die("fromJsonOrDie: exception while reading: "+json+": "+e, e);
         }
     }
 
     public static <T> T fromJson(String json, String path, Class<T> clazz) throws Exception {
+        return fromJson(FULL_MAPPER.readTree(json), path, clazz);
+    }
+
+    public static <T> T fromJson(File json, String path, Class<T> clazz) throws Exception {
         return fromJson(FULL_MAPPER.readTree(json), path, clazz);
     }
 

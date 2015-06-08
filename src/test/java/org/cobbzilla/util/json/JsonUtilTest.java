@@ -42,7 +42,7 @@ public class JsonUtilTest {
         final ObjectNode doc = JsonUtil.replaceNode(testJson, path, replacement);
         final File temp = File.createTempFile("JsonUtilTest", ".json");
         FileUtil.toFile(temp, JsonUtil.toJson(doc));
-        final TestData data = JsonUtil.fromJson(FileUtil.toString(temp), TestData.class);
+        final TestData data = JsonUtil.fromJson(temp, TestData.class);
         assertEquals(replacement, value.getValue(data));
     }
 
