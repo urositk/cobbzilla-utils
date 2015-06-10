@@ -8,7 +8,6 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
-import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -70,7 +69,7 @@ public class HttpCookieBean {
                 // first element is the name=value
                 final String[] parts = token.split("=");
                 cookie.name = parts[0];
-                cookie.value = parts[1];
+                cookie.value = parts.length == 1 ? "" : parts[1];
 
             } else if (token.contains("=")) {
                 final String[] parts = token.split("=");
