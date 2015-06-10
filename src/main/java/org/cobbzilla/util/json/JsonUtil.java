@@ -19,7 +19,6 @@ import java.util.StringTokenizer;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
-import static org.cobbzilla.util.io.FileUtil.abs;
 
 public class JsonUtil {
 
@@ -35,6 +34,13 @@ public class JsonUtil {
 
     public static final ObjectMapper FULL_MAPPER_ALLOW_COMMENTS = new ObjectMapper()
             .configure(SerializationFeature.INDENT_OUTPUT, true);
+    static {
+        FULL_MAPPER_ALLOW_COMMENTS.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
+    }
+
+    public static final ObjectMapper FULL_MAPPER_ALLOW_COMMENTS_AND_UNKNOWN_FIELDS = new ObjectMapper()
+            .configure(SerializationFeature.INDENT_OUTPUT, true)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     static {
         FULL_MAPPER_ALLOW_COMMENTS.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
     }
