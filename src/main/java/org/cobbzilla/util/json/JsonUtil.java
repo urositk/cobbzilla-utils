@@ -42,7 +42,7 @@ public class JsonUtil {
             .configure(SerializationFeature.INDENT_OUTPUT, true)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     static {
-        FULL_MAPPER_ALLOW_COMMENTS.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
+        FULL_MAPPER_ALLOW_COMMENTS_AND_UNKNOWN_FIELDS.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
     }
 
     public static final ObjectMapper NOTNULL_MAPPER = FULL_MAPPER
