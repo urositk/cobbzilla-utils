@@ -20,8 +20,8 @@ public class JsonEditorOptions {
     public static final String USAGE_OPERATION = "The operation to perform.";
     public static final String OPT_OPERATION = "-o";
     public static final String LONGOPT_OPERATION = "--operation";
-    @Option(name=OPT_OPERATION, aliases=LONGOPT_OPERATION, usage=USAGE_OPERATION, required=true)
-    @Getter @Setter private JsonEditOperationType operationType;
+    @Option(name=OPT_OPERATION, aliases=LONGOPT_OPERATION, usage=USAGE_OPERATION)
+    @Getter @Setter private JsonEditOperationType operationType = JsonEditOperationType.read;
 
     public static final String USAGE_PATH = "The path to the JSON node where the append or replace will take place. " +
             "Default is root node for append operations. For replace, you must specify a path.";
@@ -30,7 +30,7 @@ public class JsonEditorOptions {
     @Option(name=OPT_PATH, aliases=LONGOPT_PATH, usage=USAGE_PATH)
     @Getter @Setter private String path;
 
-    public static final String USAGE_VALUE = "The JSON data to append or update.";
+    public static final String USAGE_VALUE = "The JSON data to append or update. Required for write operations.";
     public static final String OPT_VALUE = "-v";
     public static final String LONGOPT_VALUE = "--value";
     @Option(name=OPT_VALUE, aliases=LONGOPT_VALUE, usage=USAGE_VALUE)

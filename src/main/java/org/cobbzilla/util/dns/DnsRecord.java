@@ -1,7 +1,11 @@
 package org.cobbzilla.util.dns;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.cobbzilla.util.string.StringUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +15,12 @@ import java.util.concurrent.TimeUnit;
 public class DnsRecord extends DnsRecordBase {
 
     public static final int DEFAULT_TTL = (int) TimeUnit.HOURS.toMillis(1);
+
+    public static final String OPT_MX_RANK = "rank";
+    public static final String OPT_NS_NAME = "name";
+
+    public static final String[] MX_REQUIRED_OPTIONS = {OPT_MX_RANK};
+    public static final String[] NS_REQUIRED_OPTIONS = {OPT_NS_NAME};
 
     @Getter @Setter private int ttl = DEFAULT_TTL;
     @Getter @Setter private Map<String, String> options;
@@ -29,5 +39,20 @@ public class DnsRecord extends DnsRecordBase {
         } catch (Exception ignored) {
             return defaultValue;
         }
+    }
+
+    @JsonIgnore public String[] getRequiredOptions () {
+        switch (getType()) {
+            case MX: return MX_REQUIRED_OPTIONS;
+            case NS: return NS_REQUIRED_OPTIONS;
+            default: return StringUtil.EMPTY_ARRAY;
+        }
+    }
+
+    @JsonIgnore public boolean hasAllRequiredOptions () {
+        for (String opt : getRequiredOptions()) {
+            if (options == null || !options.containsKey(opt)) return false;
+        }
+        return true;
     }
 }
