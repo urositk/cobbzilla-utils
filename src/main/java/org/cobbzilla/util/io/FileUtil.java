@@ -20,6 +20,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 public class FileUtil {
 
     public static final File DEFAULT_TEMPDIR = new File(System.getProperty("java.io.tmpdir"));
+    private static final File[] EMPTY_ARRAY = {};
 
     public static boolean isReadableNonEmptyFile (File f) {
         return f != null && f.exists() && f.canRead() && f.length() > 0;
@@ -27,19 +28,19 @@ public class FileUtil {
 
     public static File[] list(File dir) {
         final File[] files = dir.listFiles();
-        if (files == null) die("list: dir could not be listed: "+abs(dir));
+        if (files == null) return EMPTY_ARRAY;
         return files;
     }
 
     public static File[] listFiles(File dir) {
         final File[] files = dir.listFiles(RegularFileFilter.instance);
-        if (files == null) die("listFiles: dir could not be listed: "+abs(dir));
+        if (files == null) return EMPTY_ARRAY;
         return files;
     }
 
     public static File[] listDirs(File dir) {
         final File[] files = dir.listFiles(DirFilter.instance);
-        if (files == null) die("listDirs: dir could not be listed: "+abs(dir));
+        if (files == null) return EMPTY_ARRAY;
         return files;
     }
 
@@ -347,6 +348,34 @@ public class FileUtil {
 
     public static String removeExtension(File f, String ext) {
         return f.getName().substring(0, f.getName().length() - ext.length());
+    }
+
+    /**
+     * @param dir The directory to search
+     * @return The most recently modified file, or null if the dir does not exist, is not a directory, or does not contain any files
+     */
+    public static File mostRecentFile(File dir) {
+        if (!dir.exists()) return null;
+        File newest = null;
+        for (File file : list(dir)) {
+            if (file.isDirectory()) {
+                file = mostRecentFile(file);
+                if (file == null) continue;
+            }
+            if (file.isFile()) {
+                if (newest == null) {
+                    newest = file;
+                } else if (file.lastModified() > newest.lastModified()) {
+                    newest = file;
+                }
+            }
+        }
+        return newest;
+    }
+
+    public static boolean mostRecentFileIsNewerThan(File dir, long time) {
+        final File newest = mostRecentFile(dir);
+        return newest != null && newest.lastModified() > time;
     }
 
 }
