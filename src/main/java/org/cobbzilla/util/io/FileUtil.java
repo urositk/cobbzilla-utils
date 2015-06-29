@@ -21,6 +21,7 @@ public class FileUtil {
 
     public static final File DEFAULT_TEMPDIR = new File(System.getProperty("java.io.tmpdir"));
     private static final File[] EMPTY_ARRAY = {};
+    public static final String sep = File.separator;
 
     public static boolean isReadableNonEmptyFile (File f) {
         return f != null && f.exists() && f.canRead() && f.length() > 0;
