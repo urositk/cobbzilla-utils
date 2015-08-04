@@ -379,4 +379,18 @@ public class FileUtil {
         return newest != null && newest.lastModified() > time;
     }
 
+    public static File mkHomeDir(String subDir) {
+
+        final String homeDir = getUserHomeDir();
+        if (empty(homeDir)) die("mkHomeDir: System.getProperty(\"user.home\") returned nothing useful: "+homeDir);
+
+        if (!subDir.startsWith("/")) subDir = "/" + subDir;
+
+        return mkdirOrDie(new File(homeDir + subDir));
+    }
+
+    public static String getUserHomeDir() {
+        // todo: ensure this works correctly in sandboxed-environments (mac app store)
+        return System.getProperty("user.home");
+    }
 }
