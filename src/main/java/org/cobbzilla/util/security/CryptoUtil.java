@@ -93,13 +93,13 @@ public class CryptoUtil {
     }
 
     public static String string_encrypt(String data, String key) {
-        try { return Base64.encodeBytes(CryptoUtil.encryptOrDie(pad(data).getBytes(), key)); } catch (Exception e) {
+        try { return Base64.encodeBytes(encryptOrDie(pad(data).getBytes(), key)); } catch (Exception e) {
             return die("Error encrypting: "+e, e);
         }
     }
 
     public static String string_decrypt(String data, String key) {
-        try { return unpad(new String(CryptoUtil.decrypt(Base64.decode(data), key))); } catch (Exception e) {
+        try { return unpad(new String(decrypt(Base64.decode(data), key))); } catch (Exception e) {
             return die("Error decrypting: "+e, e);
         }
     }
