@@ -60,9 +60,17 @@ public class StreamUtil {
 
     public static File loadResourceAsFile (String path, Class clazz) throws IOException {
         final File tmp = File.createTempFile("resource", ".tmp");
-        @Cleanup final FileOutputStream out = new FileOutputStream(tmp);
+        return loadResourceAsFile(path, clazz, tmp);
+    }
+
+    public static File loadResourceAsFile(String path, File file) throws IOException {
+        return loadResourceAsFile(path, StreamUtil.class, file);
+    }
+
+    public static File loadResourceAsFile(String path, Class clazz, File file) throws IOException {
+        @Cleanup final FileOutputStream out = new FileOutputStream(file);
         IOUtils.copy(loadResourceAsStream(path, clazz), out);
-        return tmp;
+        return file;
     }
 
     public static String loadResourceAsStringOrDie(String path) {
