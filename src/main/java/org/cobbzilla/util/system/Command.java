@@ -7,7 +7,6 @@ import lombok.experimental.Accessors;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.lang3.ArrayUtils;
 import org.cobbzilla.util.collection.SingletonList;
-import org.cobbzilla.util.daemon.ZillaRuntime;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -17,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.string.StringUtil.UTF8cs;
-import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @NoArgsConstructor @Accessors(chain=true)
 public class Command {
@@ -29,6 +28,7 @@ public class Command {
 
     @Getter @Setter private CommandLine commandLine;
     @Getter @Setter private String input;
+    @Getter @Setter private byte[] rawInput;
     @Getter @Setter private File dir;
     @Getter @Setter private Map<String, String> env;
     private List<Integer> exitValues = DEFAULT_EXIT_VALUES;
@@ -46,8 +46,12 @@ public class Command {
     public Command(File executable) { this(abs(executable)); }
 
     public boolean hasDir () { return !empty(dir); }
-    public boolean hasInput () { return !empty(input); }
-    public InputStream getInputStream () { return hasInput() ? new ByteArrayInputStream(input.getBytes(UTF8cs)) : null; }
+    public boolean hasInput () { return !empty(input) || !empty(rawInput); }
+    public InputStream getInputStream () {
+        if (!hasInput()) return null;
+        if (rawInput != null) return new ByteArrayInputStream(rawInput);
+        return new ByteArrayInputStream(input.getBytes(UTF8cs));
+    }
 
     public int[] getExitValues () {
         return exitValues == DEFAULT_EXIT_VALUES
