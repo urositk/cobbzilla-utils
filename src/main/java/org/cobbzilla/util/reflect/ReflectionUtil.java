@@ -191,10 +191,14 @@ public class ReflectionUtil {
     }
 
     public static Class getFirstTypeParam(Class clazz) {
-        final ParameterizedType parameterizedType = (ParameterizedType) clazz.getGenericSuperclass();
+        Class check = clazz;
+        while (!ParameterizedType.class.isAssignableFrom(check.getGenericSuperclass().getClass())) {
+            check = check.getSuperclass();
+            if (check.equals(Object.class)) die("getFirstTypeParam("+clazz.getName()+"): no type parameters found");
+        }
+        final ParameterizedType parameterizedType = (ParameterizedType) check.getGenericSuperclass();
         final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
         return (Class) actualTypeArguments[0];
-//        return ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0].getClass();
     }
 
     /**
