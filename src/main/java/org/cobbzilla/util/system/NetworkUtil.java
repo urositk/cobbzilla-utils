@@ -113,4 +113,14 @@ public class NetworkUtil {
             return die("getFirstPublicIpv4: "+e, e);
         }
     }
+
+    public static String getInAddrArpa(String ip) {
+        final String[] parts = ip.split("\\.");
+        return new StringBuilder()
+                .append(parts[3]).append('.')
+                .append(parts[2]).append('.')
+                .append(parts[1]).append('.')
+                .append(parts[0]).append(".in-addr.arpa")
+                .toString();
+    }
 }
