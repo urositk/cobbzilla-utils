@@ -19,8 +19,16 @@ public class DnsRecord extends DnsRecordBase {
     public static final String OPT_MX_RANK = "rank";
     public static final String OPT_NS_NAME = "name";
 
+    public static final String OPT_SOA_RNAME = "rname";
+    public static final String OPT_SOA_SERIAL = "serial";
+    public static final String OPT_SOA_REFRESH = "refresh";
+    public static final String OPT_SOA_RETRY = "retry";
+    public static final String OPT_SOA_EXPIRE = "expire";
+    public static final String OPT_SOA_MINIMUM = "minimum";
+
     public static final String[] MX_REQUIRED_OPTIONS = {OPT_MX_RANK};
     public static final String[] NS_REQUIRED_OPTIONS = {OPT_NS_NAME};
+    public static final String[] SOA_REQUIRED_OPTIONS = {OPT_SOA_RNAME};
 
     @Getter @Setter private int ttl = DEFAULT_TTL;
     @Getter @Setter private Map<String, String> options;
@@ -45,6 +53,7 @@ public class DnsRecord extends DnsRecordBase {
         switch (getType()) {
             case MX: return MX_REQUIRED_OPTIONS;
             case NS: return NS_REQUIRED_OPTIONS;
+            case SOA: return SOA_REQUIRED_OPTIONS;
             default: return StringUtil.EMPTY_ARRAY;
         }
     }

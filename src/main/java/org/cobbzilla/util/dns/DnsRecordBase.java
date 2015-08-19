@@ -3,6 +3,7 @@ package org.cobbzilla.util.dns;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
@@ -11,6 +12,7 @@ public class DnsRecordBase {
 
     @Getter @Setter private String fqdn;
     public boolean hasFqdn() { return !empty(fqdn); }
+    @JsonIgnore public String getNormalFqdn() { return empty(fqdn) ? fqdn : fqdn.endsWith(".") ? StringUtils.chop(fqdn) : fqdn; }
 
     @Getter @Setter private DnsType type;
     public boolean hasType () { return type != null; }
@@ -24,9 +26,9 @@ public class DnsRecordBase {
     }
 
     public boolean match(DnsRecordMatch match) {
-        if (match.hasSubdomain() && !getFqdn().endsWith(match.getSubdomain())) return false;
+        if (match.hasSubdomain() && !getNormalFqdn().endsWith(match.getSubdomain())) return false;
         if (match.hasType() && getType() != match.getType()) return false;
-        if (match.hasFqdn() && !getFqdn().equalsIgnoreCase(match.getFqdn())) return false;
+        if (match.hasFqdn() && !getNormalFqdn().equalsIgnoreCase(match.getFqdn())) return false;
         if (match.hasValue() && !getValue().equalsIgnoreCase(match.getValue())) return false;
         return true;
     }
