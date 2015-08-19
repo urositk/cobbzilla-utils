@@ -5,6 +5,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.cobbzilla.util.string.Base64;
 
 import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
@@ -75,6 +76,14 @@ public class CryptoUtil {
         return cipher.doFinal(data);
     }
 
+    public static InputStream decryptStream(InputStream in, String passphrase) throws Exception {
+        final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        final Key keySpec = new SecretKeySpec(sha256(passphrase), CONFIG_KEY_CIPHER);
+        final IvParameterSpec initVector = new IvParameterSpec(new byte[cipher.getBlockSize()]);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, initVector);
+        return new CipherInputStream(in, cipher);
+    }
+
     public static byte[] encryptOrDie(byte[] data, String passphrase) {
         try { return encrypt(data, passphrase); } catch (Exception e) {
             return die("Error encrypting: "+e, e);
@@ -103,4 +112,5 @@ public class CryptoUtil {
             return die("Error decrypting: "+e, e);
         }
     }
+
 }
