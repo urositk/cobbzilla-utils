@@ -15,4 +15,6 @@ public interface Crypto {
 
     public InputStream decryptStream(InputStream in);
 
+    public String getSecretKey();
+
 }
