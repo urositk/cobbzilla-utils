@@ -2,6 +2,7 @@ package org.cobbzilla.util.io;
 
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -392,5 +393,16 @@ public class FileUtil {
     public static String getUserHomeDir() {
         // todo: ensure this works correctly in sandboxed-environments (mac app store)
         return System.getProperty("user.home");
+    }
+
+    public static void copyFile(File from, File to) {
+        try {
+            if (!to.getParentFile().exists() && !to.getParentFile().mkdirs()) {
+                die("Error creating parent dir: " + abs(to.getParentFile()));
+            }
+            FileUtils.copyFile(from, to);
+        } catch (IOException e) {
+            die("copyFile: "+e, e);
+        }
     }
 }
