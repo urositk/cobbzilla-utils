@@ -2,6 +2,8 @@ package org.cobbzilla.util.http;
 
 import com.google.common.collect.Multimap;
 import lombok.Cleanup;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.exec.CommandLine;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
@@ -13,6 +15,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.cobbzilla.util.string.StringUtil;
+import org.cobbzilla.util.system.CommandResult;
+import org.cobbzilla.util.system.CommandShell;
+import org.cobbzilla.util.system.Sleep;
 
 import java.io.*;
 import java.net.URL;
@@ -25,6 +30,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.http.URIUtil.getFileExt;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
+@Slf4j
 public class HttpUtil {
 
     public static Map<String, String> queryParams(URL url) throws UnsupportedEncodingException {
@@ -195,5 +201,39 @@ public class HttpUtil {
     public static String getContentType(HttpResponse response) {
         final Header contentTypeHeader = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
         return (contentTypeHeader == null) ? null : contentTypeHeader.getValue();
+    }
+
+    public static boolean isOk(String url) { return isOk(url, URIUtil.getHost(url)); }
+
+    public static boolean isOk(String url, String host) {
+        final CommandLine command = new CommandLine("curl")
+                .addArgument("--insecure") // since we are requested via the IP address, the cert will not match
+                .addArgument("--header").addArgument("Host: " + host) // pass FQDN via Host header
+                .addArgument("--silent")
+                .addArgument("--location")                              // follow redirects
+                .addArgument("--write-out").addArgument("%{http_code}") // just print status code
+                .addArgument("--output").addArgument("/dev/null")       // and ignore data
+                .addArgument(url);
+        try {
+            final CommandResult result = CommandShell.exec(command);
+            final String statusCode = result.getStdout();
+            return result.isZeroExitStatus() && statusCode != null && statusCode.trim().startsWith("2");
+
+        } catch (IOException e) {
+            log.warn("isOk: Error fetching " + url + " with Host header=" + host + ": " + e);
+            return false;
+        }
+    }
+
+    public static boolean isOk(String url, String host, int maxTries, long sleepUnit) {
+        long sleep = sleepUnit;
+        for (int i = 0; i < maxTries; i++) {
+            if (i > 0) {
+                Sleep.sleep(sleep);
+                sleep *= 2;
+            }
+            if (isOk(url, host)) return true;
+        }
+        return false;
     }
 }
