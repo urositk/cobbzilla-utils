@@ -7,9 +7,12 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.cobbzilla.util.string.StringUtil;
 
+import java.beans.Transient;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @Accessors(chain=true) @ToString(callSuper=true)
 public class DnsRecord extends DnsRecordBase {
@@ -64,4 +67,39 @@ public class DnsRecord extends DnsRecordBase {
         }
         return true;
     }
+
+    @JsonIgnore @Transient public String getOptionsString() {
+        final StringBuilder b = new StringBuilder();
+        if (options != null) {
+            for (Map.Entry<String, String> e : options.entrySet()) {
+                if (b.length() > 0) b.append(",");
+                if (empty(e.getValue())) {
+                    b.append(e.getKey()).append("=").append(e.getValue());
+                } else {
+                    b.append(e.getKey()).append("=true");
+                }
+            }
+        }
+        return b.toString();
+    }
+
+    public DnsRecord setOptionsString(String arg) {
+        if (options == null) options = new HashMap<>();
+        if (empty(arg)) return this;
+
+        for (String kvPair : arg.split(",")) {
+            int eqPos = kvPair.indexOf("=");
+            if (eqPos == kvPair.length()) throw new IllegalArgumentException("Option cannot end in '=' character");
+            if (eqPos == -1) {
+                options.put(kvPair.trim(), "true");
+            } else {
+                options.put(kvPair.substring(0, eqPos).trim(), kvPair.substring(eqPos+1).trim());
+            }
+        }
+        return this;
+    }
+
+    @JsonIgnore @Transient public String getOpts() { return getOptionsString(); }
+    public DnsRecord setOpts(String arg) { return setOptionsString(arg); }
+
 }
