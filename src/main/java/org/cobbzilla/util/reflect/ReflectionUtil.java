@@ -192,9 +192,7 @@ public class ReflectionUtil {
 
     public static Class getFirstTypeParam(Class clazz) {
         Class check = clazz;
-        final Type superclass = check.getGenericSuperclass();
-        if (superclass == null) return null;
-        while (!ParameterizedType.class.isAssignableFrom(superclass.getClass())) {
+        while (check.getGenericSuperclass() == null || !(check.getGenericSuperclass() instanceof ParameterizedType)) {
             check = check.getSuperclass();
             if (check.equals(Object.class)) die("getFirstTypeParam("+clazz.getName()+"): no type parameters found");
         }
@@ -203,13 +201,27 @@ public class ReflectionUtil {
         return (Class) actualTypeArguments[0];
     }
 
-    public static Class getFirstTypeParam(Class clazz, Class iface) {
-        final Type[] interfaces = clazz.getGenericInterfaces();
-        for (Type t : interfaces) {
-            if (t instanceof ParameterizedType) {
-                final ParameterizedType ptype = (ParameterizedType) t;
-                if (iface.isAssignableFrom((Class<?>) ptype.getRawType())) {
-                    return (Class) ptype.getActualTypeArguments()[0];
+    public static Class getFirstTypeParam(Class clazz, Class impl) {
+        if (impl.isInterface()) {
+            final Type[] interfaces = clazz.getGenericInterfaces();
+            for (Type t : interfaces) {
+                if (t instanceof ParameterizedType) {
+                    final ParameterizedType ptype = (ParameterizedType) t;
+                    if (impl.isAssignableFrom((Class<?>) ptype.getRawType())) {
+                        return (Class) ptype.getActualTypeArguments()[0];
+                    }
+                }
+            }
+        } else {
+            Type check = clazz.getGenericSuperclass();
+            while (check != null) {
+                if (check instanceof ParameterizedType) {
+                    final ParameterizedType ptype = (ParameterizedType) check;
+                    final Class<?> rawType = (Class<?>) ptype.getRawType();
+                    if (impl.isAssignableFrom(rawType)) return getFirstTypeParam(rawType);
+                    check = rawType.getGenericSuperclass();
+                } else {
+                    break;
                 }
             }
         }
