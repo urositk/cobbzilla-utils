@@ -33,6 +33,7 @@ public class CryptoSimple implements Crypto {
         return string_decrypt(ciphertext, secretKey);
     }
 
+    // todo - support stream-oriented encryption
     @Override public void encrypt(InputStream in, OutputStream out) {
         if (empty(secretKey)) die("encrypt: key was not initialized");
         try {
