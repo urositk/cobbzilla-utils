@@ -203,14 +203,18 @@ public class ReflectionUtil {
 
     public static Class getFirstTypeParam(Class clazz, Class impl) {
         if (impl.isInterface()) {
-            final Type[] interfaces = clazz.getGenericInterfaces();
-            for (Type t : interfaces) {
-                if (t instanceof ParameterizedType) {
-                    final ParameterizedType ptype = (ParameterizedType) t;
-                    if (impl.isAssignableFrom((Class<?>) ptype.getRawType())) {
-                        return (Class) ptype.getActualTypeArguments()[0];
+            Class check = clazz;
+            while (!check.equals(Object.class)) {
+                final Type[] interfaces = check.getGenericInterfaces();
+                for (Type t : interfaces) {
+                    if (t instanceof ParameterizedType) {
+                        final ParameterizedType ptype = (ParameterizedType) t;
+                        if (impl.isAssignableFrom((Class<?>) ptype.getRawType())) {
+                            return (Class) ptype.getActualTypeArguments()[0];
+                        }
                     }
                 }
+                check = check.getSuperclass();
             }
         } else {
             Type check = clazz.getGenericSuperclass();

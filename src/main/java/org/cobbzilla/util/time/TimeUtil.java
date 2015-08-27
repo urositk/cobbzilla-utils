@@ -1,6 +1,5 @@
 package org.cobbzilla.util.time;
 
-import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -26,6 +25,10 @@ public class TimeUtil {
     public static String formatDurationFrom(long start) {
 
         long duration = System.currentTimeMillis() - start;
+        return formatDuration(duration);
+    }
+
+    public static String formatDuration(long duration) {
         long days = 0, hours = 0, mins = 0, secs = 0, millis = 0;
 
         if (duration > DAY) {
