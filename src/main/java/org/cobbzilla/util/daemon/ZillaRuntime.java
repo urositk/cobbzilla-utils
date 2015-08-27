@@ -2,6 +2,7 @@ package org.cobbzilla.util.daemon;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ public class ZillaRuntime {
         if (o == null) return true;
         if (o instanceof Collection) return ((Collection)o).isEmpty();
         if (o instanceof Map) return ((Map)o).isEmpty();
+        if (o instanceof File) return ((File) o).exists() && ((File) o).length() > 0;
         if (o.getClass().isArray()) {
             if (o.getClass().getComponentType().isPrimitive()) {
                 switch (o.getClass().getComponentType().getName()) {
