@@ -22,6 +22,9 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class JsonUtil {
 
+    public static final String EMPTY_JSON = "{}";
+    public static final String EMPTY_JSON_ARRAY = "[]";
+
     public static final JsonNode MISSING = MissingNode.getInstance();
 
     public static final FileFilter JSON_FILES = new FileSuffixFilter(".json");
@@ -34,6 +37,7 @@ public class JsonUtil {
 
     public static final ObjectMapper FULL_MAPPER_ALLOW_COMMENTS = new ObjectMapper()
             .configure(SerializationFeature.INDENT_OUTPUT, true);
+
     static {
         FULL_MAPPER_ALLOW_COMMENTS.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
     }

@@ -50,14 +50,10 @@ public class BeanMerger {
     }
     static class AlwaysCopy implements CopyEvaluator {
         static final AlwaysCopy INSTANCE = new AlwaysCopy();
-        @Override
-        public boolean shouldCopy(String name, Object value) { return true; }
+        @Override public boolean shouldCopy(String name, Object value) { return true; }
     }
     static class NotNull implements CopyEvaluator {
         static final NotNull INSTANCE = new NotNull();
-        @Override
-        public boolean shouldCopy(String name, Object value) {
-            return value != null;
-        }
+        @Override public boolean shouldCopy(String name, Object value) { return value != null; }
     }
 }
