@@ -223,6 +223,11 @@ public class ReflectionUtil {
                     final ParameterizedType ptype = (ParameterizedType) check;
                     final Class<?> rawType = (Class<?>) ptype.getRawType();
                     if (impl.isAssignableFrom(rawType)) return getFirstTypeParam(rawType);
+                    for (Type t : ptype.getActualTypeArguments()) {
+                        if (impl.isAssignableFrom((Class<?>) t)) {
+                            return (Class<?>) t;
+                        }
+                    }
                     check = rawType.getGenericSuperclass();
                 } else {
                     break;
