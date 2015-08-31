@@ -99,6 +99,7 @@ public class FilesystemWatcher implements Runnable, Closeable {
 
     @Override
     public void run() {
+        boolean logNotExists = true;
         while (!done.get()) {
             try {
                 log.info("Registering watch service on " + path);
@@ -107,6 +108,7 @@ public class FilesystemWatcher implements Runnable, Closeable {
                         StandardWatchEventKinds.ENTRY_CREATE,
                         StandardWatchEventKinds.ENTRY_MODIFY,
                         StandardWatchEventKinds.ENTRY_DELETE);
+                logNotExists = true;
 
                 // loop forever to watch directory
                 while (!done.get()) {
@@ -133,7 +135,10 @@ public class FilesystemWatcher implements Runnable, Closeable {
                 die("watch thread interrupted, exiting: " + e, e);
 
             } catch (NoSuchFileException e) {
-                log.warn("watch dir does not exist, waiting for it to exist: " + e);
+                if (logNotExists) {
+                    log.warn("watch dir does not exist, waiting for it to exist: " + e);
+                    logNotExists = false;
+                }
                 Sleep.sleep(getSleepWhileNotExists(), "waiting for path to exist: " + abs(path));
 
             } catch (Exception e) {
