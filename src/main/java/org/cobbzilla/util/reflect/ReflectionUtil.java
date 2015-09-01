@@ -190,6 +190,11 @@ public class ReflectionUtil {
         return dest;
     }
 
+    /**
+     * Find the concrete class for the first declared parameterized class variable
+     * @param clazz The class to search for parameterized types
+     * @return The first concrete class for a parameterized type found in clazz
+     */
     public static Class getFirstTypeParam(Class clazz) {
         Class check = clazz;
         while (check.getGenericSuperclass() == null || !(check.getGenericSuperclass() instanceof ParameterizedType)) {
@@ -201,38 +206,35 @@ public class ReflectionUtil {
         return (Class) actualTypeArguments[0];
     }
 
+    /**
+     * Find the concrete class for a parameterized class variable.
+     * @param clazz The class to start searching. Search will continue up through superclasses
+     * @param impl The type (or a supertype) of the parameterized class variable
+     * @return The first concrete class found that is assignable to an instance of impl
+     */
     public static Class getFirstTypeParam(Class clazz, Class impl) {
-        if (impl.isInterface()) {
-            Class check = clazz;
-            while (!check.equals(Object.class)) {
-                final Type[] interfaces = check.getGenericInterfaces();
-                for (Type t : interfaces) {
-                    if (t instanceof ParameterizedType) {
-                        final ParameterizedType ptype = (ParameterizedType) t;
-                        if (impl.isAssignableFrom((Class<?>) ptype.getRawType())) {
-                            return (Class) ptype.getActualTypeArguments()[0];
-                        }
-                    }
-                }
-                check = check.getSuperclass();
-            }
-        } else {
-            Type check = clazz.getGenericSuperclass();
-            while (check != null) {
-                if (check instanceof ParameterizedType) {
-                    final ParameterizedType ptype = (ParameterizedType) check;
+        Class check = clazz;
+        while (check != null && !check.equals(Object.class)) {
+            Class superCheck = check;
+            Type superType = superCheck.getGenericSuperclass();
+            while (superType != null || !superType.equals(Object.class)) {
+                if (superType instanceof ParameterizedType) {
+                    final ParameterizedType ptype = (ParameterizedType) superType;
                     final Class<?> rawType = (Class<?>) ptype.getRawType();
-                    if (impl.isAssignableFrom(rawType)) return getFirstTypeParam(rawType);
+                    if (impl.isAssignableFrom(rawType)) {
+                        return rawType;
+                    }
                     for (Type t : ptype.getActualTypeArguments()) {
                         if (impl.isAssignableFrom((Class<?>) t)) {
                             return (Class<?>) t;
                         }
                     }
-                    check = rawType.getGenericSuperclass();
-                } else {
-                    break;
+
+                } else if (superType instanceof Class) {
+                    superType = ((Class) superType).getGenericSuperclass();
                 }
             }
+            check = check.getSuperclass();
         }
         return null;
     }
