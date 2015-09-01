@@ -97,8 +97,7 @@ public class FilesystemWatcher implements Runnable, Closeable {
      */
     protected Integer getSleepAfterUnexpectedError() { return 10_000; }
 
-    @Override
-    public void run() {
+    @Override public void run() {
         boolean logNotExists = true;
         while (!done.get()) {
             try {
