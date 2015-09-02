@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
 
 /**
  * A handy utility for creating and initializing Maps in a single statement.
@@ -58,12 +58,7 @@ public class MapBuilder {
      * @return the map passed in, now containing new "values" mappings
      */
     public static <K,V> Map<K,V> build(Class<? extends Map<K,V>> mapClass, Object[][] values) {
-
-        final Map<K,V> map;
-        try { map = mapClass.newInstance(); } catch (Exception e) {
-            return die("Couldn't create new instance of class: "+mapClass.getName(), e);
-        }
-        return build(map, values);
+        return build(instantiate(mapClass), values);
     }
 
     /** Usage: Map<K,V> myMap = MapBuilder.build(key, value); */
