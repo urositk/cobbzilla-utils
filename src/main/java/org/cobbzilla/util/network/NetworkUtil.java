@@ -1,4 +1,4 @@
-package org.cobbzilla.util.system;
+package org.cobbzilla.util.network;
 
 import com.sun.jna.Platform;
 import lombok.extern.slf4j.Slf4j;
