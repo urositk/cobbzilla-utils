@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 
+import static org.cobbzilla.util.io.FileUtil.list;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 /**
@@ -41,7 +42,7 @@ public class ZillaRuntime {
         if (o instanceof Map) return ((Map)o).isEmpty();
         if (o instanceof File) {
             final File f = (File) o;
-            return !f.exists() || f.length() == 0;
+            return !f.exists() || f.length() == 0 || (f.isDirectory() && list(f).length == 0);
         }
         if (o.getClass().isArray()) {
             if (o.getClass().getComponentType().isPrimitive()) {
