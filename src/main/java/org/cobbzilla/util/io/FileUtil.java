@@ -405,4 +405,12 @@ public class FileUtil {
             die("copyFile: "+e, e);
         }
     }
+
+    public static void deleteOrDie(File f) {
+        if (f == null) return;
+        if (f.exists()) {
+            FileUtils.deleteQuietly(f);
+            if (f.exists()) die("delete: Error deleting: "+abs(f));
+        }
+    }
 }
