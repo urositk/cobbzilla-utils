@@ -45,7 +45,7 @@ public class Command {
     public Command(String command) { this(CommandLine.parse(command)); }
     public Command(File executable) { this(abs(executable)); }
 
-    public boolean hasDir () { return !empty(dir); }
+    public boolean hasDir () { return dir != null; }
     public boolean hasInput () { return !empty(input) || !empty(rawInput); }
     public InputStream getInputStream () {
         if (!hasInput()) return null;

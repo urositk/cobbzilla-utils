@@ -167,7 +167,7 @@ public class CommandShell {
             return new CommandResult(exitValue, outBuffer, errBuffer);
 
         } catch (Exception e) {
-            return new CommandResult(e);
+            return new CommandResult(e, outBuffer, errBuffer);
         }
     }
 
