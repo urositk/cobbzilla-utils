@@ -68,22 +68,22 @@ public class DnsRecord extends DnsRecordBase {
         return true;
     }
 
-    @JsonIgnore @Transient public String getOptionsString() {
+    @Transient public String getOptions_string() {
         final StringBuilder b = new StringBuilder();
         if (options != null) {
             for (Map.Entry<String, String> e : options.entrySet()) {
                 if (b.length() > 0) b.append(",");
                 if (empty(e.getValue())) {
-                    b.append(e.getKey()).append("=").append(e.getValue());
-                } else {
                     b.append(e.getKey()).append("=true");
+                } else {
+                    b.append(e.getKey()).append("=").append(e.getValue());
                 }
             }
         }
         return b.toString();
     }
 
-    public DnsRecord setOptionsString(String arg) {
+    public DnsRecord setOptions_string(String arg) {
         if (options == null) options = new HashMap<>();
         if (empty(arg)) return this;
 
@@ -98,8 +98,5 @@ public class DnsRecord extends DnsRecordBase {
         }
         return this;
     }
-
-    @JsonIgnore @Transient public String getOpts() { return getOptionsString(); }
-    public DnsRecord setOpts(String arg) { return setOptionsString(arg); }
 
 }
