@@ -27,9 +27,11 @@ JAR="$(cd $(dirname ${1}) && pwd)/$(basename ${1})"
 DESTINATION="${2}"
 shift 2
 
+MAVEN="mvn -DskipTests=true -Dcheckstyle.skip=true"
+
 for dir in ${@} ; do
   cd ${START_DIR} && cd $(cd ${dir} && pwd) \
-  && mvn -DskipTests=true compile \
+  && ${MAVEN} compile \
   && cd target/classes \
   && classes="$(find . -type f -mmin -3)" && if [ -z "${classes}" ] ; then classes="./*" ; fi \
   && jar uvf ${JAR} ${classes} \
