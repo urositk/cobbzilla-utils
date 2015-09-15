@@ -1,5 +1,6 @@
 package org.cobbzilla.util.io;
 
+import lombok.Cleanup;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -102,7 +103,7 @@ public class FilesystemWatcher implements Runnable, Closeable {
         while (!done.get()) {
             try {
                 log.info("Registering watch service on " + path);
-                final WatchService watchService = path.getFileSystem().newWatchService();
+                @Cleanup final WatchService watchService = path.getFileSystem().newWatchService();
                 path.register(watchService,
                         StandardWatchEventKinds.ENTRY_CREATE,
                         StandardWatchEventKinds.ENTRY_MODIFY,
