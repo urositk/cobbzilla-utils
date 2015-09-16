@@ -174,4 +174,8 @@ public class StringUtil {
     public static String uncapitalize(String s) {
         return empty(s) ? s : s.length() == 1 ? s.toLowerCase() : s.substring(0, 1).toLowerCase() + s.substring(1);
     }
+
+    public static boolean exceptionContainsMessage(Throwable e, String s) {
+        return e.getMessage().contains(s) || e.getCause() != null && exceptionContainsMessage(e.getCause(), s);
+    }
 }
