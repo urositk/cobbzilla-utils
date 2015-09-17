@@ -176,6 +176,9 @@ public class StringUtil {
     }
 
     public static boolean exceptionContainsMessage(Throwable e, String s) {
-        return e.getMessage().contains(s) || e.getCause() != null && exceptionContainsMessage(e.getCause(), s);
+        return e != null && (
+                (e.getMessage() != null && e.getMessage().contains(s))
+             || (e.getCause() != null && exceptionContainsMessage(e.getCause(), s))
+        );
     }
 }
