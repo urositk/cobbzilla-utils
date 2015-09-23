@@ -6,6 +6,10 @@
 # rules found in .gitignore. If subdirectories also contain .gitignore files, then those rules
 # will be applied (but only in each respective subdirectory).
 #
+# Note that ONLY .gitignore files in the directory where this command is run from will be considered
+# Thus, when the source or destination is a local path, it should be specified relative to the current
+# directory.
+#
 # There will be two rsync statements - one to exclude everything that should be excluded,
 # and a second to handle the exceptions to the exclusion rules - the lines in .gitignore that begin with !
 #
