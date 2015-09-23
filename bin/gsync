@@ -47,10 +47,12 @@ function process_git_ignore () {
 
 }
 
-# are there other .gitignore files?
+# root .gitignore file
 if [ -f .gitignore ] ; then
   process_git_ignore "$(pwd)/.gitignore"
 fi
+
+# check for other .gitignore files
 for i in $(find $(pwd) -mindepth 2 -type f -name .gitignore) ; do
   process_git_ignore "${i}"
 done
