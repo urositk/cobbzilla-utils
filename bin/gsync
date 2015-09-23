@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# Usage: $0 [rsync-options] [source] [destination]
+#
+# Synchronize a git source directory with a remote directory, excluding files according to then
+# rules found in .gitignore.
+#
+# The source or the destination might be "messy" -- it might be a production system with lots of
+# non-git-tracked files in it that we'd prefer to ignore.
+#
+# The rsync statements that are run will respect .gitignore rules, excluding what should be excluded, and
+# including exceptions to those exclusions. These exceptions are the reason we need to use two rsync statements
+#
+# This script will also add any .gitignore files found in subdirectories.
+#
+#
+#
+
+includes=""
+excludes='--exclude=.git*'
+base="$(pwd)"
+
+function process_git_ignore () {
+
+  git_ignore="${1}"
+  if [ "$(dirname ${git_ignore})" = "${base}" ] ; then
+    prefix=""
+  else
+    prefix=".$(echo -n "$(dirname ${git_ignore})" | sed -e 's,^'${base}',,')"
+  fi
+
+  while read -r line || [[ -n "${line}" ]] ; do
+    # todo: there is probably a cleaner test for "first char == !"
+    if [ $(echo "${line}" | head -c 1 | grep -- '!' | wc -l) -gt 0 ] ; then
+      includes="${includes}
+      --include='${prefix}$(echo "${line}" | sed -e 's/^!//' | sed -e 's/ /\\ /g')'"
+    else
+      excludes="${excludes}
+      --exclude='${prefix}$(echo "${line}" | sed -e 's/ /\\ /g')'"
+    fi
+  done < ${git_ignore}
+
+}
+
+# are there other .gitignore files?
+if [ -f .gitignore ] ; then
+  process_git_ignore "$(pwd)/.gitignore"
+fi
+for i in $(find $(pwd) -mindepth 2 -type f -name .gitignore) ; do
+  process_git_ignore "${i}"
+done
+
+rsync ${includes} --exclude="*" ${@} && rsync ${excludes} ${@}
+
+# for debugging
+#echo "rsync ${includes} --exclude=\"*\" ${@}" && echo "rsync ${excludes} ${@}"
+#echo "rsync ${excludes} ${@}"
