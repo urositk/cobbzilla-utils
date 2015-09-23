@@ -4,7 +4,7 @@
 #
 # Synchronize a git source directory with a remote directory, excluding files according to then
 # rules found in .gitignore. If subdirectories also contain .gitignore files, then those rules
-# will be applied only in those subdirectories.
+# will be applied (but only in each respective subdirectory).
 #
 # There will be two rsync statements - one to exclude everything that should be excluded,
 # and a second to handle the exceptions to the exclusion rules - the lines in .gitignore that begin with !
