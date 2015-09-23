@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Usage: gsync [rsync-options] [source] [destination]
+# Usage: gsync [rsync-options] source destination
 #
 # Synchronize a git source directory with a remote directory, excluding files according to then
 # rules found in .gitignore. If subdirectories also contain .gitignore files, then those rules
@@ -23,6 +23,11 @@
 #
 #    - jonathan.
 #
+
+if [[ -z "${1}" || -z "${2}" || "${1}" == "--help" || "${1}" == "-help" || "${1}" == "-h" ]] ; then
+  echo "Usage: gsync [rsync-options] source destination"
+  exit 1
+fi
 
 includes=""
 excludes='--exclude=.git*'
