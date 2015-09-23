@@ -9,8 +9,9 @@
 # There will be two rsync statements - one to exclude everything that should be excluded,
 # and a second to handle the exceptions to the exclusion rules - the lines in .gitignore that begin with !
 #
-# The exceptions to the exclusions are rsync'd first, and if that succeeds,
-# the second rsync copies everything else.
+# The exceptions to the exclusions are rsync'd first, and if that succeeds, the second rsync
+# copies everything else.
+#
 #
 # --- SUPPORT OPEN SOURCE ---
 # If you find this script has saved you a decent amount time, please consider dropping me a little bitcoin.
@@ -18,6 +19,9 @@
 # My bitcoin wallet address is 1HoiSHKxYM4EtsP3xFGsY2xWYvh4hAuJ2q
 # Paypal or Dwolla: jonathan (replace this with the 'AT' sign on your keyboard) kyuss.org
 #
+# Thank You.
+#
+#    - jonathan.
 #
 
 includes=""
