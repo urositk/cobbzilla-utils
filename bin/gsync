@@ -3,15 +3,14 @@
 # Usage: $0 [rsync-options] [source] [destination]
 #
 # Synchronize a git source directory with a remote directory, excluding files according to then
-# rules found in .gitignore.
+# rules found in .gitignore. If subdirectories also contain .gitignore files, then those rules
+# will be applied only in those subdirectories.
 #
-# The source or the destination might be "messy" -- it might be a production system with lots of
-# non-git-tracked files in it that we'd prefer to ignore.
+# There will be two rsync statements - one to exclude everything that should be excluded,
+# and a second to handle the exceptions to the exclusion rules - the lines in .gitignore that begin with !
 #
-# The rsync statements that are run will respect .gitignore rules, excluding what should be excluded, and
-# including exceptions to those exclusions. These exceptions are the reason we need to use two rsync statements
-#
-# This script will also respect .gitignore files found in subdirectories.
+# The exceptions to the exclusions are rsync'd first, and if that succeeds,
+# the second rsync copies everything else.
 #
 # --- SUPPORT OPEN SOURCE ---
 # If you find this script has saved you a decent amount time, please consider dropping me a little bitcoin.
