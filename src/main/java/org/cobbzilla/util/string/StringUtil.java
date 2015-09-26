@@ -181,4 +181,9 @@ public class StringUtil {
              || (e.getCause() != null && exceptionContainsMessage(e.getCause(), s))
         );
     }
+
+    public static String ellipsis(String s, int len) {
+        if (s.length() <= len) return s;
+        return s.substring(0, len) + "...";
+    }
 }
