@@ -5,6 +5,7 @@ import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.cobbzilla.util.collection.ArrayUtil;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -102,6 +103,19 @@ public class ReflectionUtil {
                 // and it must be named appropriately
                 final String fieldName = fieldName(getter.getName());
                 if (fieldName == null) continue;
+
+                // getter must not be marked Transient
+                final Annotation[] getterNotes = getter.getAnnotations();
+                if (getterNotes != null) {
+                    for (Annotation a : getterNotes) {
+                        final Class<?>[] interfaces = a.getClass().getInterfaces();
+                        if (interfaces != null) {
+                            for (Class<?> i : interfaces) {
+                                if (i.getSimpleName().equals("Transient")) continue;
+                            }
+                        }
+                    }
+                }
 
                 // if specific fields were given, it must be one of those
                 if (fields != null && !ArrayUtils.contains(fields, fieldName)) continue;
@@ -279,7 +293,7 @@ public class ReflectionUtil {
     public static void set(Object object, String field, Object value) {
         final String[] tokens = field.split("\\.");
         Object target = getTarget(object, tokens);
-        if (target != null) invoke_set(target, tokens[tokens.length-1], value);
+        if (target != null) invoke_set(target, tokens[tokens.length - 1], value);
     }
 
     public static void setNull(Object object, String field, Class type) {
