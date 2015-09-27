@@ -61,9 +61,9 @@ public class StringUtil {
 
     public static String lastPathElement(String url) { return url.substring(url.lastIndexOf("/")+1); }
 
-    public static String safeFunctionName (String s) {
-        return s.replaceAll("\\W", "");
-    }
+    public static String safeFunctionName (String s) { return s.replaceAll("\\W", ""); }
+
+    public static String removeWhitespace (String s) { return s.replaceAll("\\s", ""); }
 
     public static Integer safeParseInt(String s) {
         if (empty(s)) return null;
@@ -186,4 +186,5 @@ public class StringUtil {
         if (s.length() <= len) return s;
         return s.substring(0, len) + "...";
     }
+
 }
