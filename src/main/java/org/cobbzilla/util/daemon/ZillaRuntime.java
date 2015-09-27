@@ -34,6 +34,9 @@ public class ZillaRuntime {
 
     public static <T> T die (Exception e) { throw new IllegalStateException("(no message)", e); }
 
+    public static <T> T notSupported() { return notSupported("not supported"); }
+    public static <T> T notSupported(String message) { throw new UnsupportedOperationException(message); }
+
     public static boolean empty(String s) { return s == null || s.length() == 0; }
 
     public static boolean empty(Object o) {
@@ -63,4 +66,8 @@ public class ZillaRuntime {
         }
         return o.toString().length() == 0;
     }
+
+    public static Boolean safeBoolean(String val) { return empty(val) ? null : Boolean.valueOf(val); }
+    public static Integer safeInt(String val) { return empty(val) ? null : Integer.valueOf(val); }
+    public static Long safeLong(String val) { return empty(val) ? null : Long.valueOf(val); }
 }
