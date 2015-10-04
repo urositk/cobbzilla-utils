@@ -1,8 +1,13 @@
 package org.cobbzilla.util.collection;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.util.*;
 
 public class MapUtil {
+
+    public static final TypeReference<HashMap<String, Object>> JSON_STRING_OBJECT_MAP = new TypeReference<HashMap<String, Object>>() {};
+    public static final TypeReference<HashMap<String, String>> JSON_STRING_STRING_MAP = new TypeReference<HashMap<String, String>>() {};
 
     public static Map<String, String> toMap (Properties props) {
         if (props == null || props.isEmpty()) return Collections.emptyMap();

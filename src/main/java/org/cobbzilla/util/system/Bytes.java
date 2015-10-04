@@ -2,6 +2,8 @@ package org.cobbzilla.util.system;
 
 import org.cobbzilla.util.string.StringUtil;
 
+import java.text.DecimalFormat;
+
 import static org.apache.commons.lang3.StringUtils.chop;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
@@ -23,8 +25,9 @@ public class Bytes {
 
     public static long parse(String value) {
         String val = StringUtil.removeWhitespace(value).toLowerCase();
-        if (val.endsWith("b")) val = chop(val);
-        final char suffix = value.charAt(val.length());
+        if (val.endsWith("bytes")) return Long.parseLong(val.substring(0, val.length()-"bytes".length()));
+        if (val.endsWith("b")) return Long.parseLong(chop(val));
+        final char suffix = val.charAt(val.length());
         final long size = Long.parseLong(val.substring(0, val.length() - 1));
         switch (suffix) {
             case 'k': return KB * size;
@@ -35,5 +38,21 @@ public class Bytes {
             case 'e': return EB * size;
             default: return die("parse: Unrecognized suffix '"+suffix+"' in string "+value);
         }
+    }
+
+    public static final DecimalFormat DEFAULT_FORMAT = new DecimalFormat();
+    static {
+        DEFAULT_FORMAT.setMaximumFractionDigits(2);
+    }
+
+    public static String format(Long count) {
+        if (count == null) return "0 bytes";
+        if (count > EB) return DEFAULT_FORMAT.format(count.doubleValue() / ((double) EB)) + " EB";
+        if (count > PB) return DEFAULT_FORMAT.format(count.doubleValue() / ((double) EB)) + " PB";
+        if (count > TB) return DEFAULT_FORMAT.format(count.doubleValue() / ((double) EB)) + " TB";
+        if (count > GB) return DEFAULT_FORMAT.format(count.doubleValue() / ((double) EB)) + " GB";
+        if (count > MB) return DEFAULT_FORMAT.format(count.doubleValue() / ((double) EB)) + " MB";
+        if (count > KB) return DEFAULT_FORMAT.format(count.doubleValue() / ((double) EB)) + " KB";
+        return count + " bytes";
     }
 }

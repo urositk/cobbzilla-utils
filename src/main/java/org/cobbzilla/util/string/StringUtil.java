@@ -187,4 +187,8 @@ public class StringUtil {
         return s.substring(0, len) + "...";
     }
 
+    public static boolean containsIgnoreCase(Collection<String> values, String value) {
+        for (String v : values) if (v != null && v.equalsIgnoreCase(value)) return true;
+        return false;
+    }
 }

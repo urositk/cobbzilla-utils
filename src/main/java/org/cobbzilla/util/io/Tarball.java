@@ -18,6 +18,8 @@ import java.io.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.system.CommandShell.exec;
+import static org.cobbzilla.util.system.CommandShell.okResult;
 
 @Slf4j
 public class Tarball {
@@ -115,8 +117,8 @@ public class Tarball {
     public static File roll (File tarball, File dir, File cwd) throws IOException {
 
         if (cwd == null) cwd = dir;
-        final String dirAbsPath = dir.getAbsolutePath();
-        final String cwdAbsPath = cwd.getAbsolutePath();
+        final String dirAbsPath = abs(dir);
+        final String cwdAbsPath = abs(cwd);
 
         final String dirPath;
         if (dirAbsPath.equals(cwdAbsPath)) {
@@ -134,7 +136,7 @@ public class Tarball {
                 .addArgument(tarball.getAbsolutePath())
                 .addArgument(dirPath);
 
-        CommandShell.exec(new Command(command).setDir(cwd));
+        okResult(exec(new Command(command).setDir(cwd)));
 
         return tarball;
     }

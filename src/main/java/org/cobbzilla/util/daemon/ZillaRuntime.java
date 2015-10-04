@@ -67,7 +67,13 @@ public class ZillaRuntime {
         return o.toString().length() == 0;
     }
 
-    public static Boolean safeBoolean(String val) { return empty(val) ? null : Boolean.valueOf(val); }
-    public static Integer safeInt(String val) { return empty(val) ? null : Integer.valueOf(val); }
-    public static Long safeLong(String val) { return empty(val) ? null : Long.valueOf(val); }
+    public static Boolean safeBoolean(String val, Boolean ifNull) { return empty(val) ? ifNull : Boolean.valueOf(val); }
+    public static Boolean safeBoolean(String val) { return safeBoolean(val, null); }
+
+    public static Integer safeInt(String val, Integer ifNull) { return empty(val) ? ifNull : Integer.valueOf(val); }
+    public static Integer safeInt(String val) { return safeInt(val, null); }
+
+    public static Long safeLong(String val, Long ifNull) { return empty(val) ? ifNull : Long.valueOf(val); }
+    public static Long safeLong(String val) { return safeLong(val, null); }
+
 }

@@ -6,10 +6,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.cobbzilla.util.collection.ArrayUtil;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -61,22 +58,52 @@ public class ReflectionUtil {
         try {
             return (T) instantiate(forName(clazz));
         } catch (Exception e) {
-            return die("Error instantiating "+clazz+": "+e, e);
+            return die("instantiate("+clazz+"): "+e, e);
         }
     }
+
+    /**
+     * Create an instance of a class using the supplied argument to a matching single-argument constructor.
+     * @param clazz The class to instantiate
+     * @param argument The object that will be passed to a matching single-argument constructor
+     * @param <T> Could be anything
+     * @return A new instance of clazz, created using a constructor that matched argument's class.
+     */
+    public static <T> T instantiate(Class<T> clazz, Object argument) {
+        try {
+            return clazz.getConstructor(argument.getClass()).newInstance(argument);
+        } catch (Exception e) {
+            return die("instantiate("+clazz.getName()+", "+argument+"): "+e, e);
+        }
+    }
+
+    /**
+     * Make a copy of the object, assuming its class has a copy constructor
+     * @param thing The thing to copy
+     * @param <T> Whatevs
+     * @return A copy of the object, created using the thing's copy constructor
+     */
+    public static <T> T copy(T thing) { return (T) instantiate(thing.getClass(), thing); }
 
     private enum Accessor { get, set }
 
     /**
-     * Copies fields from src to dest.
+     * Copies fields from src to dest. Code is easier to read if this method is understdood to be like an assignment statement, dest = src
      *
-     * For each field in src that (1) starts with "get" (2) takes zero arguments and (3) has a return value:
+     * We consider only 'getter' methods that meet the following criteria:
+     *   (1) starts with "get"
+     *   (2) takes zero arguments
+     *   (3) has a return value
+     *   (4) does not carry any annotation whose simple class name is "Transient"
+     *
      * The value returned from the source getter will be copied to the destination (via setter), if a setter exists, and:
      * (1) No getter exists on the destination, or (2) the destination's getter returns a different value (.equals returns false)
      *
+     * Getters that return null values on the source object will not be copied.
+     *
      * @param dest destination object
      * @param src source object
-     * @param <T> objects must share a type (can this be relaxed? probably)
+     * @param <T> objects must share a type
      * @return count of fields copied
      */
     public static <T> int copy (T dest, T src) {
@@ -94,6 +121,7 @@ public class ReflectionUtil {
     public static <T> int copy (T dest, T src, String[] fields) {
         int copyCount = 0;
         try {
+            checkGetter:
             for (Method getter : src.getClass().getMethods()) {
                 // only look for getters on the source object (methods with no arguments that have a return value)
                 final Class<?>[] types = getter.getParameterTypes();
@@ -104,6 +132,9 @@ public class ReflectionUtil {
                 final String fieldName = fieldName(getter.getName());
                 if (fieldName == null) continue;
 
+                // if specific fields were given, it must be one of those
+                if (fields != null && !ArrayUtils.contains(fields, fieldName)) continue;
+
                 // getter must not be marked Transient
                 final Annotation[] getterNotes = getter.getAnnotations();
                 if (getterNotes != null) {
@@ -111,14 +142,13 @@ public class ReflectionUtil {
                         final Class<?>[] interfaces = a.getClass().getInterfaces();
                         if (interfaces != null) {
                             for (Class<?> i : interfaces) {
-                                if (i.getSimpleName().equals("Transient")) continue;
+                                if (i.getSimpleName().equals("Transient")) {
+                                    continue checkGetter;
+                                }
                             }
                         }
                     }
                 }
-
-                // if specific fields were given, it must be one of those
-                if (fields != null && !ArrayUtils.contains(fields, fieldName)) continue;
 
                 // what would the setter be called?
                 final String setterName = setterForGetter(getter.getName());

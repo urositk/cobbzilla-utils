@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.io.FileUtil.abs;
 
 @Slf4j
@@ -279,4 +280,11 @@ public class CommandShell {
         return result;
     }
 
+    public static File home(String user) {
+        String path = execScript("cd ~" + user + " && pwd");
+        if (empty(path)) die("home("+user+"): no home found for user "+user);
+        final File f = new File(path);
+        if (!f.exists()) die("home("+user+"): home does not exist "+path);
+        return f;
+    }
 }
