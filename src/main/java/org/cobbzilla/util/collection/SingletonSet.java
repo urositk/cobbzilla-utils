@@ -7,7 +7,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.notSupported;
 
 public class SingletonSet<E> extends HashSet<E> {
 
-    public SingletonSet (E element) { add(element); }
+    public SingletonSet (E element) { super.add(element); }
 
     @Override public boolean add(E e) { return notSupported(); }
     @Override public boolean remove(Object o) { return notSupported();  }
