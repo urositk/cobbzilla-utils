@@ -16,6 +16,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.string.StringUtil.UTF8;
 
 public class CryptoUtil {
 
@@ -69,7 +70,7 @@ public class CryptoUtil {
     }
 
     public static byte[] decrypt (byte[] data, String passphrase) throws Exception {
-        final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        final Cipher cipher = Cipher.getInstance(CONFIG_BLOCK_CIPHER);
         final Key keySpec = new SecretKeySpec(sha256(passphrase), CONFIG_KEY_CIPHER);
         final IvParameterSpec initVector = new IvParameterSpec(new byte[cipher.getBlockSize()]);
         cipher.init(Cipher.DECRYPT_MODE, keySpec, initVector);
@@ -102,7 +103,7 @@ public class CryptoUtil {
     }
 
     public static String string_encrypt(String data, String key) {
-        try { return Base64.encodeBytes(encryptOrDie(pad(data).getBytes(), key)); } catch (Exception e) {
+        try { return Base64.encodeBytes(encryptOrDie(pad(data).getBytes(UTF8), key)); } catch (Exception e) {
             return die("Error encrypting: "+e, e);
         }
     }
