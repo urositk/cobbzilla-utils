@@ -17,7 +17,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 @Accessors(chain=true) @ToString(callSuper=true)
 public class DnsRecord extends DnsRecordBase {
 
-    public static final int DEFAULT_TTL = (int) TimeUnit.HOURS.toMillis(1);
+    public static final int DEFAULT_TTL = (int) TimeUnit.HOURS.toSeconds(1);
 
     public static final String OPT_MX_RANK = "rank";
     public static final String OPT_NS_NAME = "name";
