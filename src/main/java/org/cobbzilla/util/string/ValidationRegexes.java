@@ -32,8 +32,8 @@ public class ValidationRegexes {
     public static final Pattern INTEGER_PATTERN = pattern("^[0-9]+$");
 
     // note: change this regex in the year 2099 or it will fail for people born in 2100
-    public static final String DOB_REGEX = "^(19|20)[0-9]{2}-[01][0-9]-(0[1-9]|[1-2][0-9]|3[0-1])$";
-    public static final Pattern DOB_PATTERN = pattern(DOB_REGEX);
+    public static final String YYYYMMDD_REGEX = "^(19|20)[0-9]{2}-[01][0-9]-(0[1-9]|[1-2][0-9]|3[0-1])$";
+    public static final Pattern YYYYMMDD_PATTERN = pattern(YYYYMMDD_REGEX);
 
     private static Pattern pattern(String regex) { return Pattern.compile(regex, Pattern.CASE_INSENSITIVE); }
 
