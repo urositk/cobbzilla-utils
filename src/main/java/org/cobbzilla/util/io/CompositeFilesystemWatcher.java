@@ -41,6 +41,8 @@ public abstract class CompositeFilesystemWatcher<T extends FilesystemWatcher> im
 
     protected abstract T newWatcher(Path path);
 
+    public void add (String path) { add(new File(path)); }
+
     public void add (File path) { add(path.toPath()); }
 
     public void add (Path path) {

@@ -10,7 +10,7 @@ import static org.cobbzilla.util.system.Sleep.sleep;
 @Slf4j
 public abstract class SimpleDaemon implements Runnable {
 
-    protected static final DateTimeFormatter DFORMAT = DateTimeFormat.forPattern("yyyy-MMM-dd HH:mm:ss");
+    public static final DateTimeFormatter DFORMAT = DateTimeFormat.forPattern("yyyy-MMM-dd HH:mm:ss");
 
     public SimpleDaemon () {
         this.name = getClass().getName();

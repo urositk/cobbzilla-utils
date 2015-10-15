@@ -28,7 +28,7 @@ cobbzilla-utils is available under the Apache License, version 2: http://www.apa
 
     <profiles>
         <profile>
-            <id>json-editor</id>
+            <id>uberjar</id>
             <build>
                 <plugins>
                     <plugin>
@@ -36,7 +36,7 @@ cobbzilla-utils is available under the Apache License, version 2: http://www.apa
                         <artifactId>maven-shade-plugin</artifactId>
                         <version>2.1</version>
                         <configuration>
-                            <finalName>json-editor</finalName>
+                            <finalName>zilla-utils</finalName>
                         </configuration>
                         <executions>
                             <execution>
@@ -47,7 +47,7 @@ cobbzilla-utils is available under the Apache License, version 2: http://www.apa
                                 <configuration>
                                     <transformers>
                                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <mainClass>org.cobbzilla.util.json.main.JsonEditor</mainClass>
+                                            <mainClass>org.cobbzilla.util.main.IndexMain</mainClass>
                                         </transformer>
                                     </transformers>
                                     <!-- Exclude signed jars to avoid errors
@@ -164,6 +164,16 @@ cobbzilla-utils is available under the Apache License, version 2: http://www.apa
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
 
         <dependency>

@@ -81,7 +81,7 @@ public class HttpUtil {
                 break;
             } catch (IOException e) {
                 lastException = e;
-                sleep(sleep, lastException);
+                sleep(sleep, "waiting to possibly retry after IOException: "+lastException);
                 sleep *= 5;
             }
         }
