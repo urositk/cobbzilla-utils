@@ -266,10 +266,26 @@ public class CommandShell {
     public static String execScript (String contents) { return execScript(contents, null); }
 
     public static String execScript (String contents, Map<String, String> env) {
+        final CommandResult result = scriptResult(contents, env);
+        if (!result.isZeroExitStatus()) die("execScript: non-zero exit: "+result);
+        return result.getStdout();
+    }
+
+    public static CommandResult scriptResult (String contents) { return scriptResult(contents, null, null); }
+
+    public static CommandResult scriptResult (String contents, Map<String, String> env) {
+        return scriptResult(contents, env, null);
+    }
+
+    public static CommandResult scriptResult (String contents, String input) {
+        return scriptResult(contents, null, input);
+    }
+
+    public static CommandResult scriptResult (String contents, Map<String, String> env, String input) {
         try {
             @Cleanup("delete") final File script = tempScript(contents);
-            final Command command = new Command(new CommandLine(script)).setEnv(env);
-            return exec(command).getStdout();
+            final Command command = new Command(new CommandLine(script)).setEnv(env).setInput(input);
+            return exec(command);
         } catch (Exception e) {
             return die("Error executing: "+e);
         }
