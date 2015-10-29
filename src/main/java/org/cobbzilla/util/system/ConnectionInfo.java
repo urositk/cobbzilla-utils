@@ -15,6 +15,10 @@ public class ConnectionInfo {
     @Getter @Setter private String username;
     @Getter @Setter private String password;
 
+    // convenience methods
+    public String getUser () { return getUsername(); }
+    public void setUser (String user) { setUsername(user); }
+
     public ConnectionInfo (String host, Integer port) {
         this(host, port, null, null);
     }
