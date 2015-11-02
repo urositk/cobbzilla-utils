@@ -1,7 +1,6 @@
 package org.cobbzilla.util.main;
 
 import com.google.common.collect.ImmutableMap;
-import lombok.Getter;
 import org.cobbzilla.util.collection.ArrayUtil;
 import org.cobbzilla.util.io.main.FilesystemWatcherMain;
 import org.cobbzilla.util.json.main.JsonEditor;
@@ -16,11 +15,12 @@ import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
 
 public class IndexMain {
 
-    @Getter public final Map<String, Class<?>> handlers
+    public final Map<String, Class<?>> handlers
             = ImmutableMap.<String, Class<?>>builder()
             .put("json", JsonEditor.class)
             .put("fswatch", FilesystemWatcherMain.class)
             .build();
+    public Map<String, Class<?>> getHandlers() { return handlers; }
 
     public static void main (String[] args) { main(IndexMain.class, args); }
 
