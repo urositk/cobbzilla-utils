@@ -12,13 +12,9 @@ public abstract class SimpleDaemon implements Runnable {
 
     public static final DateTimeFormatter DFORMAT = DateTimeFormat.forPattern("yyyy-MMM-dd HH:mm:ss");
 
-    public SimpleDaemon () {
-        this.name = getClass().getName();
-    }
+    public SimpleDaemon () { this.name = getClass().getSimpleName(); }
 
-    public SimpleDaemon (String name) {
-        this.name = name;
-    }
+    public SimpleDaemon (String name) { this.name = name; }
 
     @Getter private String name;
     @Getter private long lastProcessTime = 0;
