@@ -183,12 +183,12 @@ public class StringUtil {
     }
 
     public static String ellipsis(String s, int len) {
-        if (s.length() <= len) return s;
+        if (s == null || s.length() <= len) return s;
         return s.substring(0, len) + "...";
     }
 
     public static String truncate(String s, int len) {
-        if (s.length() <= len) return s;
+        if (s == null || s.length() <= len) return s;
         return s.substring(0, len);
     }
 
