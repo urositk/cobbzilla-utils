@@ -23,6 +23,12 @@ public abstract class SimpleDaemon implements Runnable {
     private final Object lock = new Object();
     private volatile boolean isDone = false;
 
+    /** Called right after daemon has started */
+    public void onStart () {}
+
+    /** Called right before daemon is about to exit */
+    public void onStop () {}
+
     public void start() {
         log.info(name+": Starting daemon");
         synchronized (lock) {
@@ -84,34 +90,34 @@ public abstract class SimpleDaemon implements Runnable {
     protected void init() throws Exception {}
 
     public void run() {
-
+        onStart();
         long delay = getStartupDelay();
         if (delay > 0) {
-            log.debug(name+": Delaying daemon startup for " + delay + "ms...");
+            log.debug(name + ": Delaying daemon startup for " + delay + "ms...");
             sleep(delay, "run[startup-delay]");
         }
-        log.debug(name+": Daemon thread now running");
+        log.debug(name + ": Daemon thread now running");
 
         try {
-            log.debug(name+": Daemon thread invoking init");
+            log.debug(name + ": Daemon thread invoking init");
             init();
 
             while (!isDone) {
-                log.debug(name+": Daemon thread invoking process");
+                log.debug(name + ": Daemon thread invoking process");
                 process();
                 lastProcessTime = System.currentTimeMillis();
                 if (isDone) return;
                 sleep(getSleepTime(), "run[post-processing]");
             }
         } catch (Exception e) {
-            log.error(name+": Error in daemon, exiting: " + e, e);
+            log.error(name + ": Error in daemon, exiting: " + e, e);
 
         } finally {
-            _cleanup();
+            cleanup();
             try {
-                cleanup();
+                onStop();
             } catch (Exception e) {
-                log.error(name+": Error cleaning up, exiting and ignoring error: " + e, e);
+                log.error(name + ": Error in onStop, exiting and ignoring error: " + e, e);
             }
         }
     }
@@ -121,8 +127,6 @@ public abstract class SimpleDaemon implements Runnable {
     protected abstract long getSleepTime();
 
     protected abstract void process();
-
-    protected void cleanup() throws Exception {}
 
     public boolean getIsDone() { return isDone; }
 
@@ -134,7 +138,7 @@ public abstract class SimpleDaemon implements Runnable {
         }
     }
 
-    private void _cleanup() {
+    private void cleanup() {
         mainThread = null;
         isDone = true;
     }
