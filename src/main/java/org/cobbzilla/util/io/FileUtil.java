@@ -413,4 +413,16 @@ public class FileUtil {
             if (f.exists()) die("delete: Error deleting: "+abs(f));
         }
     }
+
+    public static int countFilesWithName(File dir, String name) {
+        int count = 0;
+        final File[] files = dir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) count += countFilesWithName(f, name);
+                else if (f.getName().equals(name)) count++;
+            }
+        }
+        return count;
+    }
 }
