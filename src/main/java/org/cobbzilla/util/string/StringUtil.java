@@ -196,4 +196,14 @@ public class StringUtil {
         for (String v : values) if (v != null && v.equalsIgnoreCase(value)) return true;
         return false;
     }
+
+    /**
+     * Return what the default "property name" would be for this thing, if named according to its type
+     * @param thing the thing to look at
+     * @param <T> the type of thing it is
+     * @return the class name of the thing with the first letter downcased
+     */
+    public static <T> String classAsFieldName(T thing) {
+        return uncapitalize(thing.getClass().getSimpleName());
+    }
 }
