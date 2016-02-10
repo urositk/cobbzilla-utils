@@ -310,6 +310,8 @@ public class FileUtil {
     public static String abs(Path path) { return path == null ? "null" : abs(path.toFile()); }
     public static String abs(String path) { return path == null ? "null" : abs(new File(path)); }
 
+    public static File mkdirOrDie(String dir) { return mkdirOrDie(new File(dir)); }
+
     public static File mkdirOrDie(File dir) {
         if (!dir.exists() && !dir.mkdirs()) {
             final String msg = "mkdirOrDie: error creating: " + abs(dir);

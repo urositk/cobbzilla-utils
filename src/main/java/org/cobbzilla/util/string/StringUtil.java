@@ -52,6 +52,16 @@ public class StringUtil {
         return results;
     }
 
+    public static List<String> splitAndTrim (String s, String delim) {
+        final List<String> results = new ArrayList<>();
+        if (empty(s)) return results;
+        final StringTokenizer st = new StringTokenizer(s, delim);
+        while (st.hasMoreTokens()) {
+            results.add(st.nextToken().trim());
+        }
+        return results;
+    }
+
     public static String replaceLast(String s, String find, String replace) {
         if (empty(s)) return s;
         int lastIndex = s.lastIndexOf(find);
