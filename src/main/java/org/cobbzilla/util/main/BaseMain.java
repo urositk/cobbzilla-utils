@@ -39,7 +39,7 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
     protected void preRun() {}
     protected void postRun() {}
 
-    protected static void main(Class<? extends BaseMain> clazz, String[] args) {
+    public static void main(Class<? extends BaseMain> clazz, String[] args) {
         try {
             final BaseMain m = clazz.newInstance();
             m.setArgs(args);
