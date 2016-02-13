@@ -40,6 +40,12 @@ public class FileUtil {
         return files;
     }
 
+    public static File[] listFiles(File dir, FileFilter filter) {
+        final File[] files = dir.listFiles(filter);
+        if (files == null) return EMPTY_ARRAY;
+        return files;
+    }
+
     public static File[] listDirs(File dir) {
         final File[] files = dir.listFiles(DirFilter.instance);
         if (files == null) return EMPTY_ARRAY;
