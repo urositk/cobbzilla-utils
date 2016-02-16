@@ -71,15 +71,17 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
 
     protected void err (String message) { System.err.println(message); }
 
-    protected void die (String message) {
+    protected <T> T die (String message) {
         log.error(message);
         err(message);
         System.exit(1);
+        return null;
     }
 
-    protected void die (String message, Exception e) {
+    protected <T> T die (String message, Exception e) {
         log.error(message, e);
         err(message + ": " + e);
         System.exit(1);
+        return null;
     }
 }
