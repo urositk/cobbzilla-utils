@@ -37,6 +37,8 @@ public class ReflectionUtil {
         }
     }
 
+    public static <T> Class<? extends T> arrayClass (Class clazz) { return forName("[L"+clazz.getName()+";"); }
+
     /**
      * Create an instance of a class, only throwing unchecked exceptions. The class must have a default constructor.
      * @param clazz we will instantiate an object of this type
