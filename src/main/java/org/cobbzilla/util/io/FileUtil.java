@@ -459,4 +459,8 @@ public class FileUtil {
         return bzip2(FileUtil.toFile(quickTemp(killAfter), fileStream));
     }
 
+    public static File symlink (File link, File target) throws IOException {
+        return Files.createSymbolicLink(link.toPath(), target.toPath()).toFile();
+    }
+
 }

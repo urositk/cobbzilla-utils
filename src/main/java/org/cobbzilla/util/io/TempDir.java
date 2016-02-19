@@ -62,14 +62,20 @@ public class TempDir extends File implements Closeable {
 
     private static QuickTempReaper qtReaper = new QuickTempReaper().start();
 
+    public static final long QT_NO_DELETE = -1L;
+
     public static File quickTemp() { return quickTemp(TimeUnit.MINUTES.toMillis(5)); }
 
     public static File quickTemp(final long killAfter) {
-        long killTime = killAfter + System.currentTimeMillis();
         try {
-            return qtReaper.add(File.createTempFile("quickTemp-", ".tmp"), killTime);
+            if (killAfter > 0) {
+                long killTime = killAfter + System.currentTimeMillis();
+                return qtReaper.add(File.createTempFile("quickTemp-", ".tmp"), killTime);
+            } else {
+                return File.createTempFile("quickTemp-", ".tmp");
+            }
         } catch (IOException e) {
-            return die("quickTemp: cannot create temp file: "+e, e);
+            return die("quickTemp: cannot create temp file: " + e, e);
         }
     }
 
