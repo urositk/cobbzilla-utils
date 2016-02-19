@@ -443,9 +443,8 @@ public class FileUtil {
 
     public static File bzip2(File f, long killAfter) throws IOException {
         final File temp = quickTemp(killAfter);
-        try (OutputStream out = new FileOutputStream(temp)) {
+        try (OutputStream bzout = new BZip2CompressorOutputStream(new FileOutputStream(temp))) {
             try (InputStream in = new FileInputStream(f)) {
-                OutputStream bzout = new BZip2CompressorOutputStream(out);
                 IOUtils.copyLarge(in, bzout);
             }
         }
