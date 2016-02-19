@@ -2,6 +2,7 @@ package org.cobbzilla.util.io;
 
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -12,10 +13,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.commons.lang3.StringUtils.chop;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.io.TempDir.quickTemp;
 
 @Slf4j
 public class FileUtil {
@@ -433,4 +436,28 @@ public class FileUtil {
         }
         return count;
     }
+
+    public static final long DEFAULT_KILL_AFTER = TimeUnit.MINUTES.toMillis(5);
+
+    public static File bzip2(File f) throws IOException { return bzip2(f, DEFAULT_KILL_AFTER); }
+
+    public static File bzip2(File f, long killAfter) throws IOException {
+        final File temp = quickTemp(killAfter);
+        try (OutputStream out = new FileOutputStream(temp)) {
+            try (InputStream in = new FileInputStream(f)) {
+                OutputStream bzout = new BZip2CompressorOutputStream(out);
+                IOUtils.copyLarge(in, bzout);
+            }
+        }
+        return temp;
+    }
+
+    public static File bzip2(InputStream fileStream) throws IOException {
+        return bzip2(fileStream, DEFAULT_KILL_AFTER);
+    }
+
+    public static File bzip2(InputStream fileStream, long killAfter) throws IOException {
+        return bzip2(FileUtil.toFile(quickTemp(killAfter), fileStream));
+    }
+
 }
