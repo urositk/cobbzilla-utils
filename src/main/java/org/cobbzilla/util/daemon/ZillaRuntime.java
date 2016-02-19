@@ -3,8 +3,10 @@ package org.cobbzilla.util.daemon;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.cobbzilla.util.io.FileUtil.list;
 import static org.cobbzilla.util.system.Sleep.sleep;
@@ -75,5 +77,11 @@ public class ZillaRuntime {
 
     public static Long safeLong(String val, Long ifNull) { return empty(val) ? ifNull : Long.valueOf(val); }
     public static Long safeLong(String val) { return safeLong(val, null); }
+
+    public static BigInteger bigint(long val) { return new BigInteger(String.valueOf(val)); }
+    public static BigInteger bigint(int val) { return new BigInteger(String.valueOf(val)); }
+    public static BigInteger bigint(byte val) { return new BigInteger(String.valueOf(val)); }
+
+    public static String uuid() { return UUID.randomUUID().toString(); }
 
 }

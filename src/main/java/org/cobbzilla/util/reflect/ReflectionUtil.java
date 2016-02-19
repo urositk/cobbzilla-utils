@@ -37,6 +37,8 @@ public class ReflectionUtil {
         }
     }
 
+    public static <T> Class<? extends T> arrayClass (Class clazz) { return forName("[L"+clazz.getName()+";"); }
+
     /**
      * Create an instance of a class, only throwing unchecked exceptions. The class must have a default constructor.
      * @param clazz we will instantiate an object of this type
@@ -110,7 +112,7 @@ public class ReflectionUtil {
      * @return count of fields copied
      */
     public static <T> int copy (T dest, T src) {
-        return copy(dest, src, null);
+        return copy(dest, src, null, null);
     }
 
     /**
@@ -122,6 +124,19 @@ public class ReflectionUtil {
      * @return count of fields copied
      */
     public static <T> int copy (T dest, T src, String[] fields) {
+        return copy(dest, src, fields, null);
+    }
+
+    /**
+     * Same as copy(dest, src) but only named fields are copied
+     * @param dest destination object
+     * @param src source object
+     * @param fields only fields with these names will be considered for copying
+     * @param exclude fields with these names will NOT be considered for copying
+     * @param <T> objects must share a type
+     * @return count of fields copied
+     */
+    public static <T> int copy (T dest, T src, String[] fields, String[] exclude) {
         int copyCount = 0;
         try {
             checkGetter:
@@ -133,7 +148,7 @@ public class ReflectionUtil {
 
                 // and it must be named appropriately
                 final String fieldName = fieldName(getter.getName());
-                if (fieldName == null) continue;
+                if (fieldName == null || ArrayUtils.contains(exclude, fieldName)) continue;
 
                 // if specific fields were given, it must be one of those
                 if (fields != null && !ArrayUtils.contains(fields, fieldName)) continue;

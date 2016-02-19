@@ -30,6 +30,7 @@ public class ValidationRegexes {
 
     public static final Pattern FILENAME_PATTERN = pattern("^[_A-Z0-9\\-\\.]+$");
     public static final Pattern INTEGER_PATTERN = pattern("^[0-9]+$");
+    public static final Pattern DECIMAL_PATTERN = pattern("^[0-9]+(\\.[0-9]+)?$");
 
     // note: change this regex in the year 2099 or it will fail for people born in 2100
     public static final String YYYYMMDD_REGEX = "^(19|20)[0-9]{2}-[01][0-9]-(0[1-9]|[1-2][0-9]|3[0-1])$";

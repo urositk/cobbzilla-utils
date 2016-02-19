@@ -52,6 +52,16 @@ public class StringUtil {
         return results;
     }
 
+    public static List<String> splitAndTrim (String s, String delim) {
+        final List<String> results = new ArrayList<>();
+        if (empty(s)) return results;
+        final StringTokenizer st = new StringTokenizer(s, delim);
+        while (st.hasMoreTokens()) {
+            results.add(st.nextToken().trim());
+        }
+        return results;
+    }
+
     public static String replaceLast(String s, String find, String replace) {
         if (empty(s)) return s;
         int lastIndex = s.lastIndexOf(find);
@@ -195,5 +205,15 @@ public class StringUtil {
     public static boolean containsIgnoreCase(Collection<String> values, String value) {
         for (String v : values) if (v != null && v.equalsIgnoreCase(value)) return true;
         return false;
+    }
+
+    /**
+     * Return what the default "property name" would be for this thing, if named according to its type
+     * @param thing the thing to look at
+     * @param <T> the type of thing it is
+     * @return the class name of the thing with the first letter downcased
+     */
+    public static <T> String classAsFieldName(T thing) {
+        return uncapitalize(thing.getClass().getSimpleName());
     }
 }

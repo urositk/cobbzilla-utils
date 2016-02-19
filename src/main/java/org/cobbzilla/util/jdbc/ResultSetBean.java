@@ -16,8 +16,10 @@ public class ResultSetBean {
 
     public static final ResultSetBean EMPTY = new ResultSetBean();
 
-    @Getter private final ArrayList<Map> rows = new ArrayList<>();
+    @Getter private final ArrayList<Map<String, Object>> rows = new ArrayList<>();
     public boolean isEmpty () { return rows.isEmpty(); }
+
+    public Map<String, Object> first () { return rows.get(0); }
 
     public ResultSetBean (ResultSet rs) throws SQLException {
         final ResultSetMetaData rsMetaData = rs.getMetaData();

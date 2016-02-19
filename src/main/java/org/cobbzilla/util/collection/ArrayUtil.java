@@ -23,6 +23,21 @@ public class ArrayUtil {
         }
     }
 
+    public static <T> T[] concat (T[]... arrays) {
+        int size = 0;
+        for (T[] array : arrays) {
+            size += array == null ? 0 : array.length;
+        }
+        final Class<?> componentType = arrays.getClass().getComponentType().getComponentType();
+        final T[] newArray = (T[]) Array.newInstance(componentType, size);
+        int destPos = 0;
+        for (T[] array : arrays) {
+            System.arraycopy(array, 0, newArray, destPos, array.length);
+            destPos += array.length;
+        }
+        return newArray;
+    }
+
     public static <T> T[] remove(T[] array, int indexToRemove) {
         if (array == null) throw new NullPointerException("remove: array was null");
         if (indexToRemove >= array.length || indexToRemove < 0) throw new IndexOutOfBoundsException("remove: cannot remove element "+indexToRemove+" from array of length "+array.length);
