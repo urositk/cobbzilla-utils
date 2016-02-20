@@ -84,4 +84,6 @@ public class ZillaRuntime {
 
     public static String uuid() { return UUID.randomUUID().toString(); }
 
+    public static long now() { return System.currentTimeMillis(); }
+
 }
