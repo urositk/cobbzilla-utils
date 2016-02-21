@@ -28,4 +28,12 @@ public enum Cardinal {
     }
 
     @Override public String toString () { return allAliases[0]; }
+
+    public static boolean isCardinal(String val) {
+        try {
+            return create(val.toLowerCase()) != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
