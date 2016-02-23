@@ -215,7 +215,11 @@ public class FileUtil {
     }
 
     public static File toFileOrDie (String file, String data) {
-        return toFileOrDie(new File(file), data, false);
+        return toFileOrDie(new File(file), data);
+    }
+
+    public static File toFileOrDie (File file, String data) {
+        return toFileOrDie(file, data, false);
     }
 
     public static File toFileOrDie(File file, String data, boolean append) {
