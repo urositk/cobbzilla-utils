@@ -215,12 +215,12 @@ public class FileUtil {
     }
 
     public static File toFileOrDie (String file, String data) {
-        return toFileOrDie(new File(file), data);
+        return toFileOrDie(new File(file), data, false);
     }
 
-    public static File toFileOrDie(File file, String data) {
+    public static File toFileOrDie(File file, String data, boolean append) {
         try {
-            return toFile(file, data);
+            return toFile(file, data, append);
         } catch (IOException e) {
             String path = (file == null) ? "null" : abs(file);
             return die("toFileOrDie: error writing to file: "+ path);
@@ -236,10 +236,14 @@ public class FileUtil {
     }
 
     public static File toFile(File file, String data) throws IOException {
+        return toFile(file, data, false);
+    }
+
+    public static File toFile(File file, String data, boolean append) throws IOException {
         if (!ensureDirExists(file.getParentFile())) {
             throw new IOException("Error creating directory: "+file.getParentFile());
         }
-        try (OutputStream out = new FileOutputStream(file)) {
+        try (OutputStream out = new FileOutputStream(file, append)) {
             IOUtils.copy(new ByteArrayInputStream(data.getBytes()), out);
         }
         return file;
