@@ -11,10 +11,12 @@ import org.joda.time.format.DateTimeFormat;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.*;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class StringUtil {
@@ -118,7 +120,15 @@ public class StringUtil {
         try {
             return URLEncoder.encode(s, UTF8);
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("urlEncode: "+e, e);
+            return die("urlEncode: "+e, e);
+        }
+    }
+
+    public static String urlDecode (String s) {
+        try {
+            return URLDecoder.decode(s, UTF8);
+        } catch (UnsupportedEncodingException e) {
+            return die("urlDecode: "+e, e);
         }
     }
 
@@ -126,7 +136,7 @@ public class StringUtil {
         try {
             return new URI(s);
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("bad uri: "+e, e);
+            return die("bad uri: "+e, e);
         }
     }
 
