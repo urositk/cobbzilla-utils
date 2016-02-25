@@ -257,15 +257,18 @@ public class ReflectionUtil {
      * @param clazz The class to search for parameterized types
      * @return The first concrete class for a parameterized type found in clazz
      */
-    public static Class getFirstTypeParam(Class clazz) {
+    public static Class getFirstTypeParam(Class clazz) { return getTypeParam(clazz, 0); }
+
+    public static Class getTypeParam(Class clazz, int index) {
         Class check = clazz;
         while (check.getGenericSuperclass() == null || !(check.getGenericSuperclass() instanceof ParameterizedType)) {
             check = check.getSuperclass();
-            if (check.equals(Object.class)) die("getFirstTypeParam("+clazz.getName()+"): no type parameters found");
+            if (check.equals(Object.class)) die("getTypeParam("+clazz.getName()+"): no type parameters found");
         }
         final ParameterizedType parameterizedType = (ParameterizedType) check.getGenericSuperclass();
         final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-        return (Class) actualTypeArguments[0];
+        if (index >= actualTypeArguments.length) die("getTypeParam("+clazz.getName()+"): "+actualTypeArguments.length+" type parameters found, index "+index+" out of bounds");
+        return (Class) actualTypeArguments[index];
     }
 
     /**
