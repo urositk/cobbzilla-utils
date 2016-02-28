@@ -236,7 +236,10 @@ public class FileUtil {
     }
 
     public static File toFile(File file, InputStream in) throws IOException {
-        return toFile(file, StreamUtil.toString(in));
+        try (OutputStream out = new FileOutputStream(file)) {
+            IOUtils.copyLarge(in, out);
+        }
+        return file;
     }
 
     public static File toFile(File file, String data) throws IOException {
