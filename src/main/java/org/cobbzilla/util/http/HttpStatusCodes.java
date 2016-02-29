@@ -5,6 +5,7 @@ public class HttpStatusCodes {
     public static final int UNPROCESSABLE_ENTITY = 422;
     public static final int OK = 200;
     public static final int CREATED = 201;
+    public static final int ACCEPTED = 202;
     public static final int NO_CONTENT = 204;
     public static final int FOUND = 302;
     public static final int UNAUTHORIZED = 401;
