@@ -3,12 +3,9 @@ package org.cobbzilla.util.collection;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.cobbzilla.util.daemon.ZillaRuntime.notSupported;
 import static org.cobbzilla.util.reflect.ReflectionUtil.getTypeParam;
 
 @Accessors(chain=true)
@@ -64,9 +61,20 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
 
     @Override public Set<K> keySet() { return map.keySet(); }
 
-    // todo
-    @Override public Collection<V> values() { return notSupported(); }
-    @Override public Set<Entry<K, V>> entrySet() { return notSupported(); }
+    @Override public Collection<V> values() {
+        final List<V> vals = new ArrayList<>();
+        for (C collection : map.values()) vals.addAll(collection);
+        return vals;
+    }
+    @Override public Set<Entry<K, V>> entrySet() {
+        final Set<Entry<K, V>> entries = new HashSet<>();
+        for (Entry<K, C> entry : map.entrySet()) {
+            for (V item : entry.getValue()) {
+                entries.add(new AbstractMap.SimpleEntry<K, V>(entry.getKey(), item));
+            }
+        }
+        return entries;
+    }
 
     public Collection<C> allValues() { return map.values(); }
     public Set<Entry<K, C>> allEntrySets() { return map.entrySet(); }
