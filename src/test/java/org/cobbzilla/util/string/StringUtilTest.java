@@ -13,7 +13,9 @@ public class StringUtilTest {
             {"two terms", "two", "terms"},
             {"multiple   spaces", "multiple", "spaces"},
             {"first \"something in quotes\" last", "first", "something in quotes", "last"},
-            {"first \"something in quotes    with spaces\" last", "first", "something in quotes with spaces", "last"}
+            {"first \"something in quotes    with spaces\" last", "first", "something in quotes with spaces", "last"},
+            {"first e:\"exact phrase\" last", "first", "e:", "exact phrase", "last"},
+            {"R:first \"exact phrase\" last", "R:first", "exact phrase", "last"}
     };
 
     @Test public void testSplitIntoTerms () throws Exception {
