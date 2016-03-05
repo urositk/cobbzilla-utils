@@ -226,4 +226,39 @@ public class StringUtil {
     public static <T> String classAsFieldName(T thing) {
         return uncapitalize(thing.getClass().getSimpleName());
     }
+
+    /**
+     * Split a string into multiple query terms, respecting quotation marks
+     * @param query The query string
+     * @return a List of query terms
+     */
+    public static List<String> splitIntoTerms(String query) {
+        final List<String> terms = new ArrayList<>();
+        final StringTokenizer st = new StringTokenizer(query, "\n\t \"", true);
+
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+        while (st.hasMoreTokens()) {
+            final String token = st.nextToken();
+            if (token.equals("\"")) {
+                String term = current.toString().trim();
+                if (term.length() > 0) terms.add(term);
+                current = new StringBuilder();
+                inQuotes = !inQuotes;
+
+            } else if (token.matches("\\s+")) {
+                if (inQuotes && !current.toString().endsWith(" ")) current.append(" ");
+
+            } else {
+                if (inQuotes) {
+                    current.append(token);
+                } else {
+                    terms.add(token);
+                }
+            }
+        }
+        if (current.length() > 0) terms.add(current.toString().trim());
+        return terms;
+    }
+
 }
