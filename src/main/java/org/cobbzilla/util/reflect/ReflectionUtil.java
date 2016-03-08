@@ -260,6 +260,7 @@ public class ReflectionUtil {
     public static Class getFirstTypeParam(Class clazz) { return getTypeParam(clazz, 0); }
 
     public static Class getTypeParam(Class clazz, int index) {
+        // todo: add a cache on this thing... could do wonders
         Class check = clazz;
         while (check.getGenericSuperclass() == null || !(check.getGenericSuperclass() instanceof ParameterizedType)) {
             check = check.getSuperclass();
@@ -278,6 +279,7 @@ public class ReflectionUtil {
      * @return The first concrete class found that is assignable to an instance of impl
      */
     public static Class getFirstTypeParam(Class clazz, Class impl) {
+        // todo: add a cache on this thing... could do wonders
         Class check = clazz;
         while (check != null && !check.equals(Object.class)) {
             Class superCheck = check;
