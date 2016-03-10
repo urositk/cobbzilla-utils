@@ -10,16 +10,17 @@ public class ArrayUtil {
 
     public static final Object[] SINGLE_NULL_OBJECT = new Object[]{null};
 
-    public static <T> T[] append (T[] array, T element) {
+    public static <T> T[] append (T[] array, T... elements) {
         if (array == null || array.length == 0) {
-            final T[] newArray = (T[]) Array.newInstance(element.getClass(), 1);
-            newArray[0] = element;
+            if (elements.length == 0) return (T[]) new Object[]{}; // punt, it's empty anyway
+            final T[] newArray = (T[]) Array.newInstance(elements[0].getClass(), elements.length);
+            System.arraycopy(elements, 0, newArray, 0, elements.length);
             return newArray;
         } else {
-            final List<T> updated = new ArrayList<>(array.length);
-            Collections.addAll(updated, array);
-            updated.add(element);
-            return updated.toArray(array);
+            if (elements.length == 0) return Arrays.copyOf(array, array.length);
+            final T[] copy = Arrays.copyOf(array, array.length + elements.length);
+            System.arraycopy(elements, 0, copy, array.length, elements.length);
+            return copy;
         }
     }
 
