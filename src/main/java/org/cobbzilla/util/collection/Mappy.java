@@ -20,6 +20,12 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
 
     @Override public int size() { return map.size(); }
 
+    public int totalSize () {
+        int count = 0;
+        for (Collection<V> c : allValues()) count += c.size();
+        return count;
+    }
+
     @Override public boolean isEmpty() { return map.isEmpty(); }
 
     @Override public boolean containsKey(Object key) { return map.containsKey(key); }
@@ -55,6 +61,10 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
         for (Entry<? extends K, ? extends V> e : m.entrySet()) {
             put(e.getKey(), e.getValue());
         }
+    }
+
+    public void putAll(K key, Collection<V> values) {
+        for (V value : values) put(key, value);
     }
 
     @Override public void clear() { map.clear(); }
