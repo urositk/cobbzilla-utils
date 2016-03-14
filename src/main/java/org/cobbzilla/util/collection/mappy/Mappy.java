@@ -1,4 +1,4 @@
-package org.cobbzilla.util.collection;
+package org.cobbzilla.util.collection.mappy;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -11,7 +11,7 @@ import static org.cobbzilla.util.reflect.ReflectionUtil.getTypeParam;
 @Accessors(chain=true)
 public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> {
 
-    private ConcurrentHashMap<K, C> map = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<K, C> map = new ConcurrentHashMap<>();
 
     @Getter(lazy=true) private final Class<C> valueClass = initValueClass();
     private Class<C> initValueClass() { return getTypeParam(getClass(), 2); }
@@ -33,22 +33,30 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
     @Override public boolean containsValue(Object value) { return map.containsValue(value); }
 
     @Override public V get(Object key) {
-        C group = map.get(key);
-        if (group == null) {
-            group = newCollection();
-            map.put((K) key, group);
-            return null;
+        final C collection = getAll((K) key);
+        return collection.isEmpty() ? null : firstInCollection(collection);
+    }
+
+    protected V firstInCollection(C collection) { return collection.iterator().next(); }
+
+    public C getAll (K key) {
+        C collection = map.get(key);
+        if (collection == null) {
+            collection = newCollection();
+            map.put(key, collection);
         }
-        return group.iterator().next();
+        return collection;
     }
 
     @Override public V put(K key, V value) {
-        C group = map.get(key);
-        if (group == null) {
-            group = newCollection();
-            map.put(key, group);
+        synchronized (map) {
+            C group = map.get(key);
+            if (group == null) {
+                group = newCollection();
+                map.put(key, group);
+            }
+            group.add(value);
         }
-        group.add(value);
         return null;
     }
 
@@ -64,7 +72,12 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
     }
 
     public void putAll(K key, Collection<V> values) {
-        for (V value : values) put(key, value);
+        synchronized (map) {
+            C collection = getAll(key);
+            if (collection == null) collection = newCollection();
+            collection.addAll(values);
+            map.put(key, collection);
+        }
     }
 
     @Override public void clear() { map.clear(); }
@@ -89,4 +102,9 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
     public Collection<C> allValues() { return map.values(); }
     public Set<Entry<K, C>> allEntrySets() { return map.entrySet(); }
 
+    public List<V> flattenToValues() {
+        final List<V> values = new ArrayList<>();
+        for (C collection : allValues()) for (V value : collection) values.add(value);
+        return values;
+    }
 }

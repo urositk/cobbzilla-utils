@@ -1,4 +1,4 @@
-package org.cobbzilla.util.collection;
+package org.cobbzilla.util.collection.mappy;
 
 import java.util.HashSet;
 import java.util.Set;

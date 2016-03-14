@@ -1,10 +1,12 @@
 package org.cobbzilla.util.daemon;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 
 import java.io.File;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -85,5 +87,8 @@ public class ZillaRuntime {
     public static String uuid() { return UUID.randomUUID().toString(); }
 
     public static long now() { return System.currentTimeMillis(); }
+
+    public static <T> T pickRandom(T[] things) { return things[RandomUtils.nextInt(0, things.length)]; }
+    public static <T> T pickRandom(List<T> things) { return things.get(RandomUtils.nextInt(0, things.size())); }
 
 }
