@@ -55,13 +55,13 @@ public class ZillaRuntime {
             if (o.getClass().getComponentType().isPrimitive()) {
                 switch (o.getClass().getComponentType().getName()) {
                     case "boolean": return ((boolean[]) o).length == 0;
-                    case "byte": return ((byte[]) o).length == 0;
-                    case "short": return ((short[]) o).length == 0;
-                    case "char": return ((char[]) o).length == 0;
-                    case "int": return ((int[]) o).length == 0;
-                    case "long": return ((long[]) o).length == 0;
-                    case "float": return ((float[]) o).length == 0;
-                    case "double": return ((double[]) o).length == 0;
+                    case "byte":    return ((byte[]) o).length == 0;
+                    case "short":   return ((short[]) o).length == 0;
+                    case "char":    return ((char[]) o).length == 0;
+                    case "int":     return ((int[]) o).length == 0;
+                    case "long":    return ((long[]) o).length == 0;
+                    case "float":   return ((float[]) o).length == 0;
+                    case "double":  return ((double[]) o).length == 0;
                     default: return o.toString().length() == 0;
                 }
             } else {

@@ -27,7 +27,7 @@ public class ResultSetBean {
         while (rs.next()){
             final HashMap<String, Object> row = new HashMap<>(numColumns);
             for(int i=1; i<=numColumns; ++i){
-                row.put(rsMetaData.getColumnName(i),rs.getObject(i));
+                row.put(rsMetaData.getColumnName(i), rs.getObject(i));
             }
             rows.add(row);
         }

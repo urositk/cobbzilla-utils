@@ -2,10 +2,13 @@ package org.cobbzilla.util.jdbc;
 
 import lombok.Delegate;
 import lombok.extern.slf4j.Slf4j;
-import org.cobbzilla.util.reflect.ReflectionUtil;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.SQLException;
 import java.util.Properties;
+
+import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
 
 @Slf4j
 public class DebugPostgresqlDriver implements Driver, DebugDriver {
@@ -23,10 +26,9 @@ public class DebugPostgresqlDriver implements Driver, DebugDriver {
     }
 
     @Delegate(excludes = DebugDriver.class)
-    private Driver driver = ReflectionUtil.instantiate(DRIVER_CLASS_NAME);
+    private Driver driver = instantiate(DRIVER_CLASS_NAME);
 
-    @Override
-    public Connection connect(String url, Properties info) throws SQLException {
+    @Override public Connection connect(String url, Properties info) throws SQLException {
         if (url.startsWith(DEBUG_PREFIX)) {
             url = url.substring(DEBUG_PREFIX.length());
             if (url.startsWith(POSTGRESQL_PREFIX)) {

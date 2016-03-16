@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -22,6 +23,57 @@ import static org.cobbzilla.util.string.StringUtil.uncapitalize;
  */
 @Slf4j
 public class ReflectionUtil {
+
+    public static Boolean toBoolean(Object object) {
+        if (object == null) return null;
+        if (object instanceof Boolean) return (Boolean) object;
+        if (object instanceof String) return Boolean.valueOf(object.toString());
+        return null;
+    }
+
+    public static Long toLong(Object object) {
+        if (object == null) return null;
+        if (object instanceof Number) return ((Number) object).longValue();
+        if (object instanceof String) return Long.valueOf(object.toString());
+        return null;
+    }
+
+    public static Integer toInteger(Object object) {
+        if (object == null) return null;
+        if (object instanceof Number) return ((Number) object).intValue();
+        if (object instanceof String) return Integer.valueOf(object.toString());
+        return null;
+    }
+
+    public static Short toShort(Object object) {
+        if (object == null) return null;
+        if (object instanceof Number) return ((Number) object).shortValue();
+        if (object instanceof String) return Short.valueOf(object.toString());
+        return null;
+    }
+
+    public static Float toFloat(Object object) {
+        if (object == null) return null;
+        if (object instanceof Number) return ((Number) object).floatValue();
+        if (object instanceof String) return Float.valueOf(object.toString());
+        return null;
+    }
+
+    public static Double toDouble(Object object) {
+        if (object == null) return null;
+        if (object instanceof Number) return ((Number) object).doubleValue();
+        if (object instanceof String) return Double.valueOf(object.toString());
+        return null;
+    }
+
+    public static BigDecimal toBigDecimal(Object object) {
+        if (object == null) return null;
+        if (object instanceof Double) return new BigDecimal((Double) object);
+        if (object instanceof Float) return new BigDecimal((Float) object);
+        if (object instanceof Number) return new BigDecimal(((Number) object).longValue());
+        if (object instanceof String) return new BigDecimal(object.toString());
+        return null;
+    }
 
     /**
      * Do a Class.forName and only throw unchecked exceptions.
