@@ -5,6 +5,7 @@ import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.cobbzilla.util.collection.ArrayUtil;
 
+import java.io.Closeable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -556,4 +557,26 @@ public class ReflectionUtil {
 
         return null;
     }
+
+    public static void close(Object o) throws Exception {
+        if (o == null) return;
+        if (o instanceof Closeable) {
+            ((Closeable) o).close();
+
+        } else {
+            final Method closeMethod = o.getClass().getMethod("close", null);
+            if (closeMethod == null) die("no close method found on " + o.getClass().getName());
+            closeMethod.invoke(o);
+        }
+    }
+
+    public static void closeQuietly(Object o) {
+        if (o == null) return;
+        try {
+            close(o);
+        } catch (Exception e) {
+            log.warn("close: error closing: "+e);
+        }
+    }
+
 }

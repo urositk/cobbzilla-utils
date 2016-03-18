@@ -61,8 +61,9 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
     }
 
     @Override public V remove(Object key) {
-        C group = map.remove(key);
-        return group == null ? null : group.iterator().next();
+        final C group = map.remove(key);
+        if (group == null || group.isEmpty()) return null; // empty case should never happen, but just in case
+        return group.iterator().next();
     }
 
     @Override public void putAll(Map<? extends K, ? extends V> m) {
