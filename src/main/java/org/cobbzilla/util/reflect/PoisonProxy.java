@@ -9,7 +9,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.notSupported;
 public class PoisonProxy {
 
     /**
-     * Create a proxy object for a class where calling any methods on the object will result in it thowing an exception.
+     * Create a proxy object for a class where calling any methods on the object will result in it throwing an exception.
      * @param clazz The class to create a proxy for
      * @param <T> The class to create a proxy for
      * @return A proxy to the class that will throw an exception if any methods are called on it
