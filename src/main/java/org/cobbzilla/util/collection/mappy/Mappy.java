@@ -2,6 +2,7 @@ package org.cobbzilla.util.collection.mappy;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.cobbzilla.util.string.StringUtil;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -139,5 +140,14 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
             }
         }
         return result;
+    }
+
+    @Override public String toString() {
+        final StringBuilder b = new StringBuilder();
+        for (K key : keySet()) {
+            if (b.length() > 0) b.append(" | ");
+            b.append(key).append("->(").append(StringUtil.toString(getAll(key), ", ")).append(")");
+        }
+        return "{"+b.toString()+"}";
     }
 }
