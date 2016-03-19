@@ -116,7 +116,7 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
 
         final Mappy other = (Mappy) o;
 
-        if (size() != other.size()) return false;
+        if (totalSize() != other.totalSize()) return false;
 
         for (K key : keySet()) {
             if (!other.containsKey(key)) return false;
