@@ -113,16 +113,16 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final Mappy<K, V, C> mappy = (Mappy<K, V, C>) o;
+        final Mappy other = (Mappy) o;
 
-        if (size() != mappy.size()) return false;
+        if (size() != other.size()) return false;
 
         for (K key : keySet()) {
-            if (!mappy.containsKey(key)) return false;
-            final Collection<V> otherValues = mappy.getAll(key);
-            final C thisValues = getAll(key);
+            if (!other.containsKey(key)) return false;
+            final Collection otherValues = other.getAll(key);
+            final Collection thisValues = getAll(key);
             if (otherValues.size() != thisValues.size()) return false;
-            for (V value : thisValues) {
+            for (Object value : thisValues) {
                 if (!otherValues.contains(value)) return false;
             }
         }
