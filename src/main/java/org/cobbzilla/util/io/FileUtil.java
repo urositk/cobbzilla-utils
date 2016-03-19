@@ -10,9 +10,7 @@ import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.commons.lang3.StringUtils.chop;
@@ -47,6 +45,24 @@ public class FileUtil {
         final File[] files = dir.listFiles(filter);
         if (files == null) return EMPTY_ARRAY;
         return files;
+    }
+
+    public static List<File> listFilesRecursively(File dir, FileFilter filter) {
+        final List<File> files = new ArrayList<>();
+        _listRecurse(files, dir, filter);
+        return files;
+    }
+
+    private static List<File> _listRecurse(List<File> results, File dir, FileFilter filter) {
+        final File[] files = dir.listFiles(filter);
+        if (files == null) return results;
+        results.addAll(Arrays.asList(files));
+
+        final File[] subdirs = listDirs(dir);
+        for (File subdir : subdirs) {
+            _listRecurse(results, subdir, filter);
+        }
+        return results;
     }
 
     public static File[] listDirs(File dir) {
@@ -343,6 +359,7 @@ public class FileUtil {
     }
 
     public static boolean ensureDirExists(File dir) {
+        if (empty(dir)) return true;
         if (!dir.exists() && !dir.mkdirs()) {
             log.error("ensureDirExists: error creating: " + abs(dir));
             return false;

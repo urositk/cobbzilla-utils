@@ -44,6 +44,10 @@ public class StreamUtil {
         return out.toString();
     }
 
+    public static String toStringOrDie(InputStream in) {
+        try { return toString(in); } catch (Exception e) { return die("toStringOrDie: "+e, e); }
+    }
+
     public static InputStream loadResourceAsStream(String path) throws IOException {
         return loadResourceAsStream(path, StreamUtil.class);
     }
