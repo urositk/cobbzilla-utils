@@ -105,7 +105,39 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
 
     public List<V> flattenToValues() {
         final List<V> values = new ArrayList<>();
-        for (C collection : allValues()) for (V value : collection) values.add(value);
+        for (C collection : allValues()) values.addAll(collection);
         return values;
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Mappy<K, V, C> mappy = (Mappy<K, V, C>) o;
+
+        if (size() != mappy.size()) return false;
+
+        for (K key : keySet()) {
+            if (!mappy.containsKey(key)) return false;
+            final Collection<V> otherValues = mappy.getAll(key);
+            final C thisValues = getAll(key);
+            if (otherValues.size() != thisValues.size()) return false;
+            for (V value : thisValues) {
+                if (!otherValues.contains(value)) return false;
+            }
+        }
+        return true;
+    }
+
+    @Override public int hashCode() {
+        int result = new Integer(totalSize()).hashCode();
+        result = 31 * result + (valueClass != null ? valueClass.hashCode() : 0);
+        for (K key : keySet()) {
+            result = 31 * result + (key.hashCode() + 13);
+            for (V value : getAll(key)) {
+                result = 31 * result + (value == null ? 0 : value.hashCode());
+            }
+        }
+        return result;
     }
 }
