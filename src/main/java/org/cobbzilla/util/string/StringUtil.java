@@ -261,4 +261,7 @@ public class StringUtil {
         return terms;
     }
 
+    public static String chop(String input, String chopIfSuffix) {
+        return input.endsWith(chopIfSuffix) ? input.substring(0, input.length()-chopIfSuffix.length()) : input;
+    }
 }
