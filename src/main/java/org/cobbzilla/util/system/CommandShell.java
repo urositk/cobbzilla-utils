@@ -53,7 +53,7 @@ public class CommandShell {
                     if (eqPos != -1) {
                         key = line.substring(0, eqPos).trim();
                         value = line.substring(eqPos+1).trim();
-                        if (value.startsWith("\"") && value.endsWith("\"")) {
+                        if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("\'") && value.endsWith("\'"))) {
                             // strip quotes if found
                             value = value.substring(1, value.length()-1);
                         }
