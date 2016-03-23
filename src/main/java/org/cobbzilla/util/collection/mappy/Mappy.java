@@ -27,7 +27,7 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
         return count;
     }
 
-    @Override public boolean isEmpty() { return map.isEmpty(); }
+    @Override public boolean isEmpty() { return flatten().isEmpty(); }
 
     @Override public boolean containsKey(Object key) { return map.containsKey(key); }
 
@@ -104,7 +104,7 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
     public Collection<C> allValues() { return map.values(); }
     public Set<Entry<K, C>> allEntrySets() { return map.entrySet(); }
 
-    public List<V> flattenToValues() {
+    public List<V> flatten() {
         final List<V> values = new ArrayList<>();
         for (C collection : allValues()) values.addAll(collection);
         return values;
