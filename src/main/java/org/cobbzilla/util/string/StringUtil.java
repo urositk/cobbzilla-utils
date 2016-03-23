@@ -264,4 +264,17 @@ public class StringUtil {
     public static String chop(String input, String chopIfSuffix) {
         return input.endsWith(chopIfSuffix) ? input.substring(0, input.length()-chopIfSuffix.length()) : input;
     }
+
+    public static boolean isNumber(String val) {
+        val = val.trim();
+        try {
+            Double.parseDouble(val);
+            return true;
+        } catch (Exception ignored) {}
+        try {
+            Long.parseLong(val);
+            return true;
+        } catch (Exception ignored) {}
+        return false;
+    }
 }
