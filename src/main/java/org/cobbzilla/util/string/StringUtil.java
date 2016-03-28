@@ -277,4 +277,24 @@ public class StringUtil {
         } catch (Exception ignored) {}
         return false;
     }
+
+    public static boolean isPunctuation(char c) {
+        return c == '.' || c == ',' || c == '?' || c == '!' || c == ';' || c == ':';
+    }
+
+    public static boolean hasScripting(String value) {
+        if (empty(value)) return false;
+        value = removeWhitespace(value.toLowerCase()).replace("&lt;", "<");
+        return value.contains("<script") || value.contains("javascript:")
+                || value.contains("onfocus=") || value.contains("onblur=")
+                || value.contains("onload=") || value.contains("onunload=")
+                || value.contains("onselect=") || value.contains("onchange=") || value.contains("onmove=")
+                || value.contains("onreset=") || value.contains("onresize=")
+                || value.contains("onclick=") || value.contains("ondblclick=")
+                || value.contains("onmouseup=") || value.contains("onmousedown=")
+                || value.contains("onmouseout=") || value.contains("onmouseover=")
+                || value.contains("onmousemove=") || value.contains("ondragdrop=")
+                || value.contains("onkeyup=") || value.contains("onkeydown=") || value.contains("onkeypress=")
+                || value.contains("onsubmit=") || value.contains("onerror=");
+    }
 }
