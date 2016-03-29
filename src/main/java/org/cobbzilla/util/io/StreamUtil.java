@@ -48,13 +48,13 @@ public class StreamUtil {
         try { return toString(in); } catch (Exception e) { return die("toStringOrDie: "+e, e); }
     }
 
-    public static InputStream loadResourceAsStream(String path) throws IOException {
+    public static InputStream loadResourceAsStream(String path) {
         return loadResourceAsStream(path, StreamUtil.class);
     }
 
-    public static InputStream loadResourceAsStream(String path, Class clazz) throws IOException {
+    public static InputStream loadResourceAsStream(String path, Class clazz) {
         InputStream in = clazz.getClassLoader().getResourceAsStream(path);
-        if (in == null) throw new IOException("Resource not found: " + path);
+        if (in == null) die("Resource not found: " + path);
         return in;
     }
 
