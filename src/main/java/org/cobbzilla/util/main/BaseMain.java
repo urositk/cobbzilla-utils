@@ -53,32 +53,32 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
         }
     }
 
-    protected void showHelpAndExit() {
+    public void showHelpAndExit() {
         parser.printUsage(System.out);
         System.exit(0);
     }
 
-    protected void showHelpAndExit(String error) {
+    public void showHelpAndExit(String error) {
         showHelpAndExit(new IllegalArgumentException(error));
     }
 
-    protected void showHelpAndExit(Exception e) {
+    public void showHelpAndExit(Exception e) {
         parser.printUsage(System.err);
         System.exit(1);
     }
 
-    protected void out (String message) { System.out.println(message); }
+    public void out(String message) { System.out.println(message); }
 
-    protected void err (String message) { System.err.println(message); }
+    public void err (String message) { System.err.println(message); }
 
-    protected <T> T die (String message) {
+    public <T> T die (String message) {
         log.error(message);
         err(message);
         System.exit(1);
         return null;
     }
 
-    protected <T> T die (String message, Exception e) {
+    public <T> T die (String message, Exception e) {
         log.error(message, e);
         err(message + ": " + e);
         System.exit(1);
