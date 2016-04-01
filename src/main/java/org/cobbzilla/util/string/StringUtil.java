@@ -110,7 +110,7 @@ public class StringUtil {
     public static final long MINUTE = TimeUnit.MINUTES.toMillis(1);
     public static final long SECOND = TimeUnit.SECONDS.toMillis(1);
 
-    public String formatDuration(long durationMillis) {
+    public static String formatDuration(long durationMillis) {
         return String.format("%d:%02d:%02d", durationMillis / HOUR, (durationMillis % HOUR) / MINUTE, (durationMillis % MINUTE) / SECOND);
     }
 
