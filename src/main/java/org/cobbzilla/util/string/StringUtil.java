@@ -15,6 +15,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
@@ -103,6 +104,14 @@ public class StringUtil {
         final ImprovedTimezone tz = ImprovedTimezone.getTimeZoneById(timezone);
         return DateTimeFormat.forPattern(DateTimeFormat.patternForStyle(style, locale))
                 .withZone(DateTimeZone.forTimeZone(tz.getTimezone())).print(time);
+    }
+
+    public static final long HOUR = TimeUnit.HOURS.toMillis(1);
+    public static final long MINUTE = TimeUnit.MINUTES.toMillis(1);
+    public static final long SECOND = TimeUnit.SECONDS.toMillis(1);
+
+    public String formatDuration(long durationMillis) {
+        return String.format("%d:%02d:%02d", durationMillis / HOUR, (durationMillis % HOUR) / MINUTE, (durationMillis % MINUTE) / SECOND);
     }
 
     public static String trimQuotes (String s) {
