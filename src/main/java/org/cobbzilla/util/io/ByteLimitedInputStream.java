@@ -29,21 +29,21 @@ public class ByteLimitedInputStream extends InputStream {
     @Override public int read(byte[] b) throws IOException {
         if (count >= limit) return -1;
         final int read = delegate.read(b);
-        count += read;
+        if (read != -1) count += read;
         return read;
     }
 
     @Override public int read(byte[] b, int off, int len) throws IOException {
         if (count >= limit) return -1;
         final int read = delegate.read(b, off, len);
-        count += read;
+        if (read != -1) count += read;
         return read;
     }
 
     @Override public int read() throws IOException {
         if (count >= limit) return -1;
         final int read = delegate.read();
-        count++;
+        if (read != -1) count++;
         return read;
     }
 
