@@ -124,6 +124,12 @@ public class StringUtil {
         return s;
     }
 
+    public static boolean endsWithAny(String s, String[] suffixes) {
+        if (s == null) return false;
+        for (String suffix : suffixes) if (s.endsWith(suffix)) return true;
+        return false;
+    }
+
     public static String getPackagePath(Class clazz) {
         return clazz.getPackage().getName().replace('.', '/');
     }
