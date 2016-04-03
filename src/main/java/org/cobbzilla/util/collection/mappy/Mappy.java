@@ -26,10 +26,13 @@ import static org.cobbzilla.util.reflect.ReflectionUtil.getTypeParam;
 @Accessors(chain=true)
 public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> {
 
-    private final ConcurrentHashMap<K, C> map = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<K, C> map;
 
     @Getter(lazy=true) private final Class<C> valueClass = initValueClass();
     private Class<C> initValueClass() { return getTypeParam(getClass(), 2); }
+
+    public Mappy ()         { map = new ConcurrentHashMap<>(); }
+    public Mappy (int size) { map = new ConcurrentHashMap<>(size); }
 
     /**
      * For subclasses to override and provide their own collection types
