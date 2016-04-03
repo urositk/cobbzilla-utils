@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 
 public class StringUtil {
 
@@ -113,6 +114,8 @@ public class StringUtil {
     public static String formatDuration(long durationMillis) {
         return String.format("%d:%02d:%02d", durationMillis / HOUR, (durationMillis % HOUR) / MINUTE, (durationMillis % MINUTE) / SECOND);
     }
+
+    public static String formatDurationFrom(long start) { return formatDuration(now() - start); }
 
     public static String trimQuotes (String s) {
         if (s == null) return s;
