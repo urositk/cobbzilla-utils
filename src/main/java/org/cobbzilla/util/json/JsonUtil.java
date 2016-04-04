@@ -86,6 +86,14 @@ public class JsonUtil {
         }
     }
 
+    public static String toJsonOrErr(Object o) {
+        try {
+            return toJson(o);
+        } catch (Exception e) {
+            return e.toString();
+        }
+    }
+
     public static <T> T fromJson(InputStream json, Class<T> clazz) throws Exception {
         return fromJson(StreamUtil.toString(json), clazz);
     }
