@@ -216,7 +216,7 @@ public class StringUtil {
     public static boolean exceptionContainsMessage(Throwable e, String s) {
         return e != null && (
                 (e.getMessage() != null && e.getMessage().contains(s))
-             || (e.getCause() != null && exceptionContainsMessage(e.getCause(), s))
+                        || (e.getCause() != null && exceptionContainsMessage(e.getCause(), s))
         );
     }
 
@@ -302,17 +302,30 @@ public class StringUtil {
 
     public static boolean hasScripting(String value) {
         if (empty(value)) return false;
-        value = removeWhitespace(value.toLowerCase()).replace("&lt;", "<");
-        return value.contains("<script") || value.contains("javascript:")
-                || value.contains("onfocus=") || value.contains("onblur=")
-                || value.contains("onload=") || value.contains("onunload=")
-                || value.contains("onselect=") || value.contains("onchange=") || value.contains("onmove=")
-                || value.contains("onreset=") || value.contains("onresize=")
-                || value.contains("onclick=") || value.contains("ondblclick=")
-                || value.contains("onmouseup=") || value.contains("onmousedown=")
-                || value.contains("onmouseout=") || value.contains("onmouseover=")
-                || value.contains("onmousemove=") || value.contains("ondragdrop=")
-                || value.contains("onkeyup=") || value.contains("onkeydown=") || value.contains("onkeypress=")
-                || value.contains("onsubmit=") || value.contains("onerror=");
+        value = value.toLowerCase().replace("&lt;", "<");
+        final String nospace = removeWhitespace(value);
+        return nospace.contains("<script") || nospace.contains("javascript:")
+                || (nospace.contains("onfocus=") && value.contains(" onfocus"))
+                || (nospace.contains("onblur=") && value.contains(" onblur"))
+                || (nospace.contains("onload=") && value.contains(" onload"))
+                || (nospace.contains("onunload=") && value.contains(" onunload"))
+                || (nospace.contains("onselect=") && value.contains(" onselect"))
+                || (nospace.contains("onchange=") && value.contains(" onchange"))
+                || (nospace.contains("onmove=") && value.contains(" onmove"))
+                || (nospace.contains("onreset=") && value.contains(" onreset"))
+                || (nospace.contains("onresize=") && value.contains(" onresize"))
+                || (nospace.contains("onclick=") && value.contains(" onclick"))
+                || (nospace.contains("ondblclick=") && value.contains(" ondblclick"))
+                || (nospace.contains("onmouseup=") && value.contains(" onmouseup"))
+                || (nospace.contains("onmousedown=") && value.contains(" onmousedown"))
+                || (nospace.contains("onmouseout=") && value.contains(" onmouseout"))
+                || (nospace.contains("onmouseover=") && value.contains(" onmouseover"))
+                || (nospace.contains("onmousemove=") && value.contains(" onmousemove"))
+                || (nospace.contains("ondragdrop=") && value.contains(" ondragdrop"))
+                || (nospace.contains("onkeyup=") && value.contains(" onkeyup"))
+                || (nospace.contains("onkeydown=") && value.contains(" onkeydown"))
+                || (nospace.contains("onkeypress=") && value.contains(" onkeypress"))
+                || (nospace.contains("onsubmit=") && value.contains(" onsubmit"))
+                || (nospace.contains("onerror=") && value.contains(" onerror"));
     }
 }
