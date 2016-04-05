@@ -77,6 +77,8 @@ public class StringUtil {
 
     public static String safeFunctionName (String s) { return s.replaceAll("\\W", ""); }
 
+    public static String onlyDigits (String s) { return s.replaceAll("\\D+", ""); }
+
     public static String removeWhitespace (String s) { return s.replaceAll("\\s", ""); }
 
     public static Integer safeParseInt(String s) {
