@@ -16,9 +16,11 @@ public abstract class AutoRefreshingReference<T> {
     public abstract long getTimeout();
 
     public T get() {
-        if (object.get() == null || now() - lastSet.get() > getTimeout()) update();
+        if (isEmpty() || now() - lastSet.get() > getTimeout()) update();
         return object.get();
     }
+
+    public boolean isEmpty() { return object.get() == null; }
 
     public void update() {
         object.set(refresh());
