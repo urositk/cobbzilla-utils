@@ -15,7 +15,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
@@ -79,17 +81,41 @@ public class JsonUtil {
     }
 
     public static String toJsonOrDie (Object o) {
-        try {
-            return toJson(o);
-        } catch (Exception e) {
+        try { return toJson(o); } catch (Exception e) {
             return die("toJson: exception writing object ("+o+"): "+e, e);
         }
     }
 
     public static String toJsonOrErr(Object o) {
-        try {
-            return toJson(o);
-        } catch (Exception e) {
+        try { return toJson(o); } catch (Exception e) {
+            return e.toString();
+        }
+    }
+
+
+    private static Map<String, ObjectWriter> viewWriters = new ConcurrentHashMap<>();
+
+    protected static ObjectWriter viewWriter(Class jsonView) {
+        ObjectWriter w = viewWriters.get(jsonView.getName());
+        if (w == null) {
+            w = JsonUtil.NOTNULL_MAPPER.disable(MapperFeature.DEFAULT_VIEW_INCLUSION).writerWithView(jsonView);
+            viewWriters.put(jsonView.getName(), w);
+        }
+        return w;
+    }
+
+    public static String toJson (Object o, Class jsonView) throws Exception {
+        return viewWriter(jsonView).writeValueAsString(o);
+    }
+
+    public static String toJsonOrDie (Object o, Class jsonView) {
+        try { return toJson(o, jsonView); } catch (Exception e) {
+            return die("toJson: exception writing object ("+o+"): "+e, e);
+        }
+    }
+
+    public static String toJsonOrErr(Object o, Class jsonView) {
+        try { return toJson(o, jsonView); } catch (Exception e) {
             return e.toString();
         }
     }
