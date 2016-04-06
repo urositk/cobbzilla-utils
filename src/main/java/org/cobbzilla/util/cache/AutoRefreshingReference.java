@@ -23,13 +23,17 @@ public abstract class AutoRefreshingReference<T> {
     public boolean isEmpty() { return object.get() == null; }
 
     public void update() {
-        object.set(refresh());
-        lastSet.set(now());
+        synchronized (object) {
+            object.set(refresh());
+            lastSet.set(now());
+        }
     }
 
     public void set(T thing) {
-        object.set(thing);
-        lastSet.set(now());
+        synchronized (object) {
+            object.set(thing);
+            lastSet.set(now());
+        }
     }
 
 }
