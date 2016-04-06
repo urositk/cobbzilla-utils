@@ -1,6 +1,11 @@
 package org.cobbzilla.util.string;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.cobbzilla.util.string.StringUtil.chop;
 
 public class ValidationRegexes {
 
@@ -24,7 +29,8 @@ public class ValidationRegexes {
     public static final String DOMAIN_REGEX = "^([A-Z0-9]{1,63}|[A-Z0-9][A-Z0-9\\-]{0,61}[A-Z0-9])(\\.([A-Z0-9]{1,63}|[A-Z0-9][A-Z0-9\\-]{0,61}[A-Z0-9]))+$";
     public static final Pattern DOMAIN_PATTERN  = pattern(DOMAIN_REGEX);
 
-    public static final Pattern URL_PATTERN   = pattern("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$");
+    public static final String URL_REGEX = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$";
+    public static final Pattern URL_PATTERN   = pattern(URL_REGEX);
     public static final Pattern HTTP_PATTERN  = pattern("^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$");
     public static final Pattern HTTPS_PATTERN = pattern("^https://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$");
 
@@ -37,5 +43,17 @@ public class ValidationRegexes {
     public static final Pattern YYYYMMDD_PATTERN = pattern(YYYYMMDD_REGEX);
 
     private static Pattern pattern(String regex) { return Pattern.compile(regex, Pattern.CASE_INSENSITIVE); }
+
+    public static List<String> findAllRegexMatches(String text, String regex) {
+        if (regex.startsWith("^")) regex = regex.substring(1);
+        if (regex.endsWith("$")) regex = chop(regex, "$");
+        regex = "(.*(?<match>"+ regex +")+.*)+";
+        final List<String> found = new ArrayList<>();
+        final Matcher matcher = Pattern.compile(regex, Pattern.MULTILINE).matcher(text);
+        while (matcher.find()) {
+            found.add(matcher.group("match"));
+        }
+        return found;
+    }
 
 }

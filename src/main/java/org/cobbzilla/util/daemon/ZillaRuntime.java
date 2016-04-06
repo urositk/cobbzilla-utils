@@ -1,10 +1,9 @@
 package org.cobbzilla.util.daemon;
 
-import ch.qos.logback.classic.Logger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 
-import java.io.File;
+import java.io.*;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
@@ -23,8 +22,8 @@ public class ZillaRuntime {
     public static void terminate(Thread thread, long timeout) {
         if (thread == null || !thread.isAlive()) return;
         thread.interrupt();
-        long start = System.currentTimeMillis();
-        while (thread.isAlive() && System.currentTimeMillis() - start < timeout) {
+        long start = now();
+        while (thread.isAlive() && now() - start < timeout) {
             sleep(100, "terminate: waiting for thread to die: "+thread);
         }
         if (thread.isAlive()) {
@@ -33,13 +32,11 @@ public class ZillaRuntime {
         }
     }
 
-    public static <T> T die (String message) { throw new IllegalStateException(message); }
+    public static <T> T die(String message)              { throw new IllegalStateException(message); }
+    public static <T> T die(String message, Exception e) { throw new IllegalStateException(message, e); }
+    public static <T> T die(Exception e)                 { throw new IllegalStateException("(no message)", e); }
 
-    public static <T> T die (String message, Exception e) { throw new IllegalStateException(message, e); }
-
-    public static <T> T die (Exception e) { throw new IllegalStateException("(no message)", e); }
-
-    public static <T> T notSupported() { return notSupported("not supported"); }
+    public static <T> T notSupported()               { return notSupported("not supported"); }
     public static <T> T notSupported(String message) { throw new UnsupportedOperationException(message); }
 
     public static boolean empty(String s) { return s == null || s.length() == 0; }
@@ -91,5 +88,8 @@ public class ZillaRuntime {
 
     public static <T> T pickRandom(T[] things) { return things[RandomUtils.nextInt(0, things.length)]; }
     public static <T> T pickRandom(List<T> things) { return things.get(RandomUtils.nextInt(0, things.size())); }
+
+    public static BufferedReader stdin() { return new BufferedReader(new InputStreamReader(System.in)); }
+    public static BufferedWriter stdout() { return new BufferedWriter(new OutputStreamWriter(System.out)); }
 
 }

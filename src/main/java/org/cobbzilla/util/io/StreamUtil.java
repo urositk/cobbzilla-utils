@@ -7,6 +7,7 @@ import org.cobbzilla.util.string.StringUtil;
 import java.io.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.stdin;
 
 public class StreamUtil {
 
@@ -135,7 +136,7 @@ public class StreamUtil {
     // incredibly inefficient. do not use frequently. meant for command-line tools that call it no more than a few times
     public static String readLineFromStdin() {
         final String line;
-        final BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+        final BufferedReader r = stdin();
         try { line = r.readLine(); } catch (Exception e) {
             return die("Error reading from stdin: " + e);
         }
