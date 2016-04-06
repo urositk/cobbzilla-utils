@@ -29,8 +29,9 @@ public class ValidationRegexes {
     public static final String DOMAIN_REGEX = "^([A-Z0-9]{1,63}|[A-Z0-9][A-Z0-9\\-]{0,61}[A-Z0-9])(\\.([A-Z0-9]{1,63}|[A-Z0-9][A-Z0-9\\-]{0,61}[A-Z0-9]))+$";
     public static final Pattern DOMAIN_PATTERN  = pattern(DOMAIN_REGEX);
 
-    public static final String URL_REGEX = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$";
-    public static final Pattern URL_PATTERN   = pattern(URL_REGEX);
+    public static final String URL_REGEX = "(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+    public static final String URL_REGEX_ONLY = "^" + URL_REGEX + "$";
+    public static final Pattern URL_PATTERN   = pattern(URL_REGEX_ONLY);
     public static final Pattern HTTP_PATTERN  = pattern("^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$");
     public static final Pattern HTTPS_PATTERN = pattern("^https://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$");
 
