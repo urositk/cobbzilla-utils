@@ -136,6 +136,10 @@ public class JsonUtil {
         return JsonUtil.FULL_MAPPER.readValue(json, type);
     }
 
+    public static <T> T fromJson(String json, Class<T> clazz, ObjectMapper mapper) throws Exception {
+        return mapper.readValue(json, clazz);
+    }
+
     public static <T> T fromJsonOrDie(File json, Class<T> clazz) {
         return fromJsonOrDie(FileUtil.toStringOrDie(json), clazz);
     }
@@ -158,8 +162,12 @@ public class JsonUtil {
     }
 
     public static <T> T fromJson(JsonNode node, String path, Class<T> clazz) throws Exception {
+        return fromJson(node, path, clazz, FULL_MAPPER);
+    }
+
+    public static <T> T fromJson(JsonNode node, String path, Class<T> clazz, ObjectMapper mapper) throws Exception {
         node = findNode(node, path);
-        return FULL_MAPPER.convertValue(node, clazz);
+        return mapper.convertValue(node, clazz);
     }
 
     public static JsonNode findNode(JsonNode node, String path) throws IOException {
