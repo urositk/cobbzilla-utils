@@ -215,6 +215,15 @@ public class StringUtil {
         return empty(s) ? s : s.length() == 1 ? s.toLowerCase() : s.substring(0, 1).toLowerCase() + s.substring(1);
     }
 
+    public static String pluralize(String val) {
+        if (empty(val)) return val;
+        if (val.endsWith("y")) {
+            return val.substring(0, val.length()-1)+"ies";
+        } else {
+            return val + "s";
+        }
+    }
+
     public static boolean exceptionContainsMessage(Throwable e, String s) {
         return e != null && (
                 (e.getMessage() != null && e.getMessage().contains(s))
