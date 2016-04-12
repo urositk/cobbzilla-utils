@@ -17,9 +17,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.cobbzilla.util.daemon.ZillaRuntime.die;
-import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
-import static org.cobbzilla.util.daemon.ZillaRuntime.now;
+import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 
 public class StringUtil {
 
@@ -338,5 +336,20 @@ public class StringUtil {
                 || (nospace.contains("onkeypress=") && value.contains(" onkeypress"))
                 || (nospace.contains("onsubmit=") && value.contains(" onsubmit"))
                 || (nospace.contains("onerror=") && value.contains(" onerror"));
+    }
+
+    public static String camelCaseToString(String val) {
+        if (empty(val)) return val;
+        final StringBuilder b = new StringBuilder();
+        b.append(Character.toUpperCase(val.charAt(0)));
+        if (val.length() == 1) return b.toString();
+        for (int i=1; i<val.length(); i++) {
+            char c = val.charAt(i);
+            if (Character.isUpperCase(c)) {
+                b.append(' ');
+            }
+            b.append(c);
+        }
+        return b.toString();
     }
 }
