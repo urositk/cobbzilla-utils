@@ -45,6 +45,8 @@ public class StringUtil {
         return clazz.getPackage().getName().replace(".","/");
     }
 
+    public static String packagePath(String clazz) { return clazz.replace(".","/"); }
+
     public static List<String> split (String s, String delim) {
         final StringTokenizer st = new StringTokenizer(s, delim);
         final List<String> results = new ArrayList<>();
