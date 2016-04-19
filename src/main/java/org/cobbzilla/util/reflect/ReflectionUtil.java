@@ -7,10 +7,7 @@ import org.cobbzilla.util.collection.ArrayUtil;
 
 import java.io.Closeable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
@@ -132,6 +129,45 @@ public class ReflectionUtil {
             return clazz.getConstructor(argument.getClass()).newInstance(argument);
         } catch (Exception e) {
             return die("instantiate("+clazz.getName()+", "+argument+"): "+e, e);
+        }
+    }
+
+    /**
+     * Create an instance of a class using the supplied argument to a matching single-argument constructor.
+     * @param clazz The class to instantiate
+     * @param arguments The objects that will be passed to a matching constructor
+     * @param <T> Could be anything
+     * @return A new instance of clazz, created using a constructor that matched argument's class.
+     */
+    public static <T> T instantiate(Class<T> clazz, Object... arguments) {
+        try {
+            for (Constructor constructor : clazz.getConstructors()) {
+                final Class<?>[] cParams = constructor.getParameterTypes();
+                if (cParams.length == arguments.length) {
+                    boolean match = true;
+                    for (int i=0; i<cParams.length; i++) {
+                        if (!cParams[i].isAssignableFrom(arguments[i].getClass())) {
+                            match = false; break;
+                        }
+                    }
+                    if (match) return (T) constructor.newInstance(arguments);
+                }
+            }
+            log.warn("instantiate("+clazz.getName()+"): no matching constructor found, trying with exact match (will probably fail), args="+ArrayUtils.toString(arguments));
+
+            final Class<?>[] parameterTypes = new Class[arguments.length];
+            for (int i=0; i<arguments.length; i++) {
+                Class<?> argClass = arguments[i].getClass();
+                final int enhancePos = argClass.getName().indexOf("$$Enhance");
+                if (enhancePos != -1) {
+                    argClass = forName(argClass.getName().substring(0, enhancePos));
+                }
+                parameterTypes[i] = argClass;
+            }
+            return clazz.getConstructor(parameterTypes).newInstance(arguments);
+
+        } catch (Exception e) {
+            return die("instantiate("+clazz.getName()+", "+Arrays.toString(arguments)+"): "+e, e);
         }
     }
 
