@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -218,7 +219,7 @@ public class ReflectionUtil {
 
     /**
      * Same as copy(dest, src) but only named fields are copied
-     * @param dest destination object
+     * @param dest destination object, or a Map<String, Object>
      * @param src source object
      * @param fields only fields with these names will be considered for copying
      * @param exclude fields with these names will NOT be considered for copying
@@ -227,6 +228,7 @@ public class ReflectionUtil {
      */
     public static <T> int copy (T dest, T src, String[] fields, String[] exclude) {
         int copyCount = 0;
+        final boolean isMap = dest instanceof Map;
         try {
             checkGetter:
             for (Method getter : src.getClass().getMethods()) {
@@ -262,12 +264,14 @@ public class ReflectionUtil {
                 if (setterName == null) continue;
 
                 // get the setter method on the destination object
-                final Method setter;
-                try {
-                    setter = dest.getClass().getMethod(setterName, getter.getReturnType());
-                } catch (Exception e) {
-                    log.debug("copy: setter not found: "+setterName);
-                    continue;
+                Method setter = null;
+                if (!isMap) {
+                    try {
+                        setter = dest.getClass().getMethod(setterName, getter.getReturnType());
+                    } catch (Exception e) {
+                        log.debug("copy: setter not found: " + setterName);
+                        continue;
+                    }
                 }
 
                 // do not copy null fields (should this be configurable?)
@@ -277,14 +281,22 @@ public class ReflectionUtil {
                 // does the dest have a getter? if so grab the current value
                 Object destValue = null;
                 try {
-                    destValue = getter.invoke(dest);
+                    if (isMap) {
+                        destValue = ((Map) dest).get(fieldName);
+                    } else {
+                        destValue = getter.invoke(dest);
+                    }
                 } catch (Exception e) {
                     log.debug("copy: error calling getter on dest: "+e);
                 }
 
                 // copy the value from src to dest, if it's different
                 if (!srcValue.equals(destValue)) {
-                    setter.invoke(dest, srcValue);
+                    if (isMap) {
+                        ((Map) dest).put(fieldName, srcValue);
+                    } else {
+                        setter.invoke(dest, srcValue);
+                    }
                     copyCount++;
                 }
             }
@@ -339,6 +351,17 @@ public class ReflectionUtil {
             }
         }
         return dest;
+    }
+
+    /**
+     * Make a copy of the object, assuming its class has a copy constructor
+     * @param thing The thing to copy
+     * @return A copy of the object, created using the thing's copy constructor
+     */
+    public static Map<String, Object> toMap(Object thing) {
+        final Map<String, Object> map = new HashMap<>();
+        copy(map, thing);
+        return map;
     }
 
     /**
