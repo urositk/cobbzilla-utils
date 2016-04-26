@@ -12,7 +12,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
@@ -38,17 +38,24 @@ public class TempDir extends File implements Closeable {
     }
 
     private static class QuickTempReaper implements Runnable {
-        private SortedSet<FileKillOrder> temps = new TreeSet<>();
+        private final SortedSet<FileKillOrder> temps = new ConcurrentSkipListSet<>();
         public File add (File t) { return add(t, System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5)); }
-        public File add (File t, long killTime) { temps.add(new FileKillOrder(t, killTime)); return t; }
+        public File add (File t, long killTime) {
+            synchronized (temps) {
+                temps.add(new FileKillOrder(t, killTime));
+                return t;
+            }
+        }
         @Override public void run() {
             while (true) {
                 sleep(10_000);
-                while (temps.first().shouldKill()) {
-                    if (!temps.first().getFile().delete()) {
-                        log.warn("QuickTempReaper.run: couldn't delete "+abs(temps.first().getFile()));
+                synchronized (temps) {
+                    while (!temps.isEmpty() && temps.first().shouldKill()) {
+                        if (!temps.first().getFile().delete()) {
+                            log.warn("QuickTempReaper.run: couldn't delete " + abs(temps.first().getFile()));
+                        }
+                        temps.remove(temps.first());
                     }
-                    temps.remove(temps.first());
                 }
             }
         }
