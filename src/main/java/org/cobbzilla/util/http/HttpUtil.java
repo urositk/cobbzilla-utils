@@ -12,8 +12,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.util.EntityUtils;
 import org.cobbzilla.util.string.StringUtil;
 import org.cobbzilla.util.system.CommandResult;
 import org.cobbzilla.util.system.CommandShell;
@@ -55,6 +59,30 @@ public class HttpUtil {
         final URL url = new URL(urlString);
         final URLConnection urlConnection = url.openConnection();
         return urlConnection.getInputStream();
+    }
+
+    public static HttpResponseBean upload (String url,
+                                           File file,
+                                           Map<String, String> headers) throws IOException {
+        @Cleanup final CloseableHttpClient client = HttpClients.createDefault();
+        final HttpPost method = new HttpPost(url);
+        final FileBody fileBody = new FileBody(file);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create().addPart("file", fileBody);
+        method.setEntity(builder.build());
+
+        if (headers != null) {
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                method.addHeader(new BasicHeader(header.getKey(), header.getValue()));
+            }
+        }
+
+        @Cleanup final CloseableHttpResponse response = client.execute(method);
+
+        final HttpResponseBean responseBean = new HttpResponseBean()
+                .setEntityBytes(EntityUtils.toByteArray(response.getEntity()))
+                .setHttpHeaders(response.getAllHeaders())
+                .setStatus(response.getStatusLine().getStatusCode());
+        return responseBean;
     }
 
     public static final int DEFAULT_RETRIES = 3;

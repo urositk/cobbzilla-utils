@@ -140,4 +140,12 @@ public class Tarball {
 
         return tarball;
     }
+
+    public static boolean isTarball(File file) { return isTarball(file.getName().toLowerCase()); }
+
+    public static boolean isTarball(String fileName) {
+        return fileName.endsWith(".tar.gz")
+                || fileName.endsWith(".tar.bz2")
+                || fileName.endsWith(".tgz");
+    }
 }

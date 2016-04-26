@@ -4,18 +4,23 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
 import org.cobbzilla.util.json.JsonUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
+import static org.apache.http.HttpHeaders.CONTENT_LENGTH;
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
-@Slf4j
+@Slf4j @Accessors(chain=true) @ToString(of={"status", "headers"})
 public class HttpResponseBean {
 
     @Getter @Setter private int status;
@@ -26,8 +31,12 @@ public class HttpResponseBean {
 
     public void addHeader(String name, String value) {
         if (headers == null) headers = LinkedListMultimap.create();
+        if (name.equalsIgnoreCase(CONTENT_TYPE)) setContentType(value);
+        else if (name.equalsIgnoreCase(CONTENT_LENGTH)) setContentLength(Long.valueOf(value));
         headers.put(name, value);
     }
+
+    public HttpResponseBean setEntityBytes(byte[] bytes) { this.entity = bytes; return this; }
 
     public void setEntity (InputStream entity) {
         try {
@@ -52,5 +61,12 @@ public class HttpResponseBean {
     public String getFirstHeaderValue (String name) {
         final Collection<String> values = headers.get(name);
         return values == null || values.isEmpty() ? null : values.iterator().next();
+    }
+
+    public HttpResponseBean setHttpHeaders(Header[] headers) {
+        for (Header header : headers) {
+            addHeader(header.getName(), header.getValue());;
+        }
+        return this;
     }
 }
