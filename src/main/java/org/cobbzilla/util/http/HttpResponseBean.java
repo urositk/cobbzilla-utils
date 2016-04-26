@@ -1,5 +1,6 @@
 package org.cobbzilla.util.http;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import lombok.Getter;
@@ -28,6 +29,8 @@ public class HttpResponseBean {
     @Getter private byte[] entity;
     @Getter @Setter private long contentLength;
     @Getter @Setter private String contentType;
+
+    @JsonIgnore public boolean isOk() { return (status % 100) == 2; }
 
     public void addHeader(String name, String value) {
         if (headers == null) headers = LinkedListMultimap.create();
@@ -69,4 +72,5 @@ public class HttpResponseBean {
         }
         return this;
     }
+
 }
