@@ -30,7 +30,7 @@ public class HttpResponseBean {
     @Getter @Setter private long contentLength;
     @Getter @Setter private String contentType;
 
-    @JsonIgnore public boolean isOk() { return (status % 100) == 2; }
+    @JsonIgnore public boolean isOk() { return (status / 100) == 2; }
 
     public void addHeader(String name, String value) {
         if (headers == null) headers = LinkedListMultimap.create();
