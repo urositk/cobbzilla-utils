@@ -45,6 +45,7 @@ public class ZillaRuntime {
         if (o == null) return true;
         if (o instanceof Collection) return ((Collection)o).isEmpty();
         if (o instanceof Map) return ((Map)o).isEmpty();
+        if (o instanceof Iterable) return !((Iterable)o).iterator().hasNext();
         if (o instanceof File) {
             final File f = (File) o;
             return !f.exists() || f.length() == 0 || (f.isDirectory() && list(f).length == 0);
