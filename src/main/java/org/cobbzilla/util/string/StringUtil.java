@@ -295,6 +295,7 @@ public class StringUtil {
     }
 
     public static boolean isNumber(String val) {
+        if (val == null) return false;
         val = val.trim();
         try {
             Double.parseDouble(val);
