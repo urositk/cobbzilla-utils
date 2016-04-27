@@ -51,9 +51,7 @@ public class HttpResponseBean {
 
     public boolean hasEntity () { return !empty(entity); }
 
-    public String getEntityString () {
-        return entity == null ? null : new String(entity);
-    }
+    public String getEntityString () { return entity == null ? null : new String(entity); }
 
     public <T> T getEntity (Class<T> clazz) {
         return entity == null ? null : JsonUtil.fromJsonOrDie(getEntityString(), clazz);
