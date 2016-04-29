@@ -80,6 +80,8 @@ public class JsonUtil {
         return JsonUtil.NOTNULL_MAPPER.writeValueAsString(o);
     }
 
+    public static String json (Object o) { return toJsonOrDie(o); }
+
     public static String toJsonOrDie (Object o) {
         try { return toJson(o); } catch (Exception e) {
             return die("toJson: exception writing object ("+o+"): "+e, e);
@@ -144,6 +146,8 @@ public class JsonUtil {
         return fromJsonOrDie(FileUtil.toStringOrDie(json), clazz);
     }
 
+    public static <T> T json(String json, Class<T> clazz) { return fromJsonOrDie(json, clazz); }
+
     public static <T> T fromJsonOrDie(String json, Class<T> clazz) {
         if (empty(json)) return null;
         try {
@@ -159,6 +163,10 @@ public class JsonUtil {
 
     public static <T> T fromJson(File json, String path, Class<T> clazz) throws Exception {
         return fromJson(FULL_MAPPER.readTree(json), path, clazz);
+    }
+
+    public static <T> T fromJson(JsonNode child, Class<? extends T> childClass) throws Exception {
+        return fromJson(child, "", childClass);
     }
 
     public static <T> T fromJson(JsonNode node, String path, Class<T> clazz) throws Exception {

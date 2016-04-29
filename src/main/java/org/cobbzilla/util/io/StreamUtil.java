@@ -78,6 +78,8 @@ public class StreamUtil {
         return file;
     }
 
+    public static String stream2string(String path) { return loadResourceAsStringOrDie(path); }
+
     public static String loadResourceAsStringOrDie(String path) {
         try {
             return loadResourceAsString(path, StreamUtil.class);
