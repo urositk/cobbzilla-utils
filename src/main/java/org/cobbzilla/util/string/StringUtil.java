@@ -219,9 +219,10 @@ public class StringUtil {
         if (empty(val)) return val;
         if (val.endsWith("y")) {
             return val.substring(0, val.length()-1)+"ies";
-        } else {
+        } else if (!val.endsWith("s")) {
             return val + "s";
         }
+        return val;
     }
 
     public static boolean exceptionContainsMessage(Throwable e, String s) {
