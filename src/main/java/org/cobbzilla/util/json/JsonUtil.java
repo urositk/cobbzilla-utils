@@ -13,10 +13,7 @@ import org.cobbzilla.util.io.StreamUtil;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
@@ -317,5 +314,50 @@ public class JsonUtil {
     }
 
     public static JsonNode toNode (File f) { return fromJsonOrDie(FileUtil.toStringOrDie(f), JsonNode.class); }
+
+    // adapted from: https://stackoverflow.com/a/11459962/1251543
+    public static JsonNode mergeNodes(JsonNode mainNode, JsonNode updateNode) {
+
+        final Iterator<String> fieldNames = updateNode.fieldNames();
+        while (fieldNames.hasNext()) {
+            final String fieldName = fieldNames.next();
+            final JsonNode jsonNode = mainNode.get(fieldName);
+            // if field exists and is an embedded object
+            if (jsonNode != null && jsonNode.isObject()) {
+                mergeNodes(jsonNode, updateNode.get(fieldName));
+            } else {
+                if (mainNode instanceof ObjectNode) {
+                    // Overwrite field
+                    final JsonNode value = updateNode.get(fieldName);
+                    ((ObjectNode) mainNode).set(fieldName, value);
+                }
+            }
+        }
+
+        return mainNode;
+    }
+
+    public static String mergeJson(String json, String request) throws Exception {
+        return mergeJson(json, fromJson(request, JsonNode.class));
+    }
+
+    public static String mergeJson(String json, Object request) throws Exception {
+        if (request != null) {
+            if (json != null) {
+                final JsonNode current = fromJson(json, JsonNode.class);
+                final JsonNode update;
+                if (request instanceof JsonNode) {
+                    update = (JsonNode) request;
+                } else {
+                    update = PUBLIC_MAPPER.valueToTree(request);
+                }
+                mergeNodes(current, update);
+                return toJson(current);
+            } else {
+                return toJson(request);
+            }
+        }
+        return json;
+    }
 
 }

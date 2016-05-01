@@ -10,11 +10,14 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.junit.Assert.assertEquals;
 
 public class JsonUtilTest {
 
-    private static final String TEST_JSON = StringUtil.getPackagePath(JsonUtilTest.class)+"/test.json";
+    public static final String PREFIX = StringUtil.getPackagePath(JsonUtilTest.class);
+    private static final String TEST_JSON = PREFIX +"/test.json";
+
     private static final Object[][] TESTS = new Object[][] {
         new Object[] {
                 "id", new ReplacementValue() { @Override public String getValue(TestData testData) { return testData.id; } }
@@ -41,7 +44,7 @@ public class JsonUtilTest {
     public void assertReplacementMade(String testJson, String replacement, String path, ReplacementValue value) throws Exception {
         final ObjectNode doc = JsonUtil.replaceNode(testJson, path, replacement);
         final File temp = File.createTempFile("JsonUtilTest", ".json");
-        FileUtil.toFile(temp, JsonUtil.toJson(doc));
+        FileUtil.toFile(temp, toJson(doc));
         final TestData data = JsonUtil.fromJson(temp, TestData.class);
         assertEquals(replacement, value.getValue(data));
     }
@@ -50,5 +53,10 @@ public class JsonUtilTest {
         public String getValue(TestData testData);
     }
 
-
+    @Test public void testMerge () throws Exception {
+        final String orig = StreamUtil.stream2string(PREFIX + "/merge/test1_orig.json");
+        final String request = StreamUtil.stream2string(PREFIX + "/merge/test1_request.json");
+        final String expected = StreamUtil.stream2string(PREFIX + "/merge/test1_expected.json");
+        assertEquals(expected.replaceAll("\\s+", ""), JsonUtil.mergeJson(orig, request).replaceAll("\\s+", ""));
+    }
 }
