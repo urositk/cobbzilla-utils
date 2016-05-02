@@ -290,7 +290,7 @@ public class JsonUtil {
         } else {
             // what is the original node type?
             final JsonNode origNode = parent.get(simplePath);
-            ((ObjectNode) parent).put(simplePath, getValueNode(origNode, path, replacement));
+            ((ObjectNode) parent).set(simplePath, getValueNode(origNode, path, replacement));
         }
         return document;
     }
