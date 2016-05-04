@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
@@ -82,6 +83,13 @@ public class ZillaRuntime {
     public static BigInteger bigint(long val) { return new BigInteger(String.valueOf(val)); }
     public static BigInteger bigint(int val) { return new BigInteger(String.valueOf(val)); }
     public static BigInteger bigint(byte val) { return new BigInteger(String.valueOf(val)); }
+
+    public static BigDecimal big(String val) { return new BigDecimal(val); }
+    public static BigDecimal big(double val) { return new BigDecimal(val); }
+    public static BigDecimal big(float val) { return new BigDecimal(val); }
+    public static BigDecimal big(long val) { return new BigDecimal(val); }
+    public static BigDecimal big(int val) { return new BigDecimal(val); }
+    public static BigDecimal big(byte val) { return new BigDecimal(String.valueOf(val)); }
 
     public static String uuid() { return UUID.randomUUID().toString(); }
 
