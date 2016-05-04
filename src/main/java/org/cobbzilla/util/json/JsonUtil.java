@@ -50,7 +50,7 @@ public class JsonUtil {
 
     public static final ObjectMapper NOTNULL_MAPPER = FULL_MAPPER
             .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public static final ObjectMapper PUBLIC_MAPPER = buildMapper();
 
@@ -61,7 +61,7 @@ public class JsonUtil {
                 .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
                 .configure(SerializationFeature.INDENT_OUTPUT, true)
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     public static ObjectWriter buildWriter(Class<? extends PublicView> view) {
