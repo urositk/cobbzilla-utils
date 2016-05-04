@@ -35,6 +35,9 @@ public class ValidationRegexes {
     public static final Pattern HTTP_PATTERN  = pattern("^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$");
     public static final Pattern HTTPS_PATTERN = pattern("^https://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$");
 
+    public static final String VARNAME_REGEX = "^[A-Za-z][_A-Za-z0-9]+$";
+    public static final Pattern VARNAME_PATTERN= pattern(VARNAME_REGEX);
+
     public static final Pattern FILENAME_PATTERN = pattern("^[_A-Z0-9\\-\\.]+$");
     public static final Pattern INTEGER_PATTERN = pattern("^[0-9]+$");
     public static final Pattern DECIMAL_PATTERN = pattern("^[0-9]+(\\.[0-9]+)?$");
