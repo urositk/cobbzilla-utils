@@ -34,4 +34,7 @@ public class JsEngine {
         return result == null ? null : (T) Context.jsToJava(result, returnType);
     }
 
+    public static String replaceDollarSigns(String val) {
+        return val.replaceAll("(\\$(\\d+(\\.\\d{2})?))", "($2 * 100)");
+    }
 }
