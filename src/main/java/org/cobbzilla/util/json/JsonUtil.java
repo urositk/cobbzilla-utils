@@ -193,7 +193,7 @@ public class JsonUtil {
         try {
             return fromJson(node, path, clazz, mapper);
         } catch (Exception e) {
-            return die("fromJsonOrDie: exception while reading: "+node+"/"+path+": "+e, e);
+            return die("fromJsonOrDie: exception while reading: "+node+": "+e, e);
         }
     }
     public static <T> T fromJson(JsonNode node, String path, Class<T> clazz, ObjectMapper mapper) throws Exception {
