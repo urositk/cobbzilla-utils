@@ -1,14 +1,10 @@
 package org.cobbzilla.util.http;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.cobbzilla.util.reflect.ReflectionUtil;
+import lombok.*;
 
 import static org.cobbzilla.util.reflect.ReflectionUtil.copy;
 
-@NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor @AllArgsConstructor @ToString(of={"baseUri", "user"})
 public class ApiConnectionInfo {
 
     @Getter @Setter private String baseUri;

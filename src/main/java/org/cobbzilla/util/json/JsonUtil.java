@@ -177,10 +177,25 @@ public class JsonUtil {
         return fromJson(child, "", childClass);
     }
 
+    public static <T> T fromJsonOrDie(JsonNode child, Class<? extends T> childClass) {
+        return fromJsonOrDie(child, "", childClass);
+    }
+
+    public static <T> T fromJsonOrDie(JsonNode node, String path, Class<T> clazz) {
+        return fromJsonOrDie(node, path, clazz, FULL_MAPPER);
+    }
+
     public static <T> T fromJson(JsonNode node, String path, Class<T> clazz) throws Exception {
         return fromJson(node, path, clazz, FULL_MAPPER);
     }
 
+    public static <T> T fromJsonOrDie(JsonNode node, String path, Class<T> clazz, ObjectMapper mapper) {
+        try {
+            return fromJson(node, path, clazz, mapper);
+        } catch (Exception e) {
+            return die("fromJsonOrDie: exception while reading: "+node+"/"+path+": "+e, e);
+        }
+    }
     public static <T> T fromJson(JsonNode node, String path, Class<T> clazz, ObjectMapper mapper) throws Exception {
         node = findNode(node, path);
         return mapper.convertValue(node, clazz);
