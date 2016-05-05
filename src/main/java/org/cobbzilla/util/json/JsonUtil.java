@@ -368,6 +368,10 @@ public class JsonUtil {
     }
 
     public static String mergeJson(String json, Object request) throws Exception {
+        return json(mergeJsonNodes(json, request));
+    }
+
+    public static JsonNode mergeJsonNodes(String json, Object request) throws Exception {
         if (request != null) {
             if (json != null) {
                 final JsonNode current = fromJson(json, JsonNode.class);
@@ -378,12 +382,20 @@ public class JsonUtil {
                     update = PUBLIC_MAPPER.valueToTree(request);
                 }
                 mergeNodes(current, update);
-                return toJson(current);
+                return current;
             } else {
-                return toJson(request);
+                return PUBLIC_MAPPER.valueToTree(request);
             }
         }
-        return json;
+        return json(json, JsonNode.class);
+    }
+
+    public static JsonNode mergeJsonNodesOrDie(String json, Object request) {
+        try {
+            return mergeJsonNodes(json, request);
+        } catch (Exception e) {
+            return die("mergeJsonNodesOrDie: "+e, e);
+        }
     }
 
     public static String mergeJsonOrDie(String json, Object request) {
