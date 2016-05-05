@@ -76,11 +76,12 @@ public class ReflectionUtil {
 
     /**
      * Do a Class.forName and only throw unchecked exceptions.
-     * @param clazz full class name
+     * @param clazz full class name. May end in [] to indicate array class
      * @param <T> The class type
      * @return A Class&lt;clazz&gt; object
      */
     public static <T> Class<? extends T> forName(String clazz) {
+        if (clazz.endsWith("[]")) return arrayClass(forName(clazz.substring(0, clazz.length()-2)));
         try {
             return (Class<? extends T>) Class.forName(clazz);
         } catch (Exception e) {
