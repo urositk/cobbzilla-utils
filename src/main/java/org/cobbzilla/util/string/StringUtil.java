@@ -356,4 +356,6 @@ public class StringUtil {
         }
         return b.toString();
     }
+
+    public static String formatCents(int cents) { return "" + (cents /100) + (cents % 100 == 0 ? "" : "."+ cents % 100); }
 }
