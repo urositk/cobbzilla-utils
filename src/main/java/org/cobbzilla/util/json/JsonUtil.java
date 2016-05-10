@@ -131,6 +131,10 @@ public class JsonUtil {
         return fromJson(FileUtil.toString(json), clazz);
     }
 
+    public static <T> T fromJson(File json, Class<T> clazz, ObjectMapper mapper) throws Exception {
+        return fromJson(FileUtil.toString(json), clazz, mapper);
+    }
+
     public static <T> T fromJson(String json, Class<T> clazz) throws Exception {
         return fromJson(json, clazz, JsonUtil.FULL_MAPPER);
     }
