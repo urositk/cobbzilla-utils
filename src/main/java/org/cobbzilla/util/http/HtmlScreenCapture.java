@@ -28,7 +28,7 @@ public class HtmlScreenCapture {
             "  phantom.exit();\n" +
             "});\n";
 
-    public void capture (String url, File file) throws Exception {
+    public void capture (String url, File file) {
         @Cleanup PhantomJSDriver phantomJSDriver = new PhantomJSDriver(capabilities);
         phantomJSDriver.executePhantomJS(SCRIPT.replace("@@URL@@", url).replace("@@FILE@@", abs(file)));
     }
