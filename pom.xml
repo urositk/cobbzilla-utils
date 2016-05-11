@@ -236,6 +236,13 @@ cobbzilla-utils is available under the Apache License, version 2: http://www.apa
             <version>4.1.0</version>
         </dependency>
 
+        <!-- web/html screenshots -->
+        <dependency>
+            <groupId>com.codeborne</groupId>
+            <artifactId>phantomjsdriver</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
