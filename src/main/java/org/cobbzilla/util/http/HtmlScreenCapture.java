@@ -1,6 +1,5 @@
 package org.cobbzilla.util.http;
 
-import lombok.Cleanup;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
@@ -29,7 +28,7 @@ public class HtmlScreenCapture {
             "});\n";
 
     public void capture (String url, File file) {
-        @Cleanup PhantomJSDriver phantomJSDriver = new PhantomJSDriver(capabilities);
+        PhantomJSDriver phantomJSDriver = new PhantomJSDriver(capabilities);
         phantomJSDriver.executePhantomJS(SCRIPT.replace("@@URL@@", url).replace("@@FILE@@", abs(file)));
     }
 
