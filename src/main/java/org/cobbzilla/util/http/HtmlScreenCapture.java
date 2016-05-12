@@ -6,11 +6,17 @@ import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.system.Sleep.sleep;
 
 @Slf4j
 public class HtmlScreenCapture {
+
+    private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(5);
 
     private final PhantomJSDriver phantomJSDriver;
 
@@ -28,7 +34,9 @@ public class HtmlScreenCapture {
 
     public void capture (String url, File file) {
         phantomJSDriver.executePhantomJS(SCRIPT.replace("@@URL@@", url).replace("@@FILE@@", abs(file)));
-        log.info("capture: captured URL "+url+" -> "+abs(file));
+        long start = now();
+        while (file.length() == 0 && now() - start < TIMEOUT) sleep(50);
+        if (file.length() == 0 && now() - start >= TIMEOUT) die("capture: file was never written to: "+abs(file));
     }
 
 }
