@@ -624,7 +624,7 @@ public class ReflectionUtil {
             ((Closeable) o).close();
 
         } else {
-            final Method closeMethod = o.getClass().getMethod("close", null);
+            final Method closeMethod = o.getClass().getMethod("close", (Class<?>[]) null);
             if (closeMethod == null) die("no close method found on " + o.getClass().getName());
             closeMethod.invoke(o);
         }
