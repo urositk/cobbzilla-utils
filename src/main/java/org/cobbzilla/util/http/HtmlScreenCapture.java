@@ -1,6 +1,5 @@
 package org.cobbzilla.util.http;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
@@ -13,23 +12,23 @@ import static org.cobbzilla.util.io.FileUtil.abs;
 @Slf4j
 public class HtmlScreenCapture {
 
-    @Getter private DesiredCapabilities capabilities;
+    private final PhantomJSDriver phantomJSDriver;
 
     public HtmlScreenCapture (String phantomjs) {
-        capabilities = new DesiredCapabilities();
+        final DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setJavascriptEnabled(true);
         capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, phantomjs);
+        phantomJSDriver = new PhantomJSDriver(capabilities);
     }
 
     public static final String SCRIPT = "var page = require('webpage').create();\n" +
             "page.open('@@URL@@', function() {\n" +
             "  page.render('@@FILE@@');\n" +
-            "  phantom.exit();\n" +
             "});\n";
 
     public void capture (String url, File file) {
-        PhantomJSDriver phantomJSDriver = new PhantomJSDriver(capabilities);
         phantomJSDriver.executePhantomJS(SCRIPT.replace("@@URL@@", url).replace("@@FILE@@", abs(file)));
+        log.info("capture: captured URL "+url+" -> "+abs(file));
     }
 
 }
