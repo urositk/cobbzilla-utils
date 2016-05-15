@@ -6,12 +6,12 @@ import org.apache.commons.lang3.RandomUtils;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static java.math.BigDecimal.ROUND_HALF_EVEN;
 import static org.cobbzilla.util.io.FileUtil.list;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
@@ -92,8 +92,10 @@ public class ZillaRuntime {
     public static BigDecimal big(int val) { return new BigDecimal(val); }
     public static BigDecimal big(byte val) { return new BigDecimal(String.valueOf(val)); }
 
-    public static int percent(int value, double pct) {
-        return big(value).multiply(big(pct)).divide(big(1), ROUND_HALF_EVEN).intValue();
+    public static int percent(int value, double pct) { return percent(value, pct, RoundingMode.HALF_EVEN); }
+
+    public static int percent(int value, double pct, RoundingMode rounding) {
+        return big(value).multiply(big(pct)).setScale(0, rounding).intValue();
     }
 
     public static String uuid() { return UUID.randomUUID().toString(); }
