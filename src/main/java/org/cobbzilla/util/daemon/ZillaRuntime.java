@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static java.math.BigDecimal.ROUND_HALF_EVEN;
 import static org.cobbzilla.util.io.FileUtil.list;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
@@ -90,6 +91,10 @@ public class ZillaRuntime {
     public static BigDecimal big(long val) { return new BigDecimal(val); }
     public static BigDecimal big(int val) { return new BigDecimal(val); }
     public static BigDecimal big(byte val) { return new BigDecimal(String.valueOf(val)); }
+
+    public static int percent(int value, double pct) {
+        return big(value).multiply(big(pct)).divide(big(1), ROUND_HALF_EVEN).intValue();
+    }
 
     public static String uuid() { return UUID.randomUUID().toString(); }
 
