@@ -491,4 +491,14 @@ public class FileUtil {
         return Files.createSymbolicLink(link.toPath(), target.toPath()).toFile();
     }
 
+    public static File temp (String suffix) { return temp("temp-", suffix); }
+
+    public static File temp (String prefix, String suffix) {
+        try {
+            return File.createTempFile(prefix, suffix);
+        } catch (IOException e) {
+            return die("temp: "+e, e);
+        }
+    }
+
 }
