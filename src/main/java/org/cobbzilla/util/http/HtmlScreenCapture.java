@@ -32,7 +32,7 @@ public class HtmlScreenCapture {
             "  page.render('@@FILE@@');\n" +
             "});\n";
 
-    public void capture (String url, File file) {
+    public synchronized void capture (String url, File file) {
         phantomJSDriver.executePhantomJS(SCRIPT.replace("@@URL@@", url).replace("@@FILE@@", abs(file)));
         long start = now();
         while (file.length() == 0 && now() - start < TIMEOUT) sleep(50);
