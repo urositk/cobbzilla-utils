@@ -1,8 +1,11 @@
 package org.cobbzilla.util.xml;
 
+import lombok.Cleanup;
 import org.w3c.dom.*;
 import org.w3c.tidy.Tidy;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -10,14 +13,40 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+
 public class TidyUtil {
 
+    public static String tidy(String html) { return tidy(html, (TidyHelper[]) null); }
+
+    public static String tidy(String html, TidyHelper... helpers) {
+        try {
+            @Cleanup final ByteArrayInputStream in = new ByteArrayInputStream(html.getBytes());
+            @Cleanup final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            if (empty(helpers)) {
+                parse(in, out, false);
+            } else {
+                final Tidy tidy = createTidy();
+                final Document doc = tidy.parseDOM(in, null);
+                for (TidyHelper helper : helpers) {
+                    helper.process(doc);
+                }
+                tidy.pprint(doc, out);
+            }
+            return out.toString();
+
+        } catch (Exception e) {
+            return die("tidy: " + e, e);
+        }
+    }
+
     public static void parse(InputStream in, OutputStream out, boolean removeScripts) {
-        Tidy tidy = createTidy();
+        final Tidy tidy = createTidy();
         if (!removeScripts) {
             tidy.parse(in, out);
         } else {
-            Document doc = tidy.parseDOM(in, null);
+            final Document doc = tidy.parseDOM(in, null);
             removeElement(doc.getDocumentElement(), "script");
             removeElement(doc.getDocumentElement(), "style");
             removeDuplicateAttributes(doc.getDocumentElement());

@@ -39,4 +39,12 @@ public class HtmlScreenCapture {
         if (file.length() == 0 && now() - start >= TIMEOUT) die("capture: file was never written to: "+abs(file));
     }
 
+    public void capture (File in, File out) {
+        try {
+            capture(in.toURI().toString(), out);
+        } catch (Exception e) {
+            die("capture("+abs(in)+"): "+e, e);
+        }
+    }
+
 }
