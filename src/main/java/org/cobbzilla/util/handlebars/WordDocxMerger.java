@@ -1,21 +1,18 @@
 package org.cobbzilla.util.handlebars;
 
 import com.github.jknack.handlebars.Handlebars;
-import fr.opensagres.xdocreport.converter.ConverterTypeTo;
-import fr.opensagres.xdocreport.converter.ConverterTypeVia;
-import fr.opensagres.xdocreport.converter.Options;
-import fr.opensagres.xdocreport.document.IXDocReport;
-import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
-import fr.opensagres.xdocreport.template.TemplateEngineKind;
-import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.xwpf.converter.xhtml.XHTMLConverter;
+import org.apache.poi.xwpf.converter.xhtml.XHTMLOptions;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.cobbzilla.util.http.HtmlScreenCapture;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.xml.TidyHandlebarsSpanMerger;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 import static org.cobbzilla.util.io.FileUtil.temp;
@@ -29,15 +26,18 @@ public class WordDocxMerger {
                                HtmlScreenCapture capture,
                                Handlebars handlebars) throws Exception {
 
-        final IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
-        final Options options = Options.getTo(ConverterTypeTo.XHTML).via(ConverterTypeVia.XWPF);
-
-        @Cleanup final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        report.convert(report.createContext(), options, out);
-
-        // tidy HTML file merge consecutive <span> tags (which might occur in the middle of a {{variable}}), then apply Handlebars
+        // convert to HTML
+        final XWPFDocument document = new XWPFDocument(in);
         final File mergedHtml = temp(".html");
-        FileUtil.toFile(mergedHtml, StringTemplateLoader.apply(handlebars, tidy(out.toString(), TidyHandlebarsSpanMerger.instance), context));
+        try (OutputStream out = new FileOutputStream(mergedHtml)) {
+            final XHTMLOptions options = XHTMLOptions.create().setIgnoreStylesIfUnused(true);
+            XHTMLConverter.getInstance().convert(document, out, options);
+        }
+
+        // - tidy HTML file
+        // - merge consecutive <span> tags (which might occur in the middle of a {{variable}})
+        // - apply Handlebars
+        FileUtil.toFile(mergedHtml, HandlebarsUtil.apply(handlebars, tidy(mergedHtml, TidyHandlebarsSpanMerger.instance), context));
 
         // convert HTML -> PDF
         final File pdfOutput = temp(".pdf");

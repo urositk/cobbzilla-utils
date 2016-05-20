@@ -34,7 +34,10 @@ public class JsEngine {
         return result == null ? null : (T) Context.jsToJava(result, returnType);
     }
 
+    private static final String ESC_DOLLAR = "__ESCAPED_DOLLAR_SIGN__";
     public static String replaceDollarSigns(String val) {
-        return val.replaceAll("(\\$(\\d+(\\.\\d{2})?))", "($2 * 100)");
+        return val.replace("'$", ESC_DOLLAR)
+                .replaceAll("(\\$(\\d+(\\.\\d{2})?))", "($2 * 100)")
+                .replace(ESC_DOLLAR, "'$");
     }
 }

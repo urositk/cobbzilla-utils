@@ -1,13 +1,11 @@
 package org.cobbzilla.util.xml;
 
 import lombok.Cleanup;
+import org.cobbzilla.util.io.FileUtil;
 import org.w3c.dom.*;
 import org.w3c.tidy.Tidy;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +15,10 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class TidyUtil {
+
+    public static String tidy(File file) { return tidy(file, (TidyHelper[]) null); }
+
+    public static String tidy(File file, TidyHelper... helpers) { return tidy(FileUtil.toStringOrDie(file), helpers); }
 
     public static String tidy(String html) { return tidy(html, (TidyHelper[]) null); }
 
