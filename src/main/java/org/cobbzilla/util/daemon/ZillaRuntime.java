@@ -21,6 +21,8 @@ import static org.cobbzilla.util.system.Sleep.sleep;
 @Slf4j
 public class ZillaRuntime {
 
+    private static BigDecimal HUNDRED = new BigDecimal("100");
+
     public static void terminate(Thread thread, long timeout) {
         if (thread == null || !thread.isAlive()) return;
         thread.interrupt();
@@ -96,6 +98,11 @@ public class ZillaRuntime {
 
     public static int percent(int value, double pct, RoundingMode rounding) {
         return big(value).multiply(big(pct)).setScale(0, rounding).intValue();
+    }
+
+    public static BigDecimal percent(BigDecimal value, BigDecimal pct){
+        BigDecimal result = value.multiply(pct);
+        return result.divide(HUNDRED, RoundingMode.HALF_EVEN);
     }
 
     public static String uuid() { return UUID.randomUUID().toString(); }
