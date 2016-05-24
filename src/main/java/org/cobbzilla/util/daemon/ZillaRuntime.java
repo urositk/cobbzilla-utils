@@ -100,9 +100,9 @@ public class ZillaRuntime {
         return big(value).multiply(big(pct)).setScale(0, rounding).intValue();
     }
 
-    public static BigDecimal percent(BigDecimal value, BigDecimal pct){
+    public static int percent(BigDecimal value, BigDecimal pct){
         BigDecimal result = value.multiply(pct);
-        return result.divide(HUNDRED, RoundingMode.HALF_EVEN);
+        return result.divide(HUNDRED, RoundingMode.HALF_EVEN).intValue();
     }
 
     public static String uuid() { return UUID.randomUUID().toString(); }
