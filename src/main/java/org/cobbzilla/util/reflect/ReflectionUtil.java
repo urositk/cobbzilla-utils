@@ -354,14 +354,20 @@ public class ReflectionUtil {
         return dest;
     }
 
+    public static final String[] TO_MAP_STANDARD_EXCLUDES = {"declaringClass", "class"};
+
     /**
      * Make a copy of the object, assuming its class has a copy constructor
      * @param thing The thing to copy
      * @return A copy of the object, created using the thing's copy constructor
      */
-    public static Map<String, Object> toMap(Object thing) {
+    public static Map<String, Object> toMap(Object thing) { return toMap(thing, null, TO_MAP_STANDARD_EXCLUDES); }
+
+    public static Map<String, Object> toMap(Object thing, String[] fields) { return toMap(thing, fields, TO_MAP_STANDARD_EXCLUDES); }
+
+    public static Map<String, Object> toMap(Object thing, String[] fields, String[] exclude) {
         final Map<String, Object> map = new HashMap<>();
-        copy(map, thing);
+        copy(map, thing, fields, exclude);
         return map;
     }
 
