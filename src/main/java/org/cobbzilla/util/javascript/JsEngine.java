@@ -34,10 +34,16 @@ public class JsEngine {
         return result == null ? null : (T) Context.jsToJava(result, returnType);
     }
 
+    public static boolean evaluateBoolean(Map<String, Object> ctx, String script, String scriptName) {
+        final Object result = evaluate(script, scriptName, ctx, Object.class);
+        return result == null ? false : Boolean.valueOf(result.toString().toLowerCase());
+    }
+
     private static final String ESC_DOLLAR = "__ESCAPED_DOLLAR_SIGN__";
     public static String replaceDollarSigns(String val) {
         return val.replace("'$", ESC_DOLLAR)
                 .replaceAll("(\\$(\\d+(\\.\\d{2})?))", "($2 * 100)")
                 .replace(ESC_DOLLAR, "'$");
     }
+
 }
