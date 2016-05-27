@@ -33,6 +33,8 @@ public abstract class AutoRefreshingReference<T> {
         }
     }
 
+    public void flush() { set(null); }
+
     public void set(T thing) {
         synchronized (object) {
             object.set(thing);
