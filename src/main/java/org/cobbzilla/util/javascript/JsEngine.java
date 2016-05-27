@@ -19,7 +19,9 @@ public class JsEngine {
         for (Map.Entry<String, Object> entry : context.entrySet()) {
             final Object value = entry.getValue();
             final Object wrappedOut;
-            if (value instanceof ArrayNode) {
+            if (value instanceof JsWrappable) {
+                wrappedOut = Context.javaToJS(((JsWrappable) value).jsObject(), scope);
+            } else if (value instanceof ArrayNode) {
                 final Object[] array = fromJsonOrDie((JsonNode) value, Object[].class);
                 wrappedOut = Context.javaToJS(array, scope);
             } else if (value instanceof JsonNode) {

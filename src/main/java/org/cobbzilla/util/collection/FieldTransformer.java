@@ -11,11 +11,11 @@ import java.util.Collection;
 import java.util.List;
 
 @AllArgsConstructor
-public class FieldTransfomer implements Transformer {
+public class FieldTransformer implements Transformer {
 
-    public static final FieldTransfomer TO_NAME = new FieldTransfomer("name");
-    public static final FieldTransfomer TO_ID = new FieldTransfomer("id");
-    public static final FieldTransfomer TO_UUID = new FieldTransfomer("uuid");
+    public static final FieldTransformer TO_NAME = new FieldTransformer("name");
+    public static final FieldTransformer TO_ID = new FieldTransformer("id");
+    public static final FieldTransformer TO_UUID = new FieldTransformer("uuid");
 
     @Getter @Setter private String field;
 
