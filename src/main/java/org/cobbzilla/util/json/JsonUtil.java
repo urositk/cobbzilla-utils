@@ -155,6 +155,8 @@ public class JsonUtil {
 
     public static <T> T json(String json, Class<T> clazz, ObjectMapper mapper) { return fromJsonOrDie(json, clazz, mapper); }
 
+    public static <T> T json(JsonNode json, Class<T> clazz) { return fromJsonOrDie(json, clazz); }
+
     public static <T> T jsonWithComments(String json, Class<T> clazz) { return fromJsonOrDie(json, clazz, FULL_MAPPER_ALLOW_COMMENTS); }
 
     public static <T> T fromJsonOrDie(String json, Class<T> clazz) {
