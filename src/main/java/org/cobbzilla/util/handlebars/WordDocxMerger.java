@@ -36,8 +36,11 @@ public class WordDocxMerger {
 
         // - tidy HTML file
         // - merge consecutive <span> tags (which might occur in the middle of a {{variable}})
+        // - replace HTML-entities encoded within handlebars templates (for example, convert &lsquo; and &rsquo; to single-quote char)
         // - apply Handlebars
-        FileUtil.toFile(mergedHtml, HandlebarsUtil.apply(handlebars, tidy(mergedHtml, TidyHandlebarsSpanMerger.instance), context));
+        String tidyHtml = tidy(mergedHtml, TidyHandlebarsSpanMerger.instance);
+        tidyHtml = TidyHandlebarsSpanMerger.scrubHandlebars(tidyHtml);
+        FileUtil.toFile(mergedHtml, HandlebarsUtil.apply(handlebars, tidyHtml, context));
 
         // convert HTML -> PDF
         final File pdfOutput = temp(".pdf");
