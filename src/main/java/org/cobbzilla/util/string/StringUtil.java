@@ -119,6 +119,20 @@ public class StringUtil {
 
     public static String formatDurationFrom(long start) { return formatDuration(now() - start); }
 
+    public static long parseDuration(String duration) {
+        if (empty(duration)) return 0;
+        final long val = Long.parseLong(chopSuffix(duration));
+        switch (duration.charAt(duration.length()-1)) {
+            case 's': return TimeUnit.SECONDS.toMillis(val);
+            case 'm': return TimeUnit.MINUTES.toMillis(val);
+            case 'h': return TimeUnit.HOURS.toMillis(val);
+            case 'd': return TimeUnit.DAYS.toMillis(val);
+            default: return Long.parseLong(duration);
+        }
+    }
+
+    private static String chopSuffix(String val) { return val.substring(0, val.length()-1); }
+
     public static String trimQuotes (String s) {
         if (s == null) return s;
         while (s.startsWith("\"") || s.startsWith("\'")) s = s.substring(1);
