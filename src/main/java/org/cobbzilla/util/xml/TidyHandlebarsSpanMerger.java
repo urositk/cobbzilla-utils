@@ -66,7 +66,10 @@ public class TidyHandlebarsSpanMerger implements TidyHelper {
         }
     }
 
-    private void setSpan(Node spanStart, StringBuilder spanTemp) { spanStart.getFirstChild().setNodeValue(spanTemp.toString()); }
+    private void setSpan(Node spanStart, StringBuilder spanTemp) {
+        if (spanTemp == null || spanStart == null || spanStart.getFirstChild() == null) return;
+        spanStart.getFirstChild().setNodeValue(spanTemp.toString());
+    }
 
     public static String scrubHandlebars(String text) {
         final StringBuilder b = new StringBuilder();
