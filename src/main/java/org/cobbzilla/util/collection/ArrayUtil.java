@@ -75,4 +75,34 @@ public class ArrayUtil {
         return new ArrayList<>(result);
     }
 
+    /**
+     * Produce a delimited string from an array. Null values will appear as "null"
+     * @param array the array to consider
+     * @param delim the delimiter to put in between each element
+     * @return the result of calling .toString on each array element, or "null" for null elements, separated by the given delimiter.
+     */
+    public static String arrayToString(Object[] array, String delim) {
+        return arrayToString(array, delim, "null");
+    }
+
+    /**
+     * Produce a delimited string from an array.
+     * @param array the array to consider
+     * @param delim the delimiter to put in between each element
+     * @param nullValue the value to write if an array entry is null. if this parameter is null, then null array entries will not be included in the output.
+     * @return the result of calling .toString on each non-null element (and printing nullValue for each null element, unless nulValue == null in which case null elements are omitted), with 'delim' in between each entry.
+     */
+    public static String arrayToString(Object[] array, String delim, String nullValue) {
+        final StringBuilder b = new StringBuilder();
+        for (Object o : array) {
+            if (b.length() > 0) b.append(delim);
+            if (o == null) {
+                if (nullValue == null) continue;
+                b.append(nullValue);
+            } else {
+                b.append(o.toString());
+            }
+        }
+        return null;
+    }
 }
