@@ -103,6 +103,6 @@ public class ArrayUtil {
                 b.append(o.toString());
             }
         }
-        return null;
+        return b.toString();
     }
 }
