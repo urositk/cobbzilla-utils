@@ -41,7 +41,7 @@ public class PdfMerger {
             // Retrieve an individual field and set its value.
             for (PDField field : acroForm.getFields()) {
                 try {
-                    String fieldValue = fieldMappings.get(field.getFullyQualifiedName());
+                    String fieldValue = fieldMappings == null ? null : fieldMappings.get(field.getFullyQualifiedName());
                     if (!empty(fieldValue)) {
                         fieldValue = HandlebarsUtil.apply(handlebars, fieldValue, context);
                     }
