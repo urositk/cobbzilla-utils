@@ -20,6 +20,7 @@ public class ResultSetBean {
     public boolean isEmpty () { return rows.isEmpty(); }
 
     public Map<String, Object> first () { return rows.get(0); }
+    public int count () { return Integer.parseInt(rows.get(0).entrySet().iterator().next().getValue().toString()); }
 
     public ResultSetBean (ResultSet rs) throws SQLException {
         final ResultSetMetaData rsMetaData = rs.getMetaData();
