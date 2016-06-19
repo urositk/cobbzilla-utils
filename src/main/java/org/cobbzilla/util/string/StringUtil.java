@@ -377,7 +377,11 @@ public class StringUtil {
     }
 
     public static String snakeCaseToCamelCase(String snake) {
-        return uncapitalize(CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, snake));
+        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, snake);
+    }
+
+    public static String camelCaseToSnakeCase(String camel) {
+        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, camel);
     }
 
     public static String formatCents(int cents) { return "" + (cents/100) + (cents % 100 == 0 ? "" : (cents % 100 > 10) ? "."+ (cents % 100) : ".0"+(cents % 100)); }
