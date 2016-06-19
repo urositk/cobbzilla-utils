@@ -1,5 +1,6 @@
 package org.cobbzilla.util.string;
 
+import com.google.common.base.CaseFormat;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.LocaleUtils;
@@ -131,7 +132,11 @@ public class StringUtil {
         }
     }
 
-    private static String chopSuffix(String val) { return val.substring(0, val.length()-1); }
+    public static String chopSuffix(String val) { return val.substring(0, val.length()-1); }
+
+    public static String chopToFirst(String val, String find) {
+        return !val.contains(find) ? val : val.substring(val.indexOf(find) + find.length());
+    }
 
     public static String trimQuotes (String s) {
         if (s == null) return s;
@@ -369,6 +374,10 @@ public class StringUtil {
             b.append(c);
         }
         return b.toString();
+    }
+
+    public static String snakeCaseToCamelCase(String snake) {
+        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, snake);
     }
 
     public static String formatCents(int cents) { return "" + (cents/100) + (cents % 100 == 0 ? "" : (cents % 100 > 10) ? "."+ (cents % 100) : ".0"+(cents % 100)); }
