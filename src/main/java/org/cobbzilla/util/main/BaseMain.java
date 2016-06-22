@@ -58,9 +58,7 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
         System.exit(0);
     }
 
-    public void showHelpAndExit(String error) {
-        showHelpAndExit(new IllegalArgumentException(error));
-    }
+    public void showHelpAndExit(String error) { showHelpAndExit(new IllegalArgumentException(error)); }
 
     public void showHelpAndExit(Exception e) {
         parser.printUsage(System.err);
