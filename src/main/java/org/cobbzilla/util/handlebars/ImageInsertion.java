@@ -16,6 +16,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 @NoArgsConstructor @Accessors(chain=true)
 public class ImageInsertion {
 
+    @Getter @Setter private String name = null;
     @Getter @Setter private int page = 0;
     @Getter @Setter private float x;
     @Getter @Setter private float y;
@@ -36,6 +37,7 @@ public class ImageInsertion {
             final String key = part.substring(0, eqPos).trim();
             final String value = part.substring(eqPos+1).trim();
             switch (key) {
+                case "name":   this.name   = value; break;
                 case "page":   this.page   = Integer.parseInt(value); break;
                 case "x":      this.x      = Float.parseFloat(value); break;
                 case "y":      this.y      = Float.parseFloat(value); break;

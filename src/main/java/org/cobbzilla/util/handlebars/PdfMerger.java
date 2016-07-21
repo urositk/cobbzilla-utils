@@ -29,6 +29,7 @@ public class PdfMerger {
                                Handlebars handlebars) throws Exception {
 
         final Map<String, String> fieldMappings = (Map<String, String>) context.get("fields");
+        final Map<String, ImageInsertion> imageInsertions = (Map<String, ImageInsertion>) context.get("imageInsertions");
 
         // load the document
         final PDDocument pdfDocument = PDDocument.load(in);
@@ -47,10 +48,12 @@ public class PdfMerger {
                     }
                     if (field instanceof PDCheckBox) {
                         PDCheckBox box = (PDCheckBox) field;
-                        if (!empty(fieldValue) && Boolean.valueOf(fieldValue)) {
-                            box.check();
-                        } else {
-                            box.unCheck();
+                        if (!empty(fieldValue)) {
+                            if (Boolean.valueOf(fieldValue)) {
+                                box.check();
+                            } else {
+                                box.unCheck();
+                            }
                         }
 
                     } else {
@@ -68,24 +71,20 @@ public class PdfMerger {
         }
 
         // add images
-        if (fieldMappings != null) {
-            for (Map.Entry<String, String> fieldEntries : fieldMappings.entrySet()) {
-                if (fieldEntries.getKey().startsWith("@")) {
-                    final ImageInsertion insertion = new ImageInsertion(fieldEntries.getValue());
+        if (!empty(imageInsertions)) {
+            for (ImageInsertion insertion : imageInsertions.values()) {
+                // write image to temp file
+                @Cleanup("delete") final File imageTemp = temp("."+insertion.getFormat());
+                FileUtil.toFile(imageTemp, insertion.getImageStream());
 
-                    // write image to temp file
-                    @Cleanup("delete") final File imageTemp = temp("."+insertion.getFormat());
-                    FileUtil.toFile(imageTemp, insertion.getImageStream());
+                // open stream for writing inserted image
+                final PDPage page = pdfDocument.getDocumentCatalog().getPages().get(insertion.getPage());
+                final PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, page, PDPageContentStream.AppendMode.APPEND, true);
 
-                    // open stream for writing inserted image
-                    final PDPage page = pdfDocument.getDocumentCatalog().getPages().get(insertion.getPage());
-                    final PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, page, PDPageContentStream.AppendMode.APPEND, true);
-
-                    // draw image on page
-                    final PDImageXObject image = PDImageXObject.createFromFile(abs(imageTemp), pdfDocument);
-                    contentStream.drawImage(image, insertion.getX(), insertion.getY(), insertion.getWidth(), insertion.getHeight());
-                    contentStream.close();
-                }
+                // draw image on page
+                final PDImageXObject image = PDImageXObject.createFromFile(abs(imageTemp), pdfDocument);
+                contentStream.drawImage(image, insertion.getX(), insertion.getY(), insertion.getWidth(), insertion.getHeight());
+                contentStream.close();
             }
         }
 
