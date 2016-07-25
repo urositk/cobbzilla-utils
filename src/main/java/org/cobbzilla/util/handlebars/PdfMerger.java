@@ -67,7 +67,10 @@ public class PdfMerger {
                 } catch (Exception e) {
                     die("merge: "+e, e);
                 }
+                field.setReadOnly(true);
+                field.getCOSObject().setInt("Ff", 1);
             }
+            acroForm.flatten();
         }
 
         // add images
