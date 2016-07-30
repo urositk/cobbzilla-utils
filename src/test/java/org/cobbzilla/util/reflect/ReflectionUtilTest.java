@@ -9,6 +9,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.fail;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 
 public class ReflectionUtilTest {
 
@@ -31,7 +32,7 @@ public class ReflectionUtilTest {
 
     @Test public void testGetSet () throws Exception {
 
-        Long testValue = System.currentTimeMillis();
+        Long testValue = now();
         Dummy dummy = new Dummy(testValue, NAME);
         assertEquals(ReflectionUtil.get(dummy, ID), testValue);
 

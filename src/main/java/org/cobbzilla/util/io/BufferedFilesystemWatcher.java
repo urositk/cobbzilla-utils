@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 import static org.cobbzilla.util.daemon.ZillaRuntime.terminate;
 import static org.cobbzilla.util.io.FileUtil.abs;
 
@@ -65,7 +66,7 @@ public abstract class BufferedFilesystemWatcher extends FilesystemWatcher implem
         super.close();
     }
 
-    private boolean beenTooLong() { return System.currentTimeMillis() - lastFlush > timeout; }
+    private boolean beenTooLong() { return now() - lastFlush > timeout; }
     private boolean bufferTooBig() { return InspectCollection.isLargerThan(buffer, maxEvents); }
 
     private boolean shouldFlush() { return bufferTooBig() || (!buffer.isEmpty() && beenTooLong()); }
@@ -99,7 +100,7 @@ public abstract class BufferedFilesystemWatcher extends FilesystemWatcher implem
             }
         }
         if (!events.isEmpty()) fire(events);
-        lastFlush = System.currentTimeMillis();
+        lastFlush = now();
     }
 
 }

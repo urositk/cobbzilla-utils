@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 @Slf4j
@@ -77,9 +78,9 @@ public abstract class SimpleDaemon implements Runnable {
      */
     public void stopWithPossibleKill(long wait) {
         stop();
-        long start = System.currentTimeMillis();
+        long start = now();
         while (getIsAlive()
-                && (System.currentTimeMillis() - start < wait)) {
+                && (now() - start < wait)) {
             sleep(25, "stopWithPossibleKill");
         }
         if (getIsAlive()) {
@@ -105,7 +106,7 @@ public abstract class SimpleDaemon implements Runnable {
             while (!isDone) {
                 log.debug(name + ": Daemon thread invoking process");
                 process();
-                lastProcessTime = System.currentTimeMillis();
+                lastProcessTime = now();
                 if (isDone) return;
                 sleep(getSleepTime(), "run[post-processing]");
             }

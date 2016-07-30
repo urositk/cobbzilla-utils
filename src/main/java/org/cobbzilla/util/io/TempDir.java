@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
@@ -34,12 +35,12 @@ public class TempDir extends File implements Closeable {
             if (killTime == k.getKillTime()) return 0;
             return -1;
         }
-        public boolean shouldKill() { return System.currentTimeMillis() > killTime; }
+        public boolean shouldKill() { return now() > killTime; }
     }
 
     private static class QuickTempReaper implements Runnable {
         private final SortedSet<FileKillOrder> temps = new ConcurrentSkipListSet<>();
-        public File add (File t) { return add(t, System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5)); }
+        public File add (File t) { return add(t, now() + TimeUnit.MINUTES.toMillis(5)); }
         public File add (File t, long killTime) {
             synchronized (temps) {
                 temps.add(new FileKillOrder(t, killTime));
@@ -76,7 +77,7 @@ public class TempDir extends File implements Closeable {
     public static File quickTemp(final long killAfter) {
         try {
             if (killAfter > 0) {
-                long killTime = killAfter + System.currentTimeMillis();
+                long killTime = killAfter + now();
                 return qtReaper.add(File.createTempFile("quickTemp-", ".tmp"), killTime);
             } else {
                 return File.createTempFile("quickTemp-", ".tmp");

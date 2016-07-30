@@ -17,6 +17,7 @@ import java.util.StringTokenizer;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 import static org.cobbzilla.util.reflect.ReflectionUtil.copy;
 
 @NoArgsConstructor @Accessors(chain=true) @Slf4j
@@ -111,12 +112,12 @@ public class HttpCookieBean {
     }
 
     public boolean expired (long expiration) {
-        return (maxAge != null && System.currentTimeMillis() + maxAge < expiration)
+        return (maxAge != null && now() + maxAge < expiration)
                 || (expires != null && getExpiredDateTime().isBefore(expiration));
     }
 
     @JsonIgnore public Date getExpiryDate () {
-        if (maxAge != null) return new Date(System.currentTimeMillis() + maxAge);
+        if (maxAge != null) return new Date(now() + maxAge);
         if (expires != null) return getExpiredDateTime().toDate();
         return null;
     }

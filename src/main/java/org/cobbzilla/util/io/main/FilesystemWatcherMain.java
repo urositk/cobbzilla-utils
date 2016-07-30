@@ -12,6 +12,8 @@ import org.joda.time.format.DateTimeFormatter;
 import java.nio.file.WatchEvent;
 import java.util.List;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.now;
+
 @Slf4j
 public class FilesystemWatcherMain extends BaseMain<FilesystemWatcherMainOptions> {
 
@@ -30,7 +32,7 @@ public class FilesystemWatcherMain extends BaseMain<FilesystemWatcherMainOptions
                     if (options.hasCommand()) {
                         CommandShell.exec(new CommandLine(options.getCommand()));
                     } else {
-                        final String msg = status() + " uber_fire ("+events.size()+" events) at " + DFORMAT.print(System.currentTimeMillis());
+                        final String msg = status() + " uber_fire ("+events.size()+" events) at " + DFORMAT.print(now());
                         log.info(msg);
                         System.out.println(msg);
                     }

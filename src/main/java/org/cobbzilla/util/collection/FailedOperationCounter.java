@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.now;
+
 @NoArgsConstructor @AllArgsConstructor @Accessors(chain=true) @Slf4j
 public class FailedOperationCounter<T> extends ConcurrentHashMap<T, Map<Long, Long>> {
 
@@ -24,7 +26,7 @@ public class FailedOperationCounter<T> extends ConcurrentHashMap<T, Map<Long, Lo
             failures = new ConcurrentHashMap<>();
             put(value, failures);
         }
-        final long ftime = System.currentTimeMillis();
+        final long ftime = now();
         failures.put(ftime, ftime);
     }
 
@@ -34,7 +36,7 @@ public class FailedOperationCounter<T> extends ConcurrentHashMap<T, Map<Long, Lo
         int count = 0;
         for (Iterator<Long> iter = failures.keySet().iterator(); iter.hasNext();) {
             Long ftime = iter.next();
-            if (System.currentTimeMillis() - ftime > expiration) {
+            if (now() - ftime > expiration) {
                 iter.remove();
             } else {
                 if (++count >= maxFailures) return true;

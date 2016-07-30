@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 import static org.cobbzilla.util.string.StringUtil.DEFAULT_LOCALE;
 
 /**
@@ -48,12 +49,12 @@ public class LocaleAwareMustacheFactory extends DefaultMustacheFactory {
         return getFactory(fileRoot, (locale == null) ? DEFAULT_LOCALE : locale.toString());
     }
 
-    private static final AtomicLong lastRefresh = new AtomicLong(System.currentTimeMillis());
+    private static final AtomicLong lastRefresh = new AtomicLong(now());
     private static final long REFRESH_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
     public synchronized static LocaleAwareMustacheFactory getFactory(File fileRoot, String locale) throws ExecutionException {
         if (locale == null) locale = DEFAULT_LOCALE;
-        if (System.currentTimeMillis() > lastRefresh.longValue() + REFRESH_INTERVAL) {
+        if (now() > lastRefresh.longValue() + REFRESH_INTERVAL) {
             flushCache();
         }
         return factoryLoadingCache.get(new LAMFCacheKey(fileRoot, locale));
@@ -61,7 +62,7 @@ public class LocaleAwareMustacheFactory extends DefaultMustacheFactory {
 
     public static void flushCache() {
         factoryLoadingCache.invalidateAll();
-        lastRefresh.set(System.currentTimeMillis());
+        lastRefresh.set(now());
     }
 
     public LocaleAwareMustacheFactory (File fileRoot, Locale locale) {

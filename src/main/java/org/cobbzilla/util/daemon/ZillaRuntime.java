@@ -1,5 +1,7 @@
 package org.cobbzilla.util.daemon;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 
@@ -104,7 +106,8 @@ public class ZillaRuntime {
 
     public static String uuid() { return UUID.randomUUID().toString(); }
 
-    public static long now() { return System.currentTimeMillis(); }
+    @Getter @Setter private static long systemTimeOffset = 0;
+    public static long now() { return System.currentTimeMillis() + systemTimeOffset; }
 
     public static <T> T pickRandom(T[] things) { return things[RandomUtils.nextInt(0, things.length)]; }
     public static <T> T pickRandom(List<T> things) { return things.get(RandomUtils.nextInt(0, things.size())); }
