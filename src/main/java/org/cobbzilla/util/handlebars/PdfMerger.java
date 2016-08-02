@@ -3,6 +3,8 @@ package org.cobbzilla.util.handlebars;
 import com.github.jknack.handlebars.Handlebars;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.io.MemoryUsageSetting;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -12,9 +14,8 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.List;
 import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
@@ -142,4 +143,22 @@ public class PdfMerger {
         contentStream.drawImage(image, insertion.getX(), insertion.getY(), insertion.getWidth(), insertion.getHeight());
         contentStream.close();
     }
+
+    public static void concatenate(List infiles, OutputStream out, long maxMemory, long maxDisk) throws IOException {
+        final PDFMergerUtility merger = new PDFMergerUtility();
+        for (Object infile : infiles) {
+            if (infile instanceof File) {
+                merger.addSource((File) infile);
+            } else if (infile instanceof InputStream) {
+                merger.addSource((InputStream) infile);
+            } else if (infile instanceof String) {
+                merger.addSource((String) infile);
+            } else {
+                die("concatenate: invalid infile ("+infile.getClass().getName()+"): "+infile);
+            }
+        }
+        merger.setDestinationStream(out);
+        merger.mergeDocuments(MemoryUsageSetting.setupMixed(maxMemory, maxDisk));
+    }
+
 }
