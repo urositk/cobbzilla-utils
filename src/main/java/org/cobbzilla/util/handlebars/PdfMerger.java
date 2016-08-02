@@ -10,6 +10,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
+import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
 import org.cobbzilla.util.io.FileUtil;
 
 import java.io.File;
@@ -23,6 +24,18 @@ import static org.cobbzilla.util.io.FileUtil.temp;
 
 @Slf4j
 public class PdfMerger {
+
+    public static final String NULL_FORM_VALUE = "þÿ";
+
+    public static void merge(InputStream in,
+                             File outfile,
+                             Map<String, Object> context,
+                             Handlebars handlebars) throws Exception {
+        final File[] out = merge(in, context, handlebars);
+        if (empty(out)) die("merge: no outfiles generated");
+        if (out.length > 1) die("merge: multiple outfiles generated");
+        if (!out[0].renameTo(outfile)) die("merge: error renaming "+abs(out[0])+"->"+abs(outfile));
+    }
 
     public static File[] merge(InputStream in,
                                Map<String, Object> context,
@@ -39,6 +52,8 @@ public class PdfMerger {
 
         // as there might not be an AcroForm entry a null check is necessary
         if (acroForm != null) {
+            acroForm.setNeedAppearances(false);
+
             // Retrieve an individual field and set its value.
             for (PDField field : acroForm.getFields()) {
                 try {
@@ -58,6 +73,11 @@ public class PdfMerger {
 
                     } else {
                         String formValue = field.getValueAsString();
+                        if (formValue.equals(NULL_FORM_VALUE)) formValue = null;
+                        if (empty(formValue) && field instanceof PDTextField) {
+                            formValue = ((PDTextField) field).getDefaultValue();
+                            if (formValue.equals(NULL_FORM_VALUE)) formValue = null;
+                        }
                         if (empty(formValue)) formValue = fieldValue;
                         if (!empty(formValue)) {
                             formValue = HandlebarsUtil.apply(handlebars, formValue, context);
