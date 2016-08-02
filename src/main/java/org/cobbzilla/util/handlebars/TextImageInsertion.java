@@ -20,6 +20,8 @@ import static org.cobbzilla.util.io.FileUtil.temp;
 public class TextImageInsertion extends ImageInsertion {
 
     @Getter @Setter private String content;
+    public void capitalizeContent() { content = content == null ? null : content.toUpperCase(); }
+
     @Getter @Setter private String fontFamily = "Arial";
     @Getter @Setter private String fontStyle = "plain";
     @Getter @Setter private String fontColor = "000000";

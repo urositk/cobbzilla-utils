@@ -1,5 +1,6 @@
 package org.cobbzilla.util.handlebars;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,7 +24,7 @@ public abstract class ImageInsertion {
     @Getter @Setter private float height = 0;
     @Getter @Setter private String format = "png";
 
-    public abstract File getImageFile() throws IOException;
+    @JsonIgnore public abstract File getImageFile() throws IOException;
 
     public ImageInsertion(String spec) {
         for (String part : StringUtil.split(spec, ", ")) {

@@ -1,6 +1,7 @@
 package org.cobbzilla.util.time;
 
 import org.joda.time.DateTime;
+import org.joda.time.DurationFieldType;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.util.concurrent.TimeUnit;
@@ -24,7 +25,6 @@ public class TimeUtil {
     }
 
     public static String formatDurationFrom(long start) {
-
         long duration = now() - start;
         return formatDuration(duration);
     }
@@ -51,5 +51,9 @@ public class TimeUtil {
 
         if (days > 0) return String.format("%1$01dd %2$02d:%3$02d:%4$02d.%5$04d", days, hours, mins, secs, millis);
         return String.format("%1$02d:%2$02d:%3$02d.%4$04d", hours, mins, secs, millis);
+    }
+
+    public static long add365days (long time) {
+        return new DateTime(time).withFieldAdded(DurationFieldType.days(), 365).getMillis();
     }
 }
