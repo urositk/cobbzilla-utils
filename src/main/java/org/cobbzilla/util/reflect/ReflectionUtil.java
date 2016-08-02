@@ -127,8 +127,32 @@ public class ReflectionUtil {
      * @return A new instance of clazz, created using a constructor that matched argument's class.
      */
     public static <T> T instantiate(Class<T> clazz, Object argument) {
+        Constructor<T> constructor = null;
+        Class<?> tryClass = argument.getClass();
+        while (constructor == null) {
+            try {
+                constructor = clazz.getConstructor(tryClass);
+            } catch (NoSuchMethodException e) {
+                if (tryClass.equals(Object.class)) {
+                    // try interfaces
+                    for (Class<?> iface : argument.getClass().getInterfaces()) {
+                        try {
+                            constructor = clazz.getConstructor(iface);
+                        } catch (NoSuchMethodException e2) {
+                            // noop
+                        }
+                    }
+                    break;
+                } else {
+                    tryClass = tryClass.getSuperclass();
+                }
+            }
+        }
+        if (constructor == null) {
+            die("instantiate: no constructor could be found for class "+clazz.getName()+", argument type "+argument.getClass().getName());
+        }
         try {
-            return clazz.getConstructor(argument.getClass()).newInstance(argument);
+            return constructor.newInstance(argument);
         } catch (Exception e) {
             return die("instantiate("+clazz.getName()+", "+argument+"): "+e, e);
         }
