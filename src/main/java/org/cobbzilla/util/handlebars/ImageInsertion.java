@@ -1,53 +1,58 @@
 package org.cobbzilla.util.handlebars;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.apache.commons.codec.binary.Base64InputStream;
 import org.cobbzilla.util.string.StringUtil;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
 @NoArgsConstructor @Accessors(chain=true)
-public class ImageInsertion {
+public abstract class ImageInsertion {
 
     @Getter @Setter private String name = null;
     @Getter @Setter private int page = 0;
     @Getter @Setter private float x;
     @Getter @Setter private float y;
-    @Getter @Setter private float width;
-    @Getter @Setter private float height;
-    @Getter @Setter private String image; // base64-encoded image data
-    @Getter @Setter private String format;
+    @Getter @Setter private float width = 0;
+    @Getter @Setter private float height = 0;
+    @Getter @Setter private String format = "png";
 
-    @JsonIgnore public InputStream getImageStream () {
-        return new Base64InputStream(new ByteArrayInputStream(image.getBytes()));
-    }
+    public abstract File getImageFile() throws IOException;
 
-    public ImageInsertion (String spec) {
+    public ImageInsertion(String spec) {
         for (String part : StringUtil.split(spec, ", ")) {
             final int eqPos = part.indexOf("=");
             if (eqPos == -1) die("invalid image insertion (missing '='): "+spec);
             if (eqPos == part.length()-1) die("invalid image insertion (no value): "+spec);
             final String key = part.substring(0, eqPos).trim();
             final String value = part.substring(eqPos+1).trim();
-            switch (key) {
-                case "name":   this.name   = value; break;
-                case "page":   this.page   = Integer.parseInt(value); break;
-                case "x":      this.x      = Float.parseFloat(value); break;
-                case "y":      this.y      = Float.parseFloat(value); break;
-                case "width":  this.width  = Float.parseFloat(value); break;
-                case "height": this.height = Float.parseFloat(value); break;
-                case "image":  this.image  = value; break;
-                case "format": this.format = value; break;
-                default: die("invalid parameter: "+key);
-            }
+            setField(key, value);
         }
     }
 
+    public void init (Map<String, Object> map) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            setField(entry.getKey(), entry.getValue().toString());
+        }
+    }
+
+    protected void setField(String key, String value) {
+        switch (key) {
+            case "name":   this.name   = value; break;
+            case "page":   this.page   = Integer.parseInt(value); break;
+            case "x":      this.x      = Float.parseFloat(value); break;
+            case "y":      this.y      = Float.parseFloat(value); break;
+            case "width":  this.width  = Float.parseFloat(value); break;
+            case "height": this.height = Float.parseFloat(value); break;
+            case "format": this.format = value; break;
+            default: die("invalid parameter: "+key);
+        }
+
+    }
 }

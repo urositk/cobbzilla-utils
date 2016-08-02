@@ -11,9 +11,9 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
-import org.cobbzilla.util.io.FileUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -21,6 +21,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.temp;
+import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
 
 @Slf4j
 public class PdfMerger {
@@ -42,7 +43,6 @@ public class PdfMerger {
                                Handlebars handlebars) throws Exception {
 
         final Map<String, String> fieldMappings = (Map<String, String>) context.get("fields");
-        final Map<String, ImageInsertion> imageInsertions = (Map<String, ImageInsertion>) context.get("imageInsertions");
 
         // load the document
         final PDDocument pdfDocument = PDDocument.load(in);
@@ -94,20 +94,18 @@ public class PdfMerger {
         }
 
         // add images
+        final Map<String, Object> imageInsertions = (Map<String, Object>) context.get("imageInsertions");
         if (!empty(imageInsertions)) {
-            for (ImageInsertion insertion : imageInsertions.values()) {
-                // write image to temp file
-                @Cleanup("delete") final File imageTemp = temp("."+insertion.getFormat());
-                FileUtil.toFile(imageTemp, insertion.getImageStream());
+            for (Object insertion : imageInsertions.values()) {
+                insertImage(pdfDocument, insertion, Base64ImageInsertion.class);
+            }
+        }
 
-                // open stream for writing inserted image
-                final PDPage page = pdfDocument.getDocumentCatalog().getPages().get(insertion.getPage());
-                final PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, page, PDPageContentStream.AppendMode.APPEND, true);
-
-                // draw image on page
-                final PDImageXObject image = PDImageXObject.createFromFile(abs(imageTemp), pdfDocument);
-                contentStream.drawImage(image, insertion.getX(), insertion.getY(), insertion.getWidth(), insertion.getHeight());
-                contentStream.close();
+        // add text
+        final Map<String, Object> textInsertions = (Map<String, Object>) context.get("textInsertions");
+        if (!empty(textInsertions)) {
+            for (Object insertion : textInsertions.values()) {
+                insertImage(pdfDocument, insertion, TextImageInsertion.class);
             }
         }
 
@@ -118,5 +116,30 @@ public class PdfMerger {
         pdfDocument.close();
 
         return new File[] { output };
+    }
+
+    protected static void insertImage(PDDocument pdfDocument, Object insert, Class<? extends ImageInsertion> clazz) throws IOException {
+        final ImageInsertion insertion;
+        if (insert instanceof ImageInsertion) {
+            insertion = (ImageInsertion) insert;
+        } else if (insert instanceof Map) {
+            insertion = instantiate(clazz);
+            insertion.init((Map<String, Object>) insert);
+        } else {
+            die("insertImage("+clazz.getSimpleName()+"): invalid object: "+insert);
+            return;
+        }
+
+        // write image to temp file
+        @Cleanup("delete") final File imageTemp = insertion.getImageFile();
+
+        // open stream for writing inserted image
+        final PDPage page = pdfDocument.getDocumentCatalog().getPages().get(insertion.getPage());
+        final PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, page, PDPageContentStream.AppendMode.APPEND, true);
+
+        // draw image on page
+        final PDImageXObject image = PDImageXObject.createFromFile(abs(imageTemp), pdfDocument);
+        contentStream.drawImage(image, insertion.getX(), insertion.getY(), insertion.getWidth(), insertion.getHeight());
+        contentStream.close();
     }
 }
