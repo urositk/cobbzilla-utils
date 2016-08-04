@@ -37,15 +37,14 @@ public class PdfMerger {
                              File outfile,
                              Map<String, Object> context,
                              Handlebars handlebars) throws Exception {
-        final File[] out = merge(in, context, handlebars);
+        final File out = merge(in, context, handlebars);
         if (empty(out)) die("merge: no outfiles generated");
-        if (out.length > 1) die("merge: multiple outfiles generated");
-        if (!out[0].renameTo(outfile)) die("merge: error renaming "+abs(out[0])+"->"+abs(outfile));
+        if (!out.renameTo(outfile)) die("merge: error renaming "+abs(out)+"->"+abs(outfile));
     }
 
-    public static File[] merge(InputStream in,
-                               Map<String, Object> context,
-                               Handlebars handlebars) throws Exception {
+    public static File merge(InputStream in,
+                             Map<String, Object> context,
+                             Handlebars handlebars) throws Exception {
 
         final Map<String, String> fieldMappings = (Map<String, String>) context.get("fields");
 
@@ -121,7 +120,7 @@ public class PdfMerger {
         pdfDocument.save(output);
         pdfDocument.close();
 
-        return new File[] { output };
+        return output;
     }
 
     protected static void insertImage(PDDocument pdfDocument, Object insert, Class<? extends ImageInsertion> clazz) throws IOException {
