@@ -1,7 +1,6 @@
 package org.cobbzilla.util.handlebars;
 
 import com.github.jknack.handlebars.Handlebars;
-import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -136,16 +135,22 @@ public class PdfMerger {
         }
 
         // write image to temp file
-        @Cleanup("delete") final File imageTemp = insertion.getImageFile();
+        File imageTemp = null;
+        try {
+            imageTemp = insertion.getImageFile();
+            if (imageTemp != null) {
+                // open stream for writing inserted image
+                final PDPage page = pdfDocument.getDocumentCatalog().getPages().get(insertion.getPage());
+                final PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, page, PDPageContentStream.AppendMode.APPEND, true);
 
-        // open stream for writing inserted image
-        final PDPage page = pdfDocument.getDocumentCatalog().getPages().get(insertion.getPage());
-        final PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, page, PDPageContentStream.AppendMode.APPEND, true);
-
-        // draw image on page
-        final PDImageXObject image = PDImageXObject.createFromFile(abs(imageTemp), pdfDocument);
-        contentStream.drawImage(image, insertion.getX(), insertion.getY(), insertion.getWidth(), insertion.getHeight());
-        contentStream.close();
+                // draw image on page
+                final PDImageXObject image = PDImageXObject.createFromFile(abs(imageTemp), pdfDocument);
+                contentStream.drawImage(image, insertion.getX(), insertion.getY(), insertion.getWidth(), insertion.getHeight());
+                contentStream.close();
+            }
+        } finally {
+            if (imageTemp != null && !imageTemp.delete()) log.warn("insertImage("+clazz.getSimpleName()+"): error deleting image file: "+abs(imageTemp));
+        }
     }
 
     public static void concatenate(List infiles, OutputStream out, long maxMemory, long maxDisk) throws IOException {

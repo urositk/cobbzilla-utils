@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.io.FileUtil.temp;
 
 @NoArgsConstructor @Accessors(chain=true)
@@ -65,6 +66,7 @@ public class TextImageInsertion extends ImageInsertion {
 
     // adapted from: https://stackoverflow.com/a/18800845/1251543
     @Override public File getImageFile() {
+        if (empty(getContent())) return null;
 
         // Because font metrics is based on a graphics context, we need to create
         // a small, temporary image so we can ascertain the width and height
