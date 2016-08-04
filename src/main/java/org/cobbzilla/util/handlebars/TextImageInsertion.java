@@ -86,22 +86,25 @@ public class TextImageInsertion extends ImageInsertion {
             width = fm.stringWidth(getContent()) + getWidthPadding();
             height = fm.getHeight();
         } else {
-            final String[] words = getContent().split("\\s+");
-            StringBuilder b = new StringBuilder();
+            final String[] inLines = getContent().split("\n");
             int widest = -1;
-            for (String word : words) {
-                int stringWidth = fm.stringWidth(b.toString() + " " + word);
-                if (stringWidth + getWidthPadding() > getMaxWidth()) {
-                    if (b.length() == 0) die("getImageFile: word too long for maxWidth="+maxWidth+": "+word);
-                    lines.add(b.toString());
-                    b = new StringBuilder(word);
-                } else {
-                    if (b.length() > 0) b.append(" ");
-                    b.append(word);
-                    if (stringWidth > widest) widest = stringWidth;
+            for (String inLine : inLines) {
+                final String[] words = getContent().split("\\s+");
+                StringBuilder b = new StringBuilder();
+                for (String word : words) {
+                    int stringWidth = fm.stringWidth(b.toString() + " " + word);
+                    if (stringWidth + getWidthPadding() > getMaxWidth()) {
+                        if (b.length() == 0) die("getImageFile: word too long for maxWidth=" + maxWidth + ": " + word);
+                        lines.add(b.toString());
+                        b = new StringBuilder(word);
+                    } else {
+                        if (b.length() > 0) b.append(" ");
+                        b.append(word);
+                        if (stringWidth > widest) widest = stringWidth;
+                    }
                 }
+                lines.add(b.toString());
             }
-            lines.add(b.toString());
             width = widest + getWidthPadding();
             height = getLineY(fm, lines.size());
         }
