@@ -385,4 +385,14 @@ public class StringUtil {
     }
 
     public static String formatCents(int cents) { return "" + (cents/100) + (cents % 100 == 0 ? "" : (cents % 100 > 10) ? "."+ (cents % 100) : ".0"+(cents % 100)); }
+
+    public static String hexPath(String hex, int count) {
+        final StringBuilder b = new StringBuilder();
+        for (int i=0; i<count; i++) {
+            if (b.length() > 0) b.append("/");
+            b.append(hex.substring(i*2, i*2 + 2));
+        }
+        return b.toString();
+    }
+
 }

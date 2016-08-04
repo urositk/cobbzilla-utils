@@ -26,10 +26,8 @@ public class PdfMergeMain extends BaseMain<PdfMergeOptions> {
             out(abs(outfile));
 
         } else {
-            final File[] output = PdfMerger.merge(in, options.getContext(), getHandlebars());
-            for (File f : output) {
-                out(abs(f));
-            }
+            final File output = PdfMerger.merge(in, options.getContext(), getHandlebars());
+            out(abs(output));
         }
     }
 

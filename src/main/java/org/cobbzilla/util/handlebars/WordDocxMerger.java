@@ -21,10 +21,10 @@ import static org.cobbzilla.util.xml.TidyUtil.tidy;
 @Slf4j
 public class WordDocxMerger {
 
-    public static File[] merge(InputStream in,
-                               Map<String, Object> context,
-                               HtmlScreenCapture capture,
-                               Handlebars handlebars) throws Exception {
+    public static File merge(InputStream in,
+                             Map<String, Object> context,
+                             HtmlScreenCapture capture,
+                             Handlebars handlebars) throws Exception {
 
         // convert to HTML
         final XWPFDocument document = new XWPFDocument(in);
@@ -46,7 +46,7 @@ public class WordDocxMerger {
         final File pdfOutput = temp(".pdf");
         capture.capture(mergedHtml, pdfOutput);
 
-        return new File[] { mergedHtml, pdfOutput };
+        return pdfOutput;
     }
 
 }
