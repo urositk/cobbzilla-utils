@@ -89,7 +89,7 @@ public class TextImageInsertion extends ImageInsertion {
             final String[] inLines = getContent().split("\n");
             int widest = -1;
             for (String inLine : inLines) {
-                final String[] words = getContent().split("\\s+");
+                final String[] words = inLine.split("\\s+");
                 StringBuilder b = new StringBuilder();
                 for (String word : words) {
                     int stringWidth = fm.stringWidth(b.toString() + " " + word);
