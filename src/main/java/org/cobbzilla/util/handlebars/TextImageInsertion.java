@@ -78,16 +78,17 @@ public class TextImageInsertion extends ImageInsertion {
 
         FontMetrics fm = g2d.getFontMetrics();
         int width;
-        final int height;
-
+        int widest = -1;
         java.util.List<String> lines = new ArrayList<>();
+        final String[] inLines = getContent().split("\n");
         if (getMaxWidth() == -1) {
-            lines.add(getContent());
-            width = fm.stringWidth(getContent()) + getWidthPadding();
-            height = fm.getHeight();
+            for (String inLine : inLines) {
+                lines.add(inLine);
+                width = fm.stringWidth(getContent()) + getWidthPadding();
+                if (width > widest) widest = width;
+            }
+
         } else {
-            final String[] inLines = getContent().split("\n");
-            int widest = -1;
             for (String inLine : inLines) {
                 final String[] words = inLine.split("\\s+");
                 StringBuilder b = new StringBuilder();
@@ -105,9 +106,9 @@ public class TextImageInsertion extends ImageInsertion {
                 }
                 lines.add(b.toString());
             }
-            width = widest + getWidthPadding();
-            height = getLineY(fm, lines.size());
         }
+        width = widest + getWidthPadding();
+        final int height = getLineY(fm, lines.size());
         if (getWidth() == 0) setWidth(width);
         if (getHeight() == 0) setHeight(height);
 

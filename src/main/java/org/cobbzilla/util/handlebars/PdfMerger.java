@@ -31,6 +31,8 @@ import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
 public class PdfMerger {
 
     public static final String NULL_FORM_VALUE = "þÿ";
+    public static final String CTX_IMAGE_INSERTIONS = "imageInsertions";
+    public static final String CTX_TEXT_INSERTIONS = "textInsertions";
 
     public static void merge(InputStream in,
                              File outfile,
@@ -97,7 +99,7 @@ public class PdfMerger {
         }
 
         // add images
-        final Map<String, Object> imageInsertions = (Map<String, Object>) context.get("imageInsertions");
+        final Map<String, Object> imageInsertions = (Map<String, Object>) context.get(CTX_IMAGE_INSERTIONS);
         if (!empty(imageInsertions)) {
             for (Object insertion : imageInsertions.values()) {
                 insertImage(pdfDocument, insertion, Base64ImageInsertion.class);
@@ -105,7 +107,7 @@ public class PdfMerger {
         }
 
         // add text
-        final Map<String, Object> textInsertions = (Map<String, Object>) context.get("textInsertions");
+        final Map<String, Object> textInsertions = (Map<String, Object>) context.get(CTX_TEXT_INSERTIONS);
         if (!empty(textInsertions)) {
             for (Object insertion : textInsertions.values()) {
                 insertImage(pdfDocument, insertion, TextImageInsertion.class);
