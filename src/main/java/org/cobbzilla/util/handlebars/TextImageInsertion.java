@@ -68,53 +68,15 @@ public class TextImageInsertion extends ImageInsertion {
     @Override public File getImageFile() {
         if (empty(getContent())) return null;
 
-        // Because font metrics is based on a graphics context, we need to create
-        // a small, temporary image so we can ascertain the width and height
-        // of the final image
-        BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = img.createGraphics();
-        final Font font = new Font(getFontFamily(), getAwtFontStyle(), getFontSize());
-        g2d.setFont(font);
+        Graphics2D g2d = getGraphics2D();
 
-        FontMetrics fm = g2d.getFontMetrics();
-        int width;
-        int widest = -1;
-        java.util.List<String> lines = new ArrayList<>();
-        final String[] inLines = getContent().split("\n");
-        if (getMaxWidth() == -1) {
-            for (String inLine : inLines) {
-                lines.add(inLine);
-                width = fm.stringWidth(getContent()) + getWidthPadding();
-                if (width > widest) widest = width;
-            }
-
-        } else {
-            for (String inLine : inLines) {
-                final String[] words = inLine.split("\\s+");
-                StringBuilder b = new StringBuilder();
-                for (String word : words) {
-                    int stringWidth = fm.stringWidth(b.toString() + " " + word);
-                    if (stringWidth + getWidthPadding() > getMaxWidth()) {
-                        if (b.length() == 0) die("getImageFile: word too long for maxWidth=" + maxWidth + ": " + word);
-                        lines.add(b.toString());
-                        b = new StringBuilder(word);
-                    } else {
-                        if (b.length() > 0) b.append(" ");
-                        b.append(word);
-                        if (stringWidth > widest) widest = stringWidth;
-                    }
-                }
-                lines.add(b.toString());
-            }
-        }
-        width = widest + getWidthPadding();
-        final int height = getLineY(fm, lines.size());
-        if (getWidth() == 0) setWidth(width);
-        if (getHeight() == 0) setHeight(height);
+        final ParsedText txt = getParsedText(g2d);
+        if (getWidth() == 0) setWidth(txt.width);
+        if (getHeight() == 0) setHeight(txt.height);
 
         g2d.dispose();
 
-        img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        final BufferedImage img = new BufferedImage(txt.width, txt.height, BufferedImage.TYPE_INT_ARGB);
         g2d = img.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -124,12 +86,12 @@ public class TextImageInsertion extends ImageInsertion {
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-        g2d.setFont(font);
+        g2d.setFont(getFont());
 
-        fm = g2d.getFontMetrics();
+        final FontMetrics fm = g2d.getFontMetrics();
         g2d.setColor(getAwtFontColor());
-        for (int i=0; i<lines.size(); i++) {
-            final String line = lines.get(i);
+        for (int i=0; i<txt.lines.size(); i++) {
+            final String line = txt.lines.get(i);
             int y = getLineY(fm, i);
             g2d.drawString(line, 0, y);
         }
@@ -143,8 +105,63 @@ public class TextImageInsertion extends ImageInsertion {
         }
     }
 
-    protected int getLineY(FontMetrics fm, int i) {
-        return (i+1) * (fm.getAscent() + getLineSpacing());
+    protected ParsedText getParsedText() { return getParsedText(getGraphics2D()); }
+
+    private Graphics2D getGraphics2D() {
+        final BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g2d = img.createGraphics();
+        final Font font = getFont();
+        g2d.setFont(font);
+        return g2d;
     }
 
+    private Font getFont() {
+        return new Font(getFontFamily(), getAwtFontStyle(), getFontSize());
+    }
+
+    protected ParsedText getParsedText(Graphics2D g2d) {
+        FontMetrics fm = g2d.getFontMetrics();
+        final ParsedText txt = new ParsedText();
+        int widest = -1;
+        final String[] inLines = getContent().trim().split("\n");
+        if (getMaxWidth() == -1) {
+            for (String inLine : inLines) {
+                txt.lines.add(inLine);
+                txt.width = fm.stringWidth(getContent()) + getWidthPadding();
+                if (txt.width > widest) widest = txt.width;
+            }
+
+        } else {
+            for (String inLine : inLines) {
+                final String[] words = inLine.split("\\s+");
+                StringBuilder b = new StringBuilder();
+                for (String word : words) {
+                    int stringWidth = fm.stringWidth(b.toString() + " " + word);
+                    if (stringWidth + getWidthPadding() > getMaxWidth()) {
+                        if (b.length() == 0) die("getImageFile: word too long for maxWidth=" + maxWidth + ": " + word);
+                        txt.lines.add(b.toString());
+                        b = new StringBuilder(word);
+                    } else {
+                        if (b.length() > 0) b.append(" ");
+                        b.append(word);
+                        if (stringWidth > widest) widest = stringWidth;
+                    }
+                }
+                txt.lines.add(b.toString());
+            }
+        }
+        txt.width = widest + getWidthPadding();
+        txt.height = getLineY(fm, txt.lines.size());
+        return txt;
+    }
+
+    protected int getLineY(FontMetrics fm, int i) { return (i+1) * (fm.getAscent() + getLineSpacing()); }
+
+    public int determineHeight() { return getParsedText().height; }
+
+    private class ParsedText {
+        public java.util.List<String> lines = new ArrayList<>();
+        public int width;
+        public int height;
+    }
 }
