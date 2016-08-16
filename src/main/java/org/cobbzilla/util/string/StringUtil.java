@@ -57,6 +57,15 @@ public class StringUtil {
         return results;
     }
 
+    public static List<Long> splitLongs (String s, String delim) {
+        final StringTokenizer st = new StringTokenizer(s, delim);
+        final List<Long> results = new ArrayList<>();
+        while (st.hasMoreTokens()) {
+            results.add(Long.parseLong(st.nextToken()));
+        }
+        return results;
+    }
+
     public static List<String> splitAndTrim (String s, String delim) {
         final List<String> results = new ArrayList<>();
         if (empty(s)) return results;
