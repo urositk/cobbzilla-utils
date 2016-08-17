@@ -185,6 +185,11 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
         return values;
     }
 
+    public List<V> flatten(Collection<V> values) {
+        for (C collection : allValues()) values.addAll(collection);
+        return new ArrayList<>(values);
+    }
+
     @Override public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
