@@ -96,7 +96,7 @@ public class JsonUtilTest {
         for (Map.Entry<String, JsonNode> n1entry : n1fields.entrySet()) {
             if (!jsonEquals(n1entry.getValue(), n2fields.get(n1entry.getKey()))) return false;
         }
-        return false;
+        return true;
     }
 
     public static Map<String, JsonNode> toMap(ObjectNode node) {
