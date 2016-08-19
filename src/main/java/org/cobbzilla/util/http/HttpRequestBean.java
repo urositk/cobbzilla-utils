@@ -82,4 +82,10 @@ public class HttpRequestBean<T> {
         if (empty(values)) return null;
         return values.iterator().next();
     }
+
+    public static HttpRequestBean<String> get   (String path)              { return new HttpRequestBean<>(HttpMethods.GET, path); }
+    public static HttpRequestBean<String> put   (String path, String json) { return new HttpRequestBean<>(HttpMethods.PUT, path, json); }
+    public static HttpRequestBean<String> post  (String path, String json) { return new HttpRequestBean<>(HttpMethods.POST, path, json); }
+    public static HttpRequestBean<String> delete(String path)              { return new HttpRequestBean<>(HttpMethods.DELETE, path); }
+
 }
