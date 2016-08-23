@@ -26,11 +26,27 @@ public class ResultSetBean {
         final ResultSetMetaData rsMetaData = rs.getMetaData();
         final int numColumns = rsMetaData.getColumnCount();
         while (rs.next()){
-            final HashMap<String, Object> row = new HashMap<>(numColumns);
-            for(int i=1; i<=numColumns; ++i){
-                row.put(rsMetaData.getColumnName(i), rs.getObject(i));
-            }
+            final HashMap<String, Object> row = row2map(rs, rsMetaData, numColumns);
             rows.add(row);
         }
+    }
+
+    public static HashMap<String, Object> row2map(ResultSet rs) throws SQLException {
+        final ResultSetMetaData rsMetaData = rs.getMetaData();
+        final int numColumns = rsMetaData.getColumnCount();
+        return row2map(rs, rsMetaData, numColumns);
+    }
+
+    public static HashMap<String, Object> row2map(ResultSet rs, ResultSetMetaData rsMetaData) throws SQLException {
+        final int numColumns = rsMetaData.getColumnCount();
+        return row2map(rs, rsMetaData, numColumns);
+    }
+
+    public static HashMap<String, Object> row2map(ResultSet rs, ResultSetMetaData rsMetaData, int numColumns) throws SQLException {
+        final HashMap<String, Object> row = new HashMap<>(numColumns);
+        for(int i=1; i<=numColumns; ++i){
+            row.put(rsMetaData.getColumnName(i), rs.getObject(i));
+        }
+        return row;
     }
 }
