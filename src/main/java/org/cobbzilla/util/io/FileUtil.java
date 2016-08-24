@@ -174,7 +174,7 @@ public class FileUtil {
     }
 
     public static String toString (File f) throws IOException {
-        StringWriter writer = new StringWriter();
+        final StringWriter writer = new StringWriter();
         try (Reader r = new FileReader(f)) {
             IOUtils.copy(r, writer);
         }
@@ -182,7 +182,7 @@ public class FileUtil {
     }
 
     public static byte[] toBytes (File f) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         try (InputStream in = new FileInputStream(f)) {
             IOUtils.copy(in, out);
         }
@@ -207,7 +207,7 @@ public class FileUtil {
     }
 
     public static Properties toProperties (File f) throws IOException {
-        Properties props = new Properties();
+        final Properties props = new Properties();
         try (InputStream in = new FileInputStream(f)) {
             props.load(in);
         }
@@ -223,7 +223,7 @@ public class FileUtil {
     }
 
     public static Properties resourceToProperties (String path, Class clazz) throws IOException {
-        Properties props = new Properties();
+        final Properties props = new Properties();
         try (InputStream in = StreamUtil.loadResourceAsStream(path, clazz)) {
             props.load(in);
         }
@@ -315,7 +315,7 @@ public class FileUtil {
     }
 
     public static String toStringExcludingLines(File file, String prefix) throws IOException {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -327,7 +327,7 @@ public class FileUtil {
 
     public static String dirname(String path) {
         if (empty(path)) throw new NullPointerException("dirname: path was empty");
-        int pos = path.lastIndexOf('/');
+        final int pos = path.lastIndexOf('/');
         if (pos == -1) return ".";
         if (path.endsWith("/")) path = chop(path);
         return path.substring(0, pos);
@@ -335,7 +335,7 @@ public class FileUtil {
 
     public static String basename(String path) {
         if (empty(path)) throw new NullPointerException("basename: path was empty");
-        int pos = path.lastIndexOf('/');
+        final int pos = path.lastIndexOf('/');
         if (pos == -1) return path;
         if (pos == path.length()-1) throw new IllegalArgumentException("basename: invalid path: "+path);
         return path.substring(pos + 1);
@@ -382,7 +382,7 @@ public class FileUtil {
     public static String extension(File f) { return extension(abs(f)); }
 
     public static String extension(String name) {
-        int lastDot = name.lastIndexOf('.');
+        final int lastDot = name.lastIndexOf('.');
         if (lastDot == -1) return "";
         return name.substring(lastDot);
     }
