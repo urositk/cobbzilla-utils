@@ -157,6 +157,12 @@ public class JsonUtil {
 
     public static <T> T json(JsonNode json, Class<T> clazz) { return fromJsonOrDie(json, clazz); }
 
+    public static <T> List<T> json(JsonNode[] json, Class<T> clazz) {
+        final List<T> list = new ArrayList<>();
+        for (JsonNode node : json) list.add(json(node, clazz));
+        return list;
+    }
+
     public static <T> T jsonWithComments(String json, Class<T> clazz) { return fromJsonOrDie(json, clazz, FULL_MAPPER_ALLOW_COMMENTS); }
 
     public static <T> T fromJsonOrDie(String json, Class<T> clazz) {
