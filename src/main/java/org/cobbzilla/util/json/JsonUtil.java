@@ -375,6 +375,13 @@ public class JsonUtil {
         return mainNode;
     }
 
+    public static String mergeJsonOrDie(String json, String request) {
+        try {
+            return mergeJson(json, request);
+        } catch (Exception e) {
+            return die("mergeJsonOrDie: "+e, e);
+        }
+    }
     public static String mergeJson(String json, String request) throws Exception {
         return mergeJson(json, fromJson(request, JsonNode.class));
     }
