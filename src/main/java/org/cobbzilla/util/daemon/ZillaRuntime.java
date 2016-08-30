@@ -36,12 +36,16 @@ public class ZillaRuntime {
         }
     }
 
-    public static <T> T die(String message)              { throw new IllegalStateException(message); }
-    public static <T> T die(String message, Exception e) { throw new IllegalStateException(message, e); }
-    public static <T> T die(Exception e)                 { throw new IllegalStateException("(no message)", e); }
+    @Getter @Setter private static ErrorApi errorApi;
+
+    public static <T> T die(String message)              { return _throw(new IllegalStateException(message, null)); }
+    public static <T> T die(String message, Exception e) { return _throw(new IllegalStateException(message, e)); }
+    public static <T> T die(Exception e)                 { return _throw(new IllegalStateException("(no message)", e)); }
 
     public static <T> T notSupported()               { return notSupported("not supported"); }
-    public static <T> T notSupported(String message) { throw new UnsupportedOperationException(message); }
+    public static <T> T notSupported(String message) { return _throw(new UnsupportedOperationException(message)); }
+
+    private static <T> T _throw (RuntimeException e) { if (errorApi != null) errorApi.report(e); throw e; }
 
     public static boolean empty(String s) { return s == null || s.length() == 0; }
 
