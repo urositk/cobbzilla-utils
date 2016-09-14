@@ -501,4 +501,12 @@ public class FileUtil {
         }
     }
 
+    public static File temp (String prefix, String suffix, File dir) {
+        try {
+            return File.createTempFile(prefix, suffix, dir);
+        } catch (IOException e) {
+            return die("temp: "+e, e);
+        }
+    }
+
 }
