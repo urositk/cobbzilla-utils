@@ -22,9 +22,7 @@ public abstract class AutoRefreshingReference<T> {
         }
     }
 
-    public boolean isEmpty() {
-        synchronized (object) { return object.get() == null; }
-    }
+    public boolean isEmpty() { synchronized (object) { return object.get() == null; } }
 
     public void update() {
         synchronized (object) {
