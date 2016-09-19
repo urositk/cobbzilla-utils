@@ -12,13 +12,15 @@ import org.cobbzilla.util.string.StringUtil;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.http.HttpMethods.*;
 
 @NoArgsConstructor @ToString(of={"method", "uri"}) @Accessors(chain=true)
 public class HttpRequestBean<T> {
 
-    @Getter @Setter private String method = HttpMethods.GET;
+    @Getter @Setter private String method = GET;
     @Getter @Setter private String uri;
 
     @Getter @Setter private T data;
@@ -31,7 +33,7 @@ public class HttpRequestBean<T> {
     }
     public boolean hasHeaders () { return !empty(headers); }
 
-    public HttpRequestBean (String uri) { this(HttpMethods.GET, uri, null); }
+    public HttpRequestBean (String uri) { this(GET, uri, null); }
 
     public HttpRequestBean (String method, String uri) { this(method, uri, null); }
 
@@ -83,9 +85,23 @@ public class HttpRequestBean<T> {
         return values.iterator().next();
     }
 
-    public static HttpRequestBean<String> get   (String path)              { return new HttpRequestBean<>(HttpMethods.GET, path); }
-    public static HttpRequestBean<String> put   (String path, String json) { return new HttpRequestBean<>(HttpMethods.PUT, path, json); }
-    public static HttpRequestBean<String> post  (String path, String json) { return new HttpRequestBean<>(HttpMethods.POST, path, json); }
-    public static HttpRequestBean<String> delete(String path)              { return new HttpRequestBean<>(HttpMethods.DELETE, path); }
+    public static HttpRequestBean<String> get   (String path)              { return new HttpRequestBean<>(GET, path); }
+    public static HttpRequestBean<String> put   (String path, String json) { return new HttpRequestBean<>(PUT, path, json); }
+    public static HttpRequestBean<String> post  (String path, String json) { return new HttpRequestBean<>(POST, path, json); }
+    public static HttpRequestBean<String> delete(String path)              { return new HttpRequestBean<>(DELETE, path); }
 
+    public String cURL () {
+        // todo: add support for HTTP auth fields: authType/username/password
+        final StringBuilder b = new StringBuilder("curl '"+getUri()).append("'");
+        for (Map.Entry<String, Collection<String>> headerSet : getHeaders().asMap().entrySet()) {
+            final String name = headerSet.getKey();
+            for (String value : headerSet.getValue()) {
+                b.append(" -H '").append(name).append(": ").append(value).append("'");
+            }
+        }
+        if (getMethod().equals(PUT) || getMethod().equals(POST)) {
+            b.append(" --data-binary '").append(getData()).append("'");
+        }
+        return b.toString();
+    }
 }
