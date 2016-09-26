@@ -6,6 +6,7 @@ import com.github.jknack.handlebars.io.StringTemplateSource;
 import com.github.jknack.handlebars.io.TemplateSource;
 import lombok.AllArgsConstructor;
 import lombok.Cleanup;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -14,7 +15,7 @@ import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
-@AllArgsConstructor
+@AllArgsConstructor @Slf4j
 public class HandlebarsUtil extends AbstractTemplateLoader {
 
     private String sourceName = "unknown";
@@ -49,6 +50,9 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         } catch (Exception e) {
             return die("apply: "+e, e);
+        } catch (Error e) {
+            log.warn("apply: "+e, e);
+            throw e;
         }
     }
 
