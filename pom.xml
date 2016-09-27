@@ -167,6 +167,11 @@ cobbzilla-utils is available under the Apache License, version 2: http://www.apa
 
         <dependency>
             <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+            <version>${handlebars.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jknack</groupId>
             <artifactId>handlebars-jackson2</artifactId>
             <version>${handlebars.version}</version>
         </dependency>
