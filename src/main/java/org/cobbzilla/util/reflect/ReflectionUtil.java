@@ -239,7 +239,15 @@ public class ReflectionUtil {
      * @return count of fields copied
      */
     public static <T> int copy (T dest, T src, String[] fields) {
-        return copy(dest, src, fields, null);
+        int copyCount = 0;
+        for (String field : fields) {
+            final Object value = get(src, field);
+            if (value != null) {
+                set(dest, field, value);
+                copyCount++;
+            }
+        }
+        return copyCount;
     }
 
     /**
