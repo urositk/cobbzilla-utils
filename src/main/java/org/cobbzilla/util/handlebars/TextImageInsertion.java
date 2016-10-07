@@ -20,6 +20,8 @@ import static org.cobbzilla.util.io.FileUtil.temp;
 @NoArgsConstructor @Accessors(chain=true)
 public class TextImageInsertion extends ImageInsertion {
 
+    public static final TextImageInsertion[] NO_TEXT_INSERTIONS = new TextImageInsertion[0];
+
     @Getter @Setter private String content;
     public void capitalizeContent() { content = content == null ? null : content.toUpperCase(); }
 
