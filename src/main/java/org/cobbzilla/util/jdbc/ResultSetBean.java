@@ -9,6 +9,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @NoArgsConstructor(access=AccessLevel.PRIVATE)
@@ -49,4 +50,14 @@ public class ResultSetBean {
         }
         return row;
     }
+
+    public static List<String> getColumns(ResultSet rs, ResultSetMetaData rsMetaData) throws SQLException {
+        int columnCount = rsMetaData.getColumnCount();
+        final List<String> columns = new ArrayList<>(columnCount);
+        for (int i=1; i<=columnCount; ++i) {
+            columns.add(rsMetaData.getColumnName(i));
+        }
+        return columns;
+    }
+
 }
