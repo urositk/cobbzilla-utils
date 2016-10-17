@@ -30,7 +30,6 @@ public class XPathUtil {
 
     @Getter @Setter private Collection<String> pathExpressions;
     @Getter @Setter private boolean useTidy = true;
-    @Getter private transient Document document;
 
     public XPathUtil (String expr) { this(new String[] { expr }, true); }
     public XPathUtil (String expr, boolean useTidy) { this(new String[] { expr }, useTidy); }
@@ -47,6 +46,10 @@ public class XPathUtil {
 
     public List<Node> getFirstMatchList(InputStream in) throws ParserConfigurationException, IOException, SAXException, TransformerException {
         return applyXPaths(in).values().iterator().next();
+    }
+
+    public List<Node> getFirstMatchList(String xml) throws ParserConfigurationException, IOException, SAXException, TransformerException {
+        return applyXPaths(xml).values().iterator().next();
     }
 
     public Map<String, String> getFirstMatchMap(InputStream in) throws ParserConfigurationException, IOException, SAXException, TransformerException {
@@ -77,16 +80,22 @@ public class XPathUtil {
         return results;
     }
 
+    public Map<String, List<Node>> applyXPaths(String xml) throws ParserConfigurationException, TransformerException, SAXException, IOException {
+        return applyXPaths(new ByteArrayInputStream(xml.getBytes()));
+    }
+
     public Map<String, List<Node>> applyXPaths(InputStream in) throws ParserConfigurationException, IOException, SAXException, TransformerException {
+        final Document document = getDocument(in);
+        return applyXPaths(document, document);
+    }
 
+    public Map<String, List<Node>> applyXPaths(Document document, Node node) throws TransformerException {
         final Map<String, List<Node>> allFound = new HashMap<>();
-        document = getDocument(in);
-
         // Use the simple XPath API to select a nodeIterator.
         // System.out.println("Querying DOM using "+pathExpression);
         for (String xpath : this.pathExpressions) {
             final List<Node> found = new ArrayList<>();
-            NodeIterator nl = XPathAPI.selectNodeIterator(document, xpath);
+            NodeIterator nl = XPathAPI.selectNodeIterator(node, xpath);
 
             // Serialize the found nodes to System.out.
             // System.out.println("<output>");
@@ -119,7 +128,11 @@ public class XPathUtil {
         return allFound;
     }
 
-    protected Document getDocument(InputStream in) throws ParserConfigurationException, SAXException, IOException {
+    public Document getDocument(String xml) throws ParserConfigurationException, SAXException, IOException {
+        return getDocument(new ByteArrayInputStream(xml.getBytes()));
+    }
+
+    public Document getDocument(InputStream in) throws ParserConfigurationException, SAXException, IOException {
         InputStream inStream = in;
         if (useTidy) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
