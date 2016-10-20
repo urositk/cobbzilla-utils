@@ -14,18 +14,26 @@ public class StreamUtil {
     public static final String SUFFIX = ".tmp";
     public static final String PREFIX = "stream2file";
 
-    public static File stream2file (InputStream in) throws IOException {
+    public static File stream2file (InputStream in) {
         return stream2file(in, false);
     }
 
-    public static File stream2temp (InputStream in) throws IOException {
+    public static File stream2temp (InputStream in) {
         return stream2file(in, true);
     }
 
-    public static File stream2file (InputStream in, boolean temp) throws IOException {
-        final File file = File.createTempFile(PREFIX, SUFFIX);
-        if (temp) file.deleteOnExit();
-        return stream2file(in, file);
+    public static File stream2temp (String path) {
+        return stream2file(loadResourceAsStream(path), true);
+    }
+
+    public static File stream2file (InputStream in, boolean temp) {
+        try {
+            final File file = File.createTempFile(PREFIX, SUFFIX);
+            if (temp) file.deleteOnExit();
+            return stream2file(in, file);
+        } catch (IOException e) {
+            return die("stream2file: "+e, e);
+        }
     }
 
     public static File stream2file(InputStream in, File file) throws IOException {
