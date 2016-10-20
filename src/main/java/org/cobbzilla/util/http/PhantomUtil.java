@@ -6,6 +6,10 @@ import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import java.io.File;
+
+import static org.cobbzilla.util.io.FileUtil.abs;
+
 @AllArgsConstructor
 public class PhantomUtil {
 
@@ -24,12 +28,19 @@ public class PhantomUtil {
 
     public void execJs(String script) { getDriver().executePhantomJS(script); }
 
-    public static final String SCRIPT = "var page = require('webpage').create();\n" +
+    public static final String LOAD_AND_EXEC = "var page = require('webpage').create();\n" +
             "page.open('@@URL@@', function() {\n" +
             "  page.evaluateJavaScript('@@JS@@');\n" +
             "});\n";
 
+    public void loadPage (File file) { loadPageAndExec(file, "console.log('successfully loaded "+abs(file)+"')"); }
+    public void loadPage(String url) { loadPageAndExec(url, "console.log('successfully loaded "+url+"')"); }
+
+    public void loadPageAndExec(File file, String script) {
+        loadPageAndExec("file://"+abs(file), script);
+    }
+
     public void loadPageAndExec(String url, String script) {
-        execJs(SCRIPT.replace("@@URL@@", url).replace("@@JS@@", script));
+        execJs(LOAD_AND_EXEC.replace("@@URL@@", url).replace("@@JS@@", script));
     }
 }
