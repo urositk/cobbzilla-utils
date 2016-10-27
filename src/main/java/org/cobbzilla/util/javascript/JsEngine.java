@@ -12,7 +12,7 @@ import static org.cobbzilla.util.json.JsonUtil.fromJsonOrDie;
 
 public class JsEngine {
 
-    public static <T> T evaluate(String code, String scriptName, Map<String, Object> context, Class<T> returnType) {
+    public static <T> T evaluate(String code, Map<String, Object> context, String scriptName, Class<T> returnType) {
         final Context ctx = Context.enter();
         final Scriptable scope = ctx.initStandardObjects();
 
@@ -36,9 +36,23 @@ public class JsEngine {
         return result == null ? null : (T) Context.jsToJava(result, returnType);
     }
 
-    public static boolean evaluateBoolean(Map<String, Object> ctx, String script, String scriptName) {
-        final Object result = evaluate(script, scriptName, ctx, Object.class);
+    public static boolean evaluateBoolean(String script, Map<String, Object> ctx, String scriptName) {
+        final Object result = evaluate(script, ctx, scriptName, Object.class);
         return result == null ? false : Boolean.valueOf(result.toString().toLowerCase());
+    }
+
+    public static Integer evaluateInt(String script, Map<String, Object> ctx, String scriptName) {
+        final Object result = evaluate(script, ctx, scriptName, Object.class);
+        if (result == null) return null;
+        if (result instanceof Number) return ((Number) result).intValue();
+        return Integer.parseInt(result.toString().trim());
+    }
+
+    public static Long evaluateLong(String script, Map<String, Object> ctx, String scriptName) {
+        final Object result = evaluate(script, ctx, scriptName, Object.class);
+        if (result == null) return null;
+        if (result instanceof Number) return ((Number) result).longValue();
+        return Long.parseLong(result.toString().trim());
     }
 
     private static final String ESC_DOLLAR = "__ESCAPED_DOLLAR_SIGN__";
