@@ -36,20 +36,20 @@ public class JsEngine {
         return result == null ? null : (T) Context.jsToJava(result, returnType);
     }
 
-    public static boolean evaluateBoolean(String script, Map<String, Object> ctx, String scriptName) {
-        final Object result = evaluate(script, ctx, scriptName, Object.class);
+    public static boolean evaluateBoolean(String code, Map<String, Object> ctx, String scriptName) {
+        final Object result = evaluate(code, ctx, scriptName, Object.class);
         return result == null ? false : Boolean.valueOf(result.toString().toLowerCase());
     }
 
-    public static Integer evaluateInt(String script, Map<String, Object> ctx, String scriptName) {
-        final Object result = evaluate(script, ctx, scriptName, Object.class);
+    public static Integer evaluateInt(String code, Map<String, Object> ctx, String scriptName) {
+        final Object result = evaluate(code, ctx, scriptName, Object.class);
         if (result == null) return null;
         if (result instanceof Number) return ((Number) result).intValue();
         return Integer.parseInt(result.toString().trim());
     }
 
-    public static Long evaluateLong(String script, Map<String, Object> ctx, String scriptName) {
-        final Object result = evaluate(script, ctx, scriptName, Object.class);
+    public static Long evaluateLong(String code, Map<String, Object> ctx, String scriptName) {
+        final Object result = evaluate(code, ctx, scriptName, Object.class);
         if (result == null) return null;
         if (result instanceof Number) return ((Number) result).longValue();
         return Long.parseLong(result.toString().trim());
