@@ -15,6 +15,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
@@ -125,7 +126,8 @@ public class HttpUtil {
     }
 
     public static HttpResponseBean getResponse(HttpRequestBean requestBean) throws IOException {
-        @Cleanup final CloseableHttpClient client = HttpClients.createDefault();
+        final HttpClientBuilder clientBuilder = requestBean.initClientBuilder(HttpClients.custom());
+        @Cleanup final CloseableHttpClient client = clientBuilder.build();
         return getResponse(requestBean, client);
     }
 

@@ -7,7 +7,15 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScheme;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.net.URI;
@@ -28,8 +36,9 @@ public class HttpRequestBean<T> {
 
     @Getter @Setter private Multimap<String, String> headers = ArrayListMultimap.create();
     public HttpRequestBean<T> withHeader (String name, String value) { setHeader(name, value); return this; }
-    public void setHeader (String name, String value) {
+    public HttpRequestBean<T> setHeader (String name, String value) {
         headers.put(name, value);
+        return this;
     }
     public boolean hasHeaders () { return !empty(headers); }
 
@@ -65,10 +74,11 @@ public class HttpRequestBean<T> {
 
     public boolean hasAuth () { return authType != null; }
 
-    public void setAuth(HttpAuthType authType, String name, String password) {
+    public HttpRequestBean<T> setAuth(HttpAuthType authType, String name, String password) {
         setAuthType(authType);
         setAuthUsername(name);
         setAuthPassword(password);
+        return this;
     }
 
     public ContentType getContentType() {
@@ -104,4 +114,23 @@ public class HttpRequestBean<T> {
         }
         return b.toString();
     }
+
+
+    public HttpClientBuilder initClientBuilder(HttpClientBuilder clientBuilder) {
+        if (!hasAuth()) return clientBuilder;
+        final HttpClientContext localContext = HttpClientContext.create();
+        final BasicCredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(
+                new AuthScope(getHost(), getPort()),
+                new UsernamePasswordCredentials(getAuthUsername(), getAuthPassword()));
+
+        final AuthCache authCache = new BasicAuthCache();
+        final AuthScheme authScheme = getAuthType().newScheme();
+        authCache.put(getHttpHost(), authScheme);
+
+        localContext.setAuthCache(authCache);
+        clientBuilder.setDefaultCredentialsProvider(credsProvider);
+        return clientBuilder;
+    }
+
 }
