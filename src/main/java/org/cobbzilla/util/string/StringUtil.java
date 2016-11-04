@@ -61,7 +61,8 @@ public class StringUtil {
         final StringTokenizer st = new StringTokenizer(s, delim);
         final List<Long> results = new ArrayList<>();
         while (st.hasMoreTokens()) {
-            results.add(Long.parseLong(st.nextToken()));
+            final String token = st.nextToken();
+            results.add(empty(token) || token.equalsIgnoreCase("null") ? null : Long.parseLong(token));
         }
         return results;
     }
