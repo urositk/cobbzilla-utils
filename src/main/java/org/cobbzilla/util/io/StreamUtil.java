@@ -157,4 +157,16 @@ public class StreamUtil {
         System.out.print(prompt);
         return readLineFromStdin();
     }
+
+    public static String fromClasspathOrFilesystem(String path) {
+        try {
+            return stream2string(path);
+        } catch (Exception e) {
+            try {
+                return FileUtil.toStringOrDie(path);
+            } catch (Exception e2) {
+                return die("path not found: "+path);
+            }
+        }
+    }
 }
