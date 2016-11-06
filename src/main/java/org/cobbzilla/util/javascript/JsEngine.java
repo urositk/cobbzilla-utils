@@ -12,6 +12,10 @@ import static org.cobbzilla.util.json.JsonUtil.fromJsonOrDie;
 
 public class JsEngine {
 
+    public static String scriptName (Object caller, String name) {
+        return caller.getClass().getSimpleName() + ":" + name;
+    }
+
     public static <T> T evaluate(String code, Map<String, Object> context, String scriptName, Class<T> returnType) {
         final Context ctx = Context.enter();
         final Scriptable scope = ctx.initStandardObjects();

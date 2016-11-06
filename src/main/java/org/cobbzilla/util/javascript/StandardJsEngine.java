@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.cobbzilla.util.security.ShaUtil.sha256_hex;
+
 @Slf4j
 public class StandardJsEngine extends JsEngine {
 
@@ -13,22 +15,63 @@ public class StandardJsEngine extends JsEngine {
             // function to find element in array
             = "\nfunction found (item, arr) { return arr != null && arr.indexOf(''+item) != -1; }"
 
+            // function to find the first object in array that matches field==value
+            // field may contain embedded dots to navigate within each object element of the array
+            + "\nfunction find (field, value, arr) {\n"
+            + "    return arr == null ? null : arr.find(function (obj) {\n"
+            + "      var target = obj;\n"
+            + "      var path = field;\n"
+            + "      var dotPos = path.indexOf('.');\n"
+            + "      while (dotPos != -1) {\n"
+            + "        var prop = path.substring(0, dotPos);\n"
+            + "        if (!target.hasOwnProperty(prop)) return false;\n"
+            + "        target = target[prop];\n"
+            + "        path = path.substring(dotPos+1);\n"
+            + "        var dotPos = path.indexOf('.');\n"
+            + "      }\n"
+            + "      return target.hasOwnProperty(path) && target[path] == value;\n"
+            + "    });\n"
+            + "}\n"
+
+            // function to find the all object in array that match field==value
+            // field may contain embedded dots to navigate within each object element of the array
+            + "function find_all (field, value, arr) {\n"
+            + "    var found = [];\n"
+            + "    if (arr == null || arr.length == 0) return found;\n"
+            + "    arr.find(function (obj) {\n"
+            + "      var target = obj;\n"
+            + "      var path = field;\n"
+            + "      var dotPos = path.indexOf('.');\n"
+            + "      while (dotPos != -1) {\n"
+            + "        var prop = path.substring(0, dotPos);\n"
+            + "        if (!target.hasOwnProperty(prop)) return false;\n"
+            + "        target = target[prop];\n"
+            + "        path = path.substring(dotPos+1);\n"
+            + "        var dotPos = path.indexOf('.');\n"
+            + "      }\n"
+            + "      if (target.hasOwnProperty(path) && target[path] == value) {\n"
+            + "        found.push(obj);\n"
+            + "      }\n"
+            + "    }); \n"
+            + "    return found;\n"
+            + "}\n"
+
             // functions for rounding up/down to nearest multiple
             + "\nfunction up (x, multiple) { return multiple * parseInt(Math.ceil(parseFloat(x)/parseFloat(multiple))); }"
             + "\nfunction down (x, multiple) { return multiple * parseInt(Math.floor(parseFloat(x)/parseFloat(multiple))); }"
             + "\n";
 
-    public static <T> T evaluate(String code, String scriptName, Map<String, Object> context, Class<T> returnType) {
-        return JsEngine.evaluate(STANDARD_FUNCTIONS+"\n"+code, context, scriptName, returnType);
+    public static <T> T evaluate(String code, Map<String, Object> context, Class<T> returnType) {
+        return JsEngine.evaluate(STANDARD_FUNCTIONS+"\n"+code, context, "evaluate_"+sha256_hex(code), returnType);
     }
 
-    public static boolean evaluateBoolean(String code, Map<String, Object> ctx, String scriptName) {
-        return evaluateBoolean(code, ctx, scriptName, false);
+    public static boolean evaluateBoolean(String code, Map<String, Object> ctx) {
+        return evaluateBoolean(code, ctx, false);
     }
 
-    public static boolean evaluateBoolean(String code, Map<String, Object> ctx, String scriptName, boolean defaultValue) {
+    public static boolean evaluateBoolean(String code, Map<String, Object> ctx, boolean defaultValue) {
         try {
-            return JsEngine.evaluateBoolean(STANDARD_FUNCTIONS + code, ctx, scriptName);
+            return JsEngine.evaluateBoolean(STANDARD_FUNCTIONS + code, ctx, "evaluateBoolean_"+sha256_hex(code));
         } catch (Exception e) {
             log.warn("evaluateBoolean: returning "+defaultValue+" due to exception:"+e);
             return defaultValue;
