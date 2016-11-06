@@ -78,16 +78,16 @@ public class StandardJsEngine extends JsEngine {
         }
     }
 
-    public static Integer evaluateInt(String code, Map<String, Object> ctx, String scriptName) {
-        return JsEngine.evaluateInt(STANDARD_FUNCTIONS+code, ctx, scriptName);
+    public static Integer evaluateInt(String code, Map<String, Object> ctx) {
+        return JsEngine.evaluateInt(STANDARD_FUNCTIONS+code, ctx, "evaluateInt_"+sha256_hex(code));
     }
 
-    public static Long evaluateLong(String code, Map<String, Object> ctx, String scriptName) {
-        return JsEngine.evaluateLong(STANDARD_FUNCTIONS+code, ctx, scriptName);
+    public static Long evaluateLong(String code, Map<String, Object> ctx) {
+        return JsEngine.evaluateLong(STANDARD_FUNCTIONS+code, ctx, "evaluateLong_"+sha256_hex(code));
     }
 
-    public static String evaluateString(String condition, String scriptName, Map<String, Object> ctx) {
-        final Object rval = JsEngine.evaluate(condition, ctx, scriptName, Object.class);
+    public static String evaluateString(String condition, Map<String, Object> ctx) {
+        final Object rval = evaluate(condition, ctx, Object.class);
         if (rval == null) return null;
 
         if (rval instanceof String) return rval.toString();
@@ -109,7 +109,7 @@ public class StandardJsEngine extends JsEngine {
         final Map<String, Object> ctx = new HashMap<>();
         ctx.put("x", value);
         try {
-            return String.valueOf(evaluateInt(script, ctx, "round_" + script));
+            return String.valueOf(evaluateInt(script, ctx));
         } catch (Exception e) {
             log.warn("round('"+value+"', '"+script+"', NOT rounding due to exception: "+e);
             return value;
