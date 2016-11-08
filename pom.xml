@@ -228,6 +228,11 @@ cobbzilla-utils is available under the Apache License, version 2: http://www.apa
             <artifactId>xalan</artifactId>
             <version>${xalan.version}</version>
         </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>9.7.0-10</version>
+        </dependency>
 
         <dependency>
             <groupId>args4j</groupId>

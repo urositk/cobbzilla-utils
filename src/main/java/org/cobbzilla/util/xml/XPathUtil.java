@@ -30,10 +30,6 @@ public class XPathUtil {
 
     public static final String DOC_ROOT_XPATH = "/";
 
-    public static String stripXmlPrefix(String xml) {
-        return xml == null || !xml.trim().startsWith("<?xml ") ? xml : xml.substring(xml.indexOf(">") + 1);
-    }
-
     @Getter @Setter private Collection<String> pathExpressions;
     @Getter @Setter private boolean useTidy = true;
 
