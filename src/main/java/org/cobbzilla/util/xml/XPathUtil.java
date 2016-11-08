@@ -23,10 +23,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+
 @Slf4j @NoArgsConstructor
 public class XPathUtil {
 
     public static final String DOC_ROOT_XPATH = "/";
+
+    public static String stripXmlPrefix(String xml) {
+        return xml == null || !xml.trim().startsWith("<?xml ") ? xml : xml.substring(xml.indexOf(">") + 1);
+    }
 
     @Getter @Setter private Collection<String> pathExpressions;
     @Getter @Setter private boolean useTidy = true;
@@ -63,11 +69,17 @@ public class XPathUtil {
     }
 
     public Node getFirstMatch(InputStream in) throws ParserConfigurationException, IOException, SAXException, TransformerException {
-        return getFirstMatchList(in).get(0);
+        final List<Node> nodes = getFirstMatchList(in);
+        return empty(nodes) ? null : nodes.get(0);
     }
 
     public String getFirstMatchText (InputStream in) throws ParserConfigurationException, TransformerException, SAXException, IOException {
         return getFirstMatch(in).getTextContent();
+    }
+
+    public String getFirstMatchText (String xml) throws ParserConfigurationException, TransformerException, SAXException, IOException {
+        final Node match = getFirstMatch(new ByteArrayInputStream(xml.getBytes()));
+        return match == null ? null : match.getTextContent();
     }
 
     public List<String> getStrings (InputStream in) throws IOException, SAXException, ParserConfigurationException, TransformerException {
