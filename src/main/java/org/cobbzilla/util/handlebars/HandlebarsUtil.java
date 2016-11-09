@@ -125,10 +125,10 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     public static long longVal(Object src) {
         if (src == null) return now();
-        switch (src.toString()) {
-            case "now":      return now();
-            case "now+365d": return now() + TimeUnit.DAYS.toMillis(365);
-            default:         return ((Number) src).longValue();
+        switch (src.toString().trim()) {
+            case "now": case "0": return now();
+            case "now+365d":      return now() + TimeUnit.DAYS.toMillis(365);
+            default:              return ((Number) src).longValue();
         }
     }
 
