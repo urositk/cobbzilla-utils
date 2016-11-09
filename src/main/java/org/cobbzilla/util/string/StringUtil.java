@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -405,4 +406,23 @@ public class StringUtil {
         return b.toString();
     }
 
+    public static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
+    public static String formatDollars(long value, boolean sign) { return empty(value) ? "" : (sign?"$":"") + NUMBER_FORMAT.format(value); }
+
+    public static String formatDollars(long value)         { return formatDollars(value, true); }
+    public static String formatDollarsWithSign(long value) { return formatDollars(value, true); }
+    public static String formatDollarsNoSign(long value)   { return formatDollars(value, false); }
+
+    public static String formatDollarsAndCents(long value)         { return formatDollarsAndCents(value, true); }
+    public static String formatDollarsAndCentsWithSign(long value) { return formatDollarsAndCents(value, true); }
+    public static String formatDollarsAndCentsNoSign(long value)   { return formatDollarsAndCents(value, false); }
+
+    public static String formatDollarsAndCents(long value, boolean sign) {
+        return empty(value) ? "" : (sign?"$":"") + NUMBER_FORMAT.format(value/100)
+                + (value % 100 == 0 ? ".00" : "."+(value%100<10 ? "0"+(value%100) : (value%100)));
+    }
+
+    public static String formatDollarsAndCentsPlain(long value) {
+        return "" + (value/100) + (value % 100 == 0 ? ".00" : "."+(value%100<10 ? "0"+(value%100) : (value%100)));
+    }
 }
