@@ -12,8 +12,15 @@ public class StandardJsEngine extends JsEngine {
 
     private static final String STANDARD_FUNCTIONS
 
-            // function to find element in array
-            = "\nfunction found (item, arr) { return arr != null && arr.indexOf(''+item) != -1; }"
+            // returns true if item is in arr array
+            = "\nfunction found (item, arr) { return arr != null && arr.indexOf(''+item) != -1; }\n"
+
+            // returns true if any element in items array is found in arr array
+            + "\nfunction found_any (items, arr) {\n"
+            + "  if (typeof items == 'undefined' || typeof arr == 'undefined' || items == null || arr == null) return false;\n"
+            + "  for (var i=0; i<items.length; i++) if (found(items[i], arr)) return true;\n"
+            + "  return false;\n"
+            + "}"
 
             // function to find the first object in array that matches field==value
             // field may contain embedded dots to navigate within each object element of the array
