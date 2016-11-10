@@ -477,6 +477,15 @@ public class ReflectionUtil {
         return target;
     }
 
+    public static <T> T get(Object object, String field, T defaultValue) {
+        try {
+            return (T) get(object, field);
+        } catch (Exception e) {
+            log.warn("get: "+e);
+            return defaultValue;
+        }
+    }
+
     public static boolean hasGetter(Object object, String field) {
         Object target = object;
         try {
