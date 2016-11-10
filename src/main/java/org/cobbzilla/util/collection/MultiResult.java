@@ -30,6 +30,8 @@ public class MultiResult {
             for (Map.Entry<String, String> fail : failures.entrySet()) {
                 b.append(fail.getKey()).append(":\t").append(fail.getValue()).append("\n");
             }
+        } else {
+            b.append("\n");
         }
         b.append("--------------------\n");
         return b.toString();
