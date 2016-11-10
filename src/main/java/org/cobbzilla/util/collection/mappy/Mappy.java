@@ -13,7 +13,7 @@ import static org.cobbzilla.util.reflect.ReflectionUtil.getTypeParam;
  * Mappy is a map of keys to collections of values. The collection type is configurable and there are several
  * subclasses available. See MappyList, MappySet, MappySortedSet, and MappyConcurrentSortedSet
  *
- * It can be viewed either as a mapping of K->V or as K->C&gt;V&lt;
+ * It can be viewed either as a mapping of K->V or as K->C->V
  *
  * Mappy objects are meant to be short-lived. While methods are generally thread-safe, the getter will create a new empty
  * collection every time a key is not found. So it makes a horrible cache. Mappy instances are best suited to be value
