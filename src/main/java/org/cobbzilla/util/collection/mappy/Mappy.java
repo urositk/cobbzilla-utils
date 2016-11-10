@@ -2,11 +2,13 @@ package org.cobbzilla.util.collection.mappy;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.cobbzilla.util.collection.Permutable;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.cobbzilla.util.collection.ListUtil.permutations;
 import static org.cobbzilla.util.reflect.ReflectionUtil.getTypeParam;
 
 /**
@@ -24,7 +26,7 @@ import static org.cobbzilla.util.reflect.ReflectionUtil.getTypeParam;
  * @param <C> collection class
  */
 @Accessors(chain=true)
-public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> {
+public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V>, Permutable<V> {
 
     private final ConcurrentHashMap<K, C> map;
 
@@ -189,6 +191,8 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
         for (C collection : allValues()) values.addAll(collection);
         return new ArrayList<>(values);
     }
+
+    public Collection<List<V>> permute() { return permutations(new ArrayList<Collection<V>>(allValues())); }
 
     @Override public boolean equals(Object o) {
         if (this == o) return true;
