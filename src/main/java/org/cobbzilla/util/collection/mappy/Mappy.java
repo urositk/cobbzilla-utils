@@ -2,7 +2,6 @@ package org.cobbzilla.util.collection.mappy;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import org.cobbzilla.util.collection.Permutable;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.util.*;

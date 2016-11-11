@@ -1,5 +1,7 @@
 package org.cobbzilla.util.reflect;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -688,6 +690,13 @@ public class ReflectionUtil {
         } catch (Exception e) {
             log.warn("close: error closing: "+e);
         }
+    }
+
+    @NoArgsConstructor @AllArgsConstructor
+    public static class Setter<T> {
+        protected String field, value;
+        public void set(T data) { ReflectionUtil.set(data, field, value); }
+        @Override public String toString() { return getClass().getName() + '{' + field + ", " + value + '}'; }
     }
 
 }

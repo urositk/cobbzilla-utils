@@ -1,6 +1,7 @@
 package org.cobbzilla.util.collection;
 
 import com.google.common.collect.Lists;
+import org.cobbzilla.util.reflect.ReflectionUtil;
 
 import java.util.*;
 
@@ -29,17 +30,17 @@ public class ListUtil {
      * @param collections Original list of collections which elements have to be combined.
      * @return Resultant collection of lists with all permutations of original list.
      */
-    public static <T> Collection<List<T>> permutations(List<Collection<T>> collections) {
+    public static <T> List<List<T>> permutations(List<List<T>> collections) {
         if (collections == null || collections.isEmpty()) {
             return Collections.emptyList();
         } else {
-            Collection<List<T>> res = Lists.newLinkedList();
+            List<List<T>> res = Lists.newLinkedList();
             permutationsImpl(collections, res, 0, new LinkedList<T>());
             return res;
         }
     }
 
-    private static <T> void permutationsImpl(List<Collection<T>> ori, Collection<List<T>> res, int d, List<T> current) {
+    private static <T> void permutationsImpl(List<List<T>> ori, Collection<List<T>> res, int d, List<T> current) {
         // if depth equals number of original collections, final reached, add and return
         if (d == ori.size()) {
             res.add(current);
@@ -55,16 +56,23 @@ public class ListUtil {
         }
     }
 
-    public static List<Object> permute(Object[] things) {
-        final List<Object> allTests = new ArrayList<>();
+    public static List<Object> expand(Object[] things, Map<String, Object> context) {
+        final List<Object> results = new ArrayList<>();
         for (Object thing : things) {
-            if (thing instanceof Permutable) {
-                allTests.add(((Permutable) thing).permute());
+            if (thing instanceof Expandable) {
+                results.addAll(((Expandable) thing).expand(context));
             } else {
-                allTests.add(thing);
+                results.add(thing);
             }
         }
-        return allTests;
+        return results;
+    }
+
+    public static <T> List<T> deepCopy(List<T> list) {
+        if (list == null) return null;
+        final List<T> copy = new ArrayList<>();
+        for (T item : list) copy.add(item == null ? null : ReflectionUtil.copy(item));
+        return copy;
     }
 
 }

@@ -1,5 +1,7 @@
 package org.cobbzilla.util.collection.multi;
 
+import java.util.Map;
+
 public interface MultiResultDriver {
 
     MultiResult getResult ();
@@ -17,5 +19,9 @@ public interface MultiResultDriver {
 
     // called at the end (should via finally block)
     void after ();
+
+    // allows the caller/user to stash things for use during execution
+    Map<String, Object> getContext();
+    void setContext(Map<String, Object> context);
 
 }
