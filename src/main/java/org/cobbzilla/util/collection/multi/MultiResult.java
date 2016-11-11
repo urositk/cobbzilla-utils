@@ -1,4 +1,4 @@
-package org.cobbzilla.util.collection;
+package org.cobbzilla.util.collection.multi;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,7 +22,7 @@ public class MultiResult {
 
     public String toString() {
         final StringBuilder b = new StringBuilder();
-        b.append("\n\n" + getHeader() + "\n--------------------\n")
+        b.append("\n\n").append(getHeader()).append("\n--------------------\n")
                 .append(successCount()).append("\tsucceeded\n")
                 .append(failCount()).append("\tfailed");
         if (!failures.isEmpty()) {

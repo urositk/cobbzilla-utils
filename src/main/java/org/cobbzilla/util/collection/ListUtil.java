@@ -54,4 +54,17 @@ public class ListUtil {
             permutationsImpl(ori, res, d + 1, copy);
         }
     }
+
+    public static List<Object> permute(Object[] things) {
+        final List<Object> allTests = new ArrayList<>();
+        for (Object thing : things) {
+            if (thing instanceof Permutable) {
+                allTests.add(((Permutable) thing).permute());
+            } else {
+                allTests.add(thing);
+            }
+        }
+        return allTests;
+    }
+
 }
