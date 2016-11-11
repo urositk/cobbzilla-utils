@@ -26,4 +26,5 @@ public interface MultiResultDriver {
 
     int getMaxConcurrent();
     long getTimeout();
+
 }
