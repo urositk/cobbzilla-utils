@@ -24,4 +24,6 @@ public interface MultiResultDriver {
     Map<String, Object> getContext();
     void setContext(Map<String, Object> context);
 
+    int getMaxConcurrent();
+    long getTimeout();
 }
