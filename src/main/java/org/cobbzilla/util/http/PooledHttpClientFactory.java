@@ -23,6 +23,7 @@ public class PooledHttpClientFactory implements ObjectFactory<CloseableHttpClien
         cm.setMaxPerRoute(new HttpRoute(new HttpHost(host)), maxConnections);
         return HttpClients.custom()
                 .setConnectionManager(cm)
+                .setConnectionManagerShared(true)
                 .build();
     }
 
