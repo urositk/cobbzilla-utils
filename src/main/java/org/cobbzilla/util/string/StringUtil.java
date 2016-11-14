@@ -425,4 +425,16 @@ public class StringUtil {
     public static String formatDollarsAndCentsPlain(long value) {
         return "" + (value/100) + (value % 100 == 0 ? ".00" : "."+(value%100<10 ? "0"+(value%100) : (value%100)));
     }
+
+    public static int parseToCents(String amount) {
+        if (empty(amount)) return die("getDownAmountCents: downAmount was empty");
+        String val = amount.trim();
+        int dotPos = val.indexOf(".");
+        if (dotPos == val.length()) {
+            val = val.substring(0, val.length()-1);
+            dotPos = -1;
+        }
+        if (dotPos == -1) return 100 * Integer.parseInt(val);
+        return (100 * Integer.parseInt(val.substring(0, dotPos))) + Integer.parseInt(val.substring(dotPos+1));
+    }
 }
