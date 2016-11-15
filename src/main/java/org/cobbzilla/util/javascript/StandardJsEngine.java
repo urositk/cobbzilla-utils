@@ -22,9 +22,18 @@ public class StandardJsEngine extends JsEngine {
             + "  return false;\n"
             + "}"
 
+            // standard comparison functions
+            + "\nfunction gt (x, compare) { return x > compare; }\n"
+            + "\nfunction ge (x, compare) { return x >= compare; }\n"
+            + "\nfunction lt (x, compare) { return x < compare; }\n"
+            + "\nfunction le (x, compare) { return x <= compare; }\n"
+            + "\nfunction eq (x, compare) { return x == compare; }\n"
+            + "\nfunction ne (x, compare) { return x != compare; }\n"
+
             // function to find the first object in array that matches field==value
             // field may contain embedded dots to navigate within each object element of the array
-            + "\nfunction find (field, value, arr) {\n"
+            + "\nfunction find (field, value, arr, comparison) {\n"
+            + "    if (typeof comparison == 'undefined') comparison = eq;\n"
             + "    return arr == null ? null : arr.find(function (obj) {\n"
             + "      var target = obj;\n"
             + "      var path = field;\n"
@@ -36,7 +45,7 @@ public class StandardJsEngine extends JsEngine {
             + "        path = path.substring(dotPos+1);\n"
             + "        var dotPos = path.indexOf('.');\n"
             + "      }\n"
-            + "      return target[path] && target[path] == value;\n"
+            + "      return target[path] && comparison(target[path], value);\n"
             + "    });\n"
             + "}\n"
 
