@@ -5,77 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.cobbzilla.util.io.StreamUtil.stream2string;
 import static org.cobbzilla.util.security.ShaUtil.sha256_hex;
+import static org.cobbzilla.util.string.StringUtil.getPackagePath;
 
 @Slf4j
 public class StandardJsEngine extends JsEngine {
 
-    private static final String STANDARD_FUNCTIONS
-
-            // returns true if item is in arr array
-            = "\nfunction found (item, arr) { return arr != null && arr.indexOf(''+item) != -1; }\n"
-
-            // returns true if any element in items array is found in arr array
-            + "\nfunction found_any (items, arr) {\n"
-            + "  if (typeof items == 'undefined' || typeof arr == 'undefined' || items == null || arr == null) return false;\n"
-            + "  for (var i=0; i<items.length; i++) if (found(items[i], arr)) return true;\n"
-            + "  return false;\n"
-            + "}"
-
-            // standard comparison functions
-            + "\nfunction gt (x, compare) { return x > compare; }\n"
-            + "\nfunction ge (x, compare) { return x >= compare; }\n"
-            + "\nfunction lt (x, compare) { return x < compare; }\n"
-            + "\nfunction le (x, compare) { return x <= compare; }\n"
-            + "\nfunction eq (x, compare) { return x == compare; }\n"
-            + "\nfunction ne (x, compare) { return x != compare; }\n"
-
-            // function to find the first object in array that matches field==value
-            // field may contain embedded dots to navigate within each object element of the array
-            + "\nfunction find (field, value, arr, comparison) {\n"
-            + "    if (typeof comparison == 'undefined') comparison = eq;\n"
-            + "    return arr == null ? null : arr.find(function (obj) {\n"
-            + "      var target = obj;\n"
-            + "      var path = field;\n"
-            + "      var dotPos = path.indexOf('.');\n"
-            + "      while (dotPos != -1) {\n"
-            + "        var prop = path.substring(0, dotPos);\n"
-            + "        if (!target[prop]) return false;\n"
-            + "        target = target[prop];\n"
-            + "        path = path.substring(dotPos+1);\n"
-            + "        var dotPos = path.indexOf('.');\n"
-            + "      }\n"
-            + "      return target[path] && comparison(target[path], value);\n"
-            + "    });\n"
-            + "}\n"
-
-            // function to find the all object in array that match field==value
-            // field may contain embedded dots to navigate within each object element of the array
-            + "function find_all (field, value, arr) {\n"
-            + "    var found = [];\n"
-            + "    if (arr == null || arr.length == 0) return found;\n"
-            + "    arr.find(function (obj) {\n"
-            + "      var target = obj;\n"
-            + "      var path = field;\n"
-            + "      var dotPos = path.indexOf('.');\n"
-            + "      while (dotPos != -1) {\n"
-            + "        var prop = path.substring(0, dotPos);\n"
-            + "        if (!target[prop]) return false;\n"
-            + "        target = target[prop];\n"
-            + "        path = path.substring(dotPos+1);\n"
-            + "        var dotPos = path.indexOf('.');\n"
-            + "      }\n"
-            + "      if (target[path] && target[path] == value) {\n"
-            + "        found.push(obj);\n"
-            + "      }\n"
-            + "    }); \n"
-            + "    return found;\n"
-            + "}\n"
-
-            // functions for rounding up/down to nearest multiple
-            + "\nfunction up (x, multiple) { return multiple * parseInt(Math.ceil(parseFloat(x)/parseFloat(multiple))); }"
-            + "\nfunction down (x, multiple) { return multiple * parseInt(Math.floor(parseFloat(x)/parseFloat(multiple))); }"
-            + "\n";
+    private static final String STANDARD_FUNCTIONS = stream2string(getPackagePath(StandardJsEngine.class)+"/standard_js_lib.js");
 
     public static <T> T evaluate(String code, Map<String, Object> context, Class<T> returnType) {
         return JsEngine.evaluate(STANDARD_FUNCTIONS+"\n"+code, context, "evaluate_"+sha256_hex(code), returnType);
