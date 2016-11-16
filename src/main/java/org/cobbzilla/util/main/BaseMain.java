@@ -65,9 +65,9 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
         System.exit(1);
     }
 
-    public void out(String message) { System.out.println(message); }
+    public static void out(String message) { System.out.println(message); }
 
-    public void err (String message) { System.err.println(message); }
+    public static void err (String message) { System.err.println(message); }
 
     public <T> T die (String message) {
         log.error(message);
