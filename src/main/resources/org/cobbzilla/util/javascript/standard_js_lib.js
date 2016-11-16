@@ -21,7 +21,7 @@ function ne (x, compare) { return x != compare; }
 
 // function to find the first object in array that matches field==value
 // field may contain embedded dots to navigate within each object element of the array
-function find (field, value, arr, comparison) {
+function find (arr, field, value, comparison) {
     if (typeof comparison == 'undefined') comparison = eq;
     return arr == null ? null : arr.find(function (obj) {
         var target = obj;
@@ -38,9 +38,11 @@ function find (field, value, arr, comparison) {
     });
 }
 
+function contains (arr, field, comparison, value) { return find(arr, field, value, comparison); }
+
 // function to find the all object in array that match field==value
 // field may contain embedded dots to navigate within each object element of the array
-function find_all (field, value, arr) {
+function find_all (arr, field, value) {
     var found = [];
     if (arr == null || arr.length == 0) return found;
     arr.find(function (obj) {
