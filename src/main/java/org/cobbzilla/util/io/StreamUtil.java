@@ -63,7 +63,7 @@ public class StreamUtil {
 
     public static InputStream loadResourceAsStream(String path, Class clazz) {
         InputStream in = clazz.getClassLoader().getResourceAsStream(path);
-        if (in == null) die("Resource not found: " + path);
+        if (in == null) throw new IllegalArgumentException("Resource not found: " + path);
         return in;
     }
 
