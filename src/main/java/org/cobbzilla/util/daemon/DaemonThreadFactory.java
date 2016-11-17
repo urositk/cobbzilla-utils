@@ -14,6 +14,6 @@ public class DaemonThreadFactory implements ThreadFactory {
         return t;
     }
 
-    public static ExecutorService pool (int count) { return Executors.newFixedThreadPool(count, instance); }
+    public static ExecutorService fixedPool (int count) { return Executors.newFixedThreadPool(count, instance); }
 
 }
