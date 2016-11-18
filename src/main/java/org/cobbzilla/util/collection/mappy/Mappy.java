@@ -34,6 +34,14 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
     public Mappy ()         { map = new ConcurrentHashMap<>(); }
     public Mappy (int size) { map = new ConcurrentHashMap<>(size); }
 
+    public Mappy(Map<K, Collection<V>> other) {
+        this();
+        for (Map.Entry<K, Collection<V>> entry : other.entrySet()) {
+            putAll(entry.getKey(), entry.getValue());
+        }
+    }
+
+
     /**
      * For subclasses to override and provide their own collection types
      * @return A new (empty) instance of the collection type
