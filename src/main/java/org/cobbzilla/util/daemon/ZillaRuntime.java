@@ -119,4 +119,30 @@ public class ZillaRuntime {
     public static BufferedReader stdin() { return new BufferedReader(new InputStreamReader(System.in)); }
     public static BufferedWriter stdout() { return new BufferedWriter(new OutputStreamWriter(System.out)); }
 
+    public static int envInt (String name, int defaultValue) { return envInt(name, defaultValue, null, null); }
+    public static int envInt (String name, int defaultValue, Integer maxValue) { return envInt(name, defaultValue, null, maxValue); }
+    public static int envInt (String name, int defaultValue, Integer minValue, Integer maxValue) {
+        final String s = System.getenv(name);
+        if (!empty(s)) {
+            try {
+                final int val = Integer.parseInt(s);
+                if (val <= 0) {
+                    log.warn("envInt: invalid value("+name+"): " +val+", returning "+defaultValue);
+                    return defaultValue;
+                } else if (maxValue != null && val > maxValue) {
+                    log.warn("envInt: value too large ("+name+"): " +val+ ", returning " + maxValue);
+                    return maxValue;
+                } else if (minValue != null && val < minValue) {
+                    log.warn("envInt: value too small ("+name+"): " +val+ ", returning " + minValue);
+                    return minValue;
+                }
+                return val;
+            } catch (Exception e) {
+                log.warn("envInt: invalid value("+name+"): " +s+", returning "+defaultValue);
+                return defaultValue;
+            }
+        }
+        return defaultValue;
+    }
+
 }
