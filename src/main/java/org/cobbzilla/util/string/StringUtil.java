@@ -437,4 +437,10 @@ public class StringUtil {
         if (dotPos == -1) return 100 * Integer.parseInt(val);
         return (100 * Integer.parseInt(val.substring(0, dotPos))) + Integer.parseInt(val.substring(dotPos+1));
     }
+
+    public static double parsePercent (String pct) {
+        if (empty(pct)) die("parsePercent: "+pct);
+        return Double.parseDouble(chop(removeWhitespace(pct), "%"));
+    }
+
 }
