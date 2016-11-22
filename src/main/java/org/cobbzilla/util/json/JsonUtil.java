@@ -140,10 +140,12 @@ public class JsonUtil {
     }
 
     public static <T> T fromJson(String json, JavaType type) throws Exception {
+        if (empty(json)) return null;
         return JsonUtil.FULL_MAPPER.readValue(json, type);
     }
 
     public static <T> T fromJson(String json, Class<T> clazz, ObjectMapper mapper) throws Exception {
+        if (empty(json)) return null;
         return mapper.readValue(json, clazz);
     }
 
