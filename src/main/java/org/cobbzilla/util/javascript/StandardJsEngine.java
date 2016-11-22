@@ -26,7 +26,7 @@ public class StandardJsEngine extends JsEngine {
         try {
             return JsEngine.evaluateBoolean(STANDARD_FUNCTIONS + code, ctx, "evaluateBoolean_"+sha256_hex(code));
         } catch (Exception e) {
-            log.info("evaluateBoolean: returning "+defaultValue+" due to exception:"+e);
+            log.debug("evaluateBoolean: returning "+defaultValue+" due to exception:"+e);
             return defaultValue;
         }
     }
