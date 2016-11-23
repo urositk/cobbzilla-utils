@@ -481,7 +481,8 @@ public class ReflectionUtil {
 
     public static <T> T get(Object object, String field, T defaultValue) {
         try {
-            return (T) get(object, field);
+            final Object val = get(object, field);
+            return val == null ? defaultValue : (T) val;
         } catch (Exception e) {
             log.warn("get: "+e);
             return defaultValue;
