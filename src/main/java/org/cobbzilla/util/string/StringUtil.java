@@ -102,6 +102,15 @@ public class StringUtil {
         }
     }
 
+    public static Double safeParseDouble(String s) {
+        if (empty(s)) return null;
+        try {
+            return Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     public static String shortDateTime(String localeString, Integer timezone, long time) {
         return formatDateTime("SS", localeString, timezone, time);
     }
