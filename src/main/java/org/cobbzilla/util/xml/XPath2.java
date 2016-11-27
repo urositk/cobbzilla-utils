@@ -25,6 +25,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 public class XPath2 {
 
     public static String matchElement (String element) { return "//*[local-name()='"+element+"']"; }
+    public static XPath2 xpath(String element) { return new XPath2(matchElement(element)); }
 
     @Getter(lazy=true) private static final XPathFactory xpathFactory = initXpathFactory();
     private static XPathFactory initXpathFactory() {
