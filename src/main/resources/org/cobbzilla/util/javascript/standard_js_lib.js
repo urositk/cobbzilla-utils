@@ -24,6 +24,7 @@ function ne (x, compare) { return x != compare; }
 function find (arr, field, value, comparison) {
     if (typeof comparison == 'undefined') comparison = eq;
     return arr == null ? null : arr.find(function (obj) {
+        if (typeof obj == 'undefined' || obj == null) return false;
         var target = obj;
         var path = field;
         var dotPos = path.indexOf('.');
