@@ -47,6 +47,7 @@ function find_all (arr, field, value) {
     var found = [];
     if (arr == null || arr.length == 0) return found;
     arr.find(function (obj) {
+        if (typeof obj == 'undefined' || obj == null) return false;
         var target = obj;
         var path = field;
         var dotPos = path.indexOf('.');
