@@ -27,6 +27,10 @@ public class MultiResult {
                 .append(failCount()).append("\tfailed");
         if (!failures.isEmpty()) {
             b.append(":\n");
+            for (String fail : failures.keySet()) {
+                b.append(fail).append("\n");
+            }
+            b.append("\nfailure details:\n");
             for (Map.Entry<String, String> fail : failures.entrySet()) {
                 b.append(fail.getKey()).append(":\t").append(fail.getValue()).append("\n");
             }
