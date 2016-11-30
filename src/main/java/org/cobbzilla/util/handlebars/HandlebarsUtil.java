@@ -9,14 +9,17 @@ import com.github.jknack.handlebars.io.TemplateSource;
 import lombok.AllArgsConstructor;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 import static org.cobbzilla.util.string.StringUtil.*;
@@ -27,6 +30,12 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     public static final DateTimeFormatter DATE_FORMAT_MMDDYYYY = DateTimeFormat.forPattern("MM/dd/yyyy");
     public static final DateTimeFormatter DATE_FORMAT_MMMM_D_YYYY = DateTimeFormat.forPattern("MMMM d, yyyy");
     public static final DateTimeFormatter DATE_FORMAT_YYYY_MM_DD = DateTimeFormat.forPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter DATE_FORMAT_MMM_DD_YYYY = DateTimeFormat.forPattern("MMM dd, yyyy");
+
+    // For now only m (months) and d (days) are supported to add to datetime values within Handlebars (both has to be
+    // present at the same time in that same order, but the value for each can be 0 to exclude that one - i.e. 0m15d).
+    public static final PeriodFormatter PERIOD_FORMATTER = new PeriodFormatterBuilder()
+            .appendMonths().appendSuffix("m").appendDays().appendSuffix("d").toFormatter();
 
     private String sourceName = "unknown";
 
@@ -115,6 +124,13 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             }
         });
 
+        hb.registerHelper("date_mmm_dd_yyyy", new Helper<Object>() {
+            public CharSequence apply(Object src, Options options) {
+                if (empty(src)) src = "now";
+                return new Handlebars.SafeString(DATE_FORMAT_MMM_DD_YYYY.print(longVal(src)));
+            }
+        });
+
         hb.registerHelper("date_long", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) src = "now";
@@ -125,11 +141,21 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     public static long longVal(Object src) {
         if (src == null) return now();
-        switch (src.toString().trim()) {
-            case "now": case "0": return now();
-            case "now+365d":      return now() + TimeUnit.DAYS.toMillis(365);
-            default:              return ((Number) src).longValue();
+        String srcStr = src.toString().trim();
+
+        if (srcStr == "" || srcStr == "0" || srcStr == "now") return now();
+
+        if (srcStr.startsWith("now")) {
+            // Multiple periods may be added to the original timestamp (separated by comma), but in the correct order.
+            String[] splitSrc = srcStr.substring(3).split(",");
+            DateTime result = new DateTime(now());
+            for (String period : splitSrc) {
+                result = result.plus(Period.parse(period, PERIOD_FORMATTER));
+            }
+            return result.getMillis();
         }
+
+        return ((Number) src).longValue();
     }
 
 }
