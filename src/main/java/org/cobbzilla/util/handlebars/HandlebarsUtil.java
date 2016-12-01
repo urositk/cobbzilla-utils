@@ -78,21 +78,46 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     }
 
     public static <T> T applyReflectively(Handlebars handlebars, T thing, Map<String, Object> ctx) {
-        for (Method m : thing.getClass().getMethods()) {
-            if (m.getName().startsWith("get") && m.getReturnType().equals(String.class)) {
+        for (Method getterCandidate : thing.getClass().getMethods()) {
+
+            if (!getterCandidate.getName().startsWith("get")) continue;
+            if (!canApplyReflectively(getterCandidate.getReturnType())) continue;
+
+            final String setterName = ReflectionUtil.setterForGetter(getterCandidate.getName());
+            for (Method setterCandidate : thing.getClass().getMethods()) {
+                if (!setterCandidate.getName().equals(setterName)
+                        || setterCandidate.getParameterTypes().length != 1
+                        || !setterCandidate.getParameterTypes()[0].isAssignableFrom(getterCandidate.getReturnType())) {
+                    continue;
+                }
                 try {
-                    final Method setter = thing.getClass().getMethod(ReflectionUtil.setterForGetter(m.getName()), String.class);
-                    Object value = m.invoke(thing, null);
-                    if (value != null && value instanceof String && value.toString().contains("{{")) {
-                        setter.invoke(thing, apply(handlebars, (String) value, ctx));
+                    final Object value = getterCandidate.invoke(thing, (Object[]) null);
+                    if (value == null) break;
+                    if (value instanceof String) {
+                        if (value.toString().contains("{{")) {
+                            setterCandidate.invoke(thing, apply(handlebars, (String) value, ctx));
+                        }
+                    } else {
+                        // recurse
+                        setterCandidate.invoke(thing, applyReflectively(handlebars, value, ctx));
                     }
                 } catch (Exception e) {
                     // no setter for getter
-                    log.warn("applyReflectively: "+e);
+                    log.warn("applyReflectively: " + e);
                 }
             }
         }
         return thing;
+    }
+
+    private static boolean canApplyReflectively(Class<?> returnType) {
+        if (returnType.equals(String.class)) return true;
+        try {
+            return !(returnType.isPrimitive() || (returnType.getPackage() != null && returnType.getPackage().getName().equals("java.lang")));
+        } catch (NullPointerException npe) {
+            log.warn("canApplyReflectively("+returnType+"): "+npe);
+            return false;
+        }
     }
 
     @Override public TemplateSource sourceAt(String source) throws IOException {
