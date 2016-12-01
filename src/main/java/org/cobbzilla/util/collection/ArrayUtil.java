@@ -106,4 +106,12 @@ public class ArrayUtil {
         }
         return b.toString();
     }
+
+    public static <T> T[] shift(T[] args) {
+        if (args == null) return null;
+        if (args.length == 0) return args;
+        final T[] newArgs = (T[]) Array.newInstance(args[0].getClass(), args.length-1);
+        System.arraycopy(args, 1, newArgs, 0, args.length-1);
+        return newArgs;
+    }
 }
