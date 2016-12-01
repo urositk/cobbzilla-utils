@@ -83,11 +83,12 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                 try {
                     final Method setter = thing.getClass().getMethod(ReflectionUtil.setterForGetter(m.getName()), String.class);
                     Object value = m.invoke(thing, null);
-                    if (value != null && value instanceof String) {
+                    if (value != null && value instanceof String && value.toString().contains("{{")) {
                         setter.invoke(thing, apply(handlebars, (String) value, ctx));
                     }
                 } catch (Exception e) {
                     // no setter for getter
+                    log.warn("applyReflectively: "+e);
                 }
             }
         }
