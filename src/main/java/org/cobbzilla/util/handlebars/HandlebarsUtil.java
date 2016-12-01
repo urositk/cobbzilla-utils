@@ -9,6 +9,7 @@ import com.github.jknack.handlebars.io.TemplateSource;
 import lombok.AllArgsConstructor;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -18,6 +19,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -73,6 +75,23 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             log.warn("apply: "+e, e);
             throw e;
         }
+    }
+
+    public static <T> T applyReflectively(Handlebars handlebars, T thing, Map<String, Object> ctx) {
+        for (Method m : thing.getClass().getMethods()) {
+            if (m.getName().startsWith("get") && m.getReturnType().equals(String.class)) {
+                try {
+                    final Method setter = thing.getClass().getMethod(ReflectionUtil.setterForGetter(m.getName()), String.class);
+                    Object value = m.invoke(thing, null);
+                    if (value != null && value instanceof String) {
+                        setter.invoke(thing, apply(handlebars, (String) value, ctx));
+                    }
+                } catch (Exception e) {
+                    // no setter for getter
+                }
+            }
+        }
+        return thing;
     }
 
     @Override public TemplateSource sourceAt(String source) throws IOException {
