@@ -195,7 +195,11 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             String[] splitSrc = srcStr.substring(3).split(",");
             DateTime result = new DateTime(now());
             for (String period : splitSrc) {
-                result = result.plus(Period.parse(period, PERIOD_FORMATTER));
+                int sign = 1;
+                if (period.startsWith("-")) {
+                    sign = -1;
+                }
+                result = result.plus(Period.parse(period, PERIOD_FORMATTER).multipliedBy(sign));
             }
             return result.getMillis();
         }
