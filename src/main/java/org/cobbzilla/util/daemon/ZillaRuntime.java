@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
+import org.cobbzilla.util.io.StreamUtil;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -118,6 +119,8 @@ public class ZillaRuntime {
 
     public static BufferedReader stdin() { return new BufferedReader(new InputStreamReader(System.in)); }
     public static BufferedWriter stdout() { return new BufferedWriter(new OutputStreamWriter(System.out)); }
+
+    public static String readStdin() { return StreamUtil.toStringOrDie(System.in); }
 
     public static int envInt (String name, int defaultValue) { return envInt(name, defaultValue, null, null); }
     public static int envInt (String name, int defaultValue, Integer maxValue) { return envInt(name, defaultValue, null, maxValue); }
