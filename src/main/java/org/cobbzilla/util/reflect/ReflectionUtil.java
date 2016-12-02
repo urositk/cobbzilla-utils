@@ -186,12 +186,7 @@ public class ReflectionUtil {
 
             final Class<?>[] parameterTypes = new Class[arguments.length];
             for (int i=0; i<arguments.length; i++) {
-                Class<?> argClass = arguments[i].getClass();
-                final int enhancePos = argClass.getName().indexOf("$$Enhance");
-                if (enhancePos != -1) {
-                    argClass = forName(argClass.getName().substring(0, enhancePos));
-                }
-                parameterTypes[i] = argClass;
+                parameterTypes[i] = getSimpleClass(arguments[i]);
             }
             return clazz.getConstructor(parameterTypes).newInstance(arguments);
 
@@ -199,6 +194,17 @@ public class ReflectionUtil {
             return die("instantiate("+clazz.getName()+", "+Arrays.toString(arguments)+"): "+e, e);
         }
     }
+
+    public static Class<?> getSimpleClass(Object argument) {
+        Class<?> argClass = argument.getClass();
+        final int enhancePos = argClass.getName().indexOf("$$Enhance");
+        if (enhancePos != -1) {
+            argClass = forName(argClass.getName().substring(0, enhancePos));
+        }
+        return argClass;
+    }
+
+    public static String getSimpleClassName(Object argument) { return getSimpleClass(argument).getClass().getSimpleName(); }
 
     /**
      * Make a copy of the object, assuming its class has a copy constructor
