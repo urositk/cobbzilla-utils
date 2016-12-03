@@ -125,7 +125,10 @@ public class ZillaRuntime {
     public static int envInt (String name, int defaultValue) { return envInt(name, defaultValue, null, null); }
     public static int envInt (String name, int defaultValue, Integer maxValue) { return envInt(name, defaultValue, null, maxValue); }
     public static int envInt (String name, int defaultValue, Integer minValue, Integer maxValue) {
-        final String s = System.getenv(name);
+        return envInt(name, defaultValue, minValue, maxValue, System.getenv());
+    }
+    public static int envInt (String name, int defaultValue, Integer minValue, Integer maxValue, Map<String, String> env) {
+        final String s = env.get(name);
         if (!empty(s)) {
             try {
                 final int val = Integer.parseInt(s);
@@ -148,4 +151,5 @@ public class ZillaRuntime {
         return defaultValue;
     }
 
+    public static int processorCount() { return Runtime.getRuntime().availableProcessors(); }
 }
