@@ -1,5 +1,7 @@
 package org.cobbzilla.util.daemon;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -10,6 +12,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
+@Slf4j
 public class Await {
 
     public static final long DEFAULT_AWAIT_GET_SLEEP = 10;
@@ -142,7 +145,8 @@ public class Await {
                     break;
                 } else {
                     try {
-                        f.get();
+                        final Object result = f.get();
+                        if (result != null) log.info("awaitAll: "+ result);
                     } catch (Exception e) {
                         die("awaitAll: "+e, e);
                     }
