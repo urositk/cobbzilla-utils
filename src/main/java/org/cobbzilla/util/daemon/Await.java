@@ -148,7 +148,7 @@ public class Await {
                         final Object result = f.get();
                         if (result != null) log.info("awaitAll: "+ result);
                     } catch (Exception e) {
-                        die("awaitAll: "+e, e);
+                        log.warn("awaitAll: "+e, e);
                     }
                 }
             }
