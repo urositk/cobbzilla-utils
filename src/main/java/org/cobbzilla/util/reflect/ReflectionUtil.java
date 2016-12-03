@@ -257,7 +257,7 @@ public class ReflectionUtil {
                     copyCount++;
                 }
             } catch (Exception e) {
-                log.warn("copy: field="+field+": "+e);
+                log.debug("copy: field="+field+": "+e);
             }
         }
         return copyCount;
