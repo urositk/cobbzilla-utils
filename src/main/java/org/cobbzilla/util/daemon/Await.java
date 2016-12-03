@@ -1,6 +1,7 @@
 package org.cobbzilla.util.daemon;
 
 import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.util.time.ClockProvider;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -135,9 +136,13 @@ public class Await {
     }
 
     public static void awaitAll(Collection<Future> futures, long timeout) throws TimeoutException {
+        awaitAll(futures, timeout, ClockProvider.ZILLA);
+    }
+
+    public static void awaitAll(Collection<Future> futures, long timeout, ClockProvider clock) throws TimeoutException {
         boolean allDone;
-        long start = now();
-        while (now() - start < timeout) {
+        long start = clock.now();
+        while (clock.now() - start < timeout) {
             allDone = true;
             for (Future f : futures) {
                 if (!f.isDone()) {
@@ -155,6 +160,6 @@ public class Await {
             if (allDone) break;
             sleep(200);
         }
-        if (now() - start >= timeout) throw new TimeoutException();
+        if (clock.now() - start >= timeout) throw new TimeoutException();
     }
 }
