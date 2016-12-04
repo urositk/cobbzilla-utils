@@ -37,6 +37,19 @@ public class ZillaRuntime {
         }
     }
 
+    public static Thread background (Runnable r) {
+        final Thread t = new Thread(r);
+        t.start();
+        return t;
+    }
+
+    public static Thread daemon (Runnable r) {
+        final Thread t = new Thread(r);
+        t.setDaemon(true);
+        t.start();
+        return t;
+    }
+
     @Getter @Setter private static ErrorApi errorApi;
 
     public static <T> T die(String message)              { return _throw(new IllegalStateException(message, null)); }
