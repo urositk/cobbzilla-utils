@@ -33,6 +33,7 @@ import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.http.URIUtil.getFileExt;
+import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 @Slf4j
@@ -98,7 +99,7 @@ public class HttpUtil {
         return url2file(url, file, DEFAULT_RETRIES);
     }
     public static File url2file (String url, File file, int retries) throws IOException {
-        if (file == null) file = File.createTempFile("url2file-", getFileExt((url)));
+        if (file == null) file = File.createTempFile("url2file-", getFileExt((url)), getDefaultTempDir());
         IOException lastException = null;
         long sleep = 100;
         for (int i=0; i<retries; i++) {

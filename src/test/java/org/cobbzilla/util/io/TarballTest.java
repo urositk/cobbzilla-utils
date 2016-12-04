@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
+import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -33,7 +34,7 @@ public class TarballTest {
         // list files in tempDir, we expect file1 and subdir
         validateUnrolledTarball(tempDir);
 
-        final File newTar = File.createTempFile("temp", ".tar");
+        final File newTar = File.createTempFile("temp", ".tar", getDefaultTempDir());
         Tarball.roll(newTar, this.tempDir);
 
         // reset tempdir

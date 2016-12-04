@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.*;
 
+import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
 import static org.cobbzilla.util.json.JsonUtil.json;
 import static org.cobbzilla.util.json.JsonUtil.toJson;
 import static org.junit.Assert.assertEquals;
@@ -48,7 +49,7 @@ public class JsonUtilTest {
 
     public void assertReplacementMade(String testJson, String replacement, String path, ReplacementValue value) throws Exception {
         final ObjectNode doc = JsonUtil.replaceNode(testJson, path, replacement);
-        final File temp = File.createTempFile("JsonUtilTest", ".json");
+        final File temp = File.createTempFile("JsonUtilTest", ".json", getDefaultTempDir());
         FileUtil.toFile(temp, toJson(doc));
         final TestData data = JsonUtil.fromJson(temp, TestData.class);
         assertEquals(replacement, value.getValue(data));

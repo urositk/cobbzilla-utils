@@ -144,7 +144,7 @@ public class FileUtil {
     }
 
     public static File toFile (List<String> lines) throws IOException {
-        final File temp = File.createTempFile(FileUtil.class.getSimpleName()+".toFile", "tmp");
+        final File temp = File.createTempFile(FileUtil.class.getSimpleName()+".toFile", "tmp", getDefaultTempDir());
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(temp))) {
             for (String line : lines) {
                 writer.write(line+"\n");
@@ -243,7 +243,15 @@ public class FileUtil {
             return toFile(file, data, append);
         } catch (IOException e) {
             String path = (file == null) ? "null" : abs(file);
-            return die("toFileOrDie: error writing to file: "+ path);
+            return die("toFileOrDie: error writing to file: "+path+": "+e, e);
+        }
+    }
+
+    public static File toFile (String data) {
+        try {
+            return toFile(temp(".tmp"), data, false);
+        } catch (IOException e) {
+            return die("toFile: error writing data to temp file: "+e, e);
         }
     }
 
@@ -495,11 +503,13 @@ public class FileUtil {
 
     public static File temp (String prefix, String suffix) {
         try {
-            return File.createTempFile(prefix, suffix);
+            return File.createTempFile(prefix, suffix, getDefaultTempDir());
         } catch (IOException e) {
             return die("temp: "+e, e);
         }
     }
+
+    public static File getDefaultTempDir() { return mkdirOrDie(System.getProperty("user.home")+"/tmp/zilla"); }
 
     public static File temp (String prefix, String suffix, File dir) {
         try {

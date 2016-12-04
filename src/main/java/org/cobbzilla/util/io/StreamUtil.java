@@ -8,6 +8,7 @@ import java.io.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.stdin;
+import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
 
 public class StreamUtil {
 
@@ -28,7 +29,7 @@ public class StreamUtil {
 
     public static File stream2file (InputStream in, boolean temp) {
         try {
-            final File file = File.createTempFile(PREFIX, SUFFIX);
+            final File file = File.createTempFile(PREFIX, SUFFIX, getDefaultTempDir());
             if (temp) file.deleteOnExit();
             return stream2file(in, file);
         } catch (IOException e) {
@@ -72,7 +73,7 @@ public class StreamUtil {
     }
 
     public static File loadResourceAsFile (String path, Class clazz) throws IOException {
-        final File tmp = File.createTempFile("resource", ".tmp");
+        final File tmp = File.createTempFile("resource", ".tmp", getDefaultTempDir());
         return loadResourceAsFile(path, clazz, tmp);
     }
 

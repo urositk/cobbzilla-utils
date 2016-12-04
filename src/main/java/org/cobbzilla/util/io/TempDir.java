@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 /**
@@ -78,9 +79,9 @@ public class TempDir extends File implements Closeable {
         try {
             if (killAfter > 0) {
                 long killTime = killAfter + now();
-                return qtReaper.add(File.createTempFile("quickTemp-", ".tmp"), killTime);
+                return qtReaper.add(File.createTempFile("quickTemp-", ".tmp", getDefaultTempDir()), killTime);
             } else {
-                return File.createTempFile("quickTemp-", ".tmp");
+                return File.createTempFile("quickTemp-", ".tmp", getDefaultTempDir());
             }
         } catch (IOException e) {
             return die("quickTemp: cannot create temp file: " + e, e);

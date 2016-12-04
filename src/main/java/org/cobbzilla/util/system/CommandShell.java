@@ -13,6 +13,7 @@ import java.util.*;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
 
 @Slf4j
 public class CommandShell {
@@ -253,7 +254,7 @@ public class CommandShell {
     public static File tempScript (String contents) {
         contents = "#!/bin/bash\n\n"+contents;
         try {
-            final File temp = File.createTempFile("tempScript", ".sh");
+            final File temp = File.createTempFile("tempScript", ".sh", getDefaultTempDir());
             FileUtil.toFile(temp, contents);
             chmod(temp, "700");
             return temp;
