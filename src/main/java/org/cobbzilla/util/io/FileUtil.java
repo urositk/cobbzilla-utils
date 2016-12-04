@@ -25,6 +25,8 @@ public class FileUtil {
     private static final File[] EMPTY_ARRAY = {};
     public static final String sep = File.separator;
 
+    public static String defaultTempDir = System.getProperty("user.home") + "/tmp/zilla";
+
     public static boolean isReadableNonEmptyFile (File f) {
         return f != null && f.exists() && f.canRead() && f.length() > 0;
     }
@@ -509,7 +511,7 @@ public class FileUtil {
         }
     }
 
-    public static File getDefaultTempDir() { return mkdirOrDie(System.getProperty("user.home")+"/tmp/zilla"); }
+    public static File getDefaultTempDir() { return mkdirOrDie(defaultTempDir); }
 
     public static File temp (String prefix, String suffix, File dir) {
         try {
