@@ -126,6 +126,7 @@ public class ZillaRuntime {
 
     @Getter @Setter private static long systemTimeOffset = 0;
     public static long now() { return System.currentTimeMillis() + systemTimeOffset; }
+    public static long realNow() { return System.currentTimeMillis(); }
 
     public static <T> T pickRandom(T[] things) { return things[RandomUtils.nextInt(0, things.length)]; }
     public static <T> T pickRandom(List<T> things) { return things.get(RandomUtils.nextInt(0, things.size())); }
