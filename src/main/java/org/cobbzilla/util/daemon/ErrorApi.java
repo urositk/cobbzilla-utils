@@ -7,5 +7,6 @@ public interface ErrorApi {
 
     void report(Exception e);
     void report(String s);
+    void report(String s, Exception e);
 
 }
