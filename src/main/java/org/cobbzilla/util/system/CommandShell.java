@@ -14,6 +14,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
+import static org.cobbzilla.util.json.JsonUtil.json;
 import static org.cobbzilla.util.string.StringUtil.ellipsis;
 
 @Slf4j
@@ -269,7 +270,7 @@ public class CommandShell {
     public static String execScript (String contents) { return execScript(contents, null); }
 
     public static String execScript (String contents, Map<String, String> env) {
-        log.info("execScript: "+contents);
+        log.info("execScript: "+contents+", env="+json(env));
         final CommandResult result = scriptResult(contents, env);
         if (!result.isZeroExitStatus()) die("execScript: non-zero exit: "+result);
         return result.getStdout();
