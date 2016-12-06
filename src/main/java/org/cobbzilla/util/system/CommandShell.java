@@ -14,6 +14,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
+import static org.cobbzilla.util.string.StringUtil.ellipsis;
 
 @Slf4j
 public class CommandShell {
@@ -169,6 +170,7 @@ public class CommandShell {
             return new CommandResult(exitValue, outBuffer, errBuffer);
 
         } catch (Exception e) {
+            log.error("exec: "+e+"\nstdout="+ellipsis(outBuffer.toString(), 1000)+"\nstderr="+ ellipsis(errBuffer.toString(), 1000));
             return new CommandResult(e, outBuffer, errBuffer);
         }
     }
