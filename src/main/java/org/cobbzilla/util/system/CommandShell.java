@@ -170,7 +170,7 @@ public class CommandShell {
             return new CommandResult(exitValue, outBuffer, errBuffer);
 
         } catch (Exception e) {
-            log.error("exec("+command.toString()+"): "+e+"\nstdout="+ellipsis(outBuffer.toString(), 1000)+"\nstderr="+ ellipsis(errBuffer.toString(), 1000));
+            log.error("exec("+command.getCommandLine()+"): "+e+"\nstdout="+ellipsis(outBuffer.toString(), 1000)+"\nstderr="+ ellipsis(errBuffer.toString(), 1000));
             return new CommandResult(e, outBuffer, errBuffer);
         }
     }
