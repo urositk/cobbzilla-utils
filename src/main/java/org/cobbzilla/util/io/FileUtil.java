@@ -361,9 +361,11 @@ public class FileUtil {
 
     public static File mkdirOrDie(File dir) {
         if (!dir.exists() && !dir.mkdirs()) {
-            final String msg = "mkdirOrDie: error creating: " + abs(dir);
-            log.error(msg);
-            die(msg);
+            if (!dir.exists()) {
+                final String msg = "mkdirOrDie: error creating: " + abs(dir);
+                log.error(msg);
+                die(msg);
+            }
         }
         assertIsDir(dir);
         return dir;
