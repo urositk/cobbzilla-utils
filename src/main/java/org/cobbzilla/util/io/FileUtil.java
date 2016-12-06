@@ -176,6 +176,7 @@ public class FileUtil {
     }
 
     public static String toString (File f) throws IOException {
+        if (f == null || !f.exists()) return null;
         final StringWriter writer = new StringWriter();
         try (Reader r = new FileReader(f)) {
             IOUtils.copy(r, writer);
