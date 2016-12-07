@@ -136,7 +136,7 @@ public class Await {
     }
 
     public static void awaitAll(Collection<Future> futures, long timeout) throws TimeoutException {
-        awaitAll(futures, timeout, ClockProvider.ZILLA);
+        awaitAll(futures, timeout, ClockProvider.SYSTEM);
     }
 
     public static void awaitAll(Collection<Future> futures, long timeout, ClockProvider clock) throws TimeoutException {
