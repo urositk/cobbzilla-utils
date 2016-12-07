@@ -6,6 +6,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.now;
+import static org.cobbzilla.util.daemon.ZillaRuntime.readStdin;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 @Slf4j
@@ -81,7 +82,7 @@ public abstract class SimpleDaemon implements Runnable {
         long start = now();
         while (getIsAlive()
                 && (now() - start < wait)) {
-            sleep(25, "stopWithPossibleKill");
+            wait(25, "stopWithPossibleKill");
         }
         if (getIsAlive()) {
             kill();
@@ -95,7 +96,7 @@ public abstract class SimpleDaemon implements Runnable {
         long delay = getStartupDelay();
         if (delay > 0) {
             log.debug(name + ": Delaying daemon startup for " + delay + "ms...");
-            sleep(delay, "run[startup-delay]");
+            if (!wait(delay, "run[startup-delay]")) return;
         }
         log.debug(name + ": Daemon thread now running");
 
@@ -108,7 +109,7 @@ public abstract class SimpleDaemon implements Runnable {
                 process();
                 lastProcessTime = now();
                 if (isDone) return;
-                sleep(getSleepTime(), "run[post-processing]");
+                if (!wait(getSleepTime(), "run[post-processing]")) return;
             }
         } catch (Exception e) {
             log.error(name + ": Error in daemon, exiting: " + e, e);
@@ -120,6 +121,20 @@ public abstract class SimpleDaemon implements Runnable {
             } catch (Exception e) {
                 log.error(name + ": Error in onStop, exiting and ignoring error: " + e, e);
             }
+        }
+    }
+
+    protected boolean wait(long delay, String reason) {
+        try {
+            sleep(delay, reason);
+            return true;
+        } catch (RuntimeException e) {
+            if (isDone) {
+                log.info("sleep("+readStdin()+") interrupted but daemon is done");
+            } else {
+                log.error("sleep("+readStdin()+") interrupted, exiting: "+e);
+            }
+            return false;
         }
     }
 

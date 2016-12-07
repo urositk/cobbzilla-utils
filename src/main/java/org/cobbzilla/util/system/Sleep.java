@@ -2,8 +2,6 @@ package org.cobbzilla.util.system;
 
 import lombok.extern.slf4j.Slf4j;
 
-import static org.cobbzilla.util.daemon.ZillaRuntime.die;
-
 @Slf4j
 public class Sleep {
 
@@ -27,7 +25,7 @@ public class Sleep {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            die("sleep interrupted (" + reason + ")");
+            throw new IllegalStateException("sleep interrupted (" + reason + ")");
         }
     }
 
