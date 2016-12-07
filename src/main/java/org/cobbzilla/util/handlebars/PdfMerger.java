@@ -89,7 +89,7 @@ public class PdfMerger {
                             try {
                                 field.setValue(formValue);
                             } catch (Exception e) {
-                                die("merge (field="+field+", value="+formValue+"): "+e);
+                                die("merge (field="+field+", value="+formValue+"): "+e, e);
                             }
                         }
                     }
