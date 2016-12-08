@@ -711,16 +711,24 @@ public class ReflectionUtil {
     // adapted from https://stackoverflow.com/a/2924426/1251543
     private static class CallerInspector extends SecurityManager {
         public String getCallerClassName() { return getClassContext()[2].getName(); }
+        public String getCallerClassName(int depth) { return getClassContext()[depth].getName(); }
     }
     private final static CallerInspector callerInspector = new CallerInspector();
 
     public static String callerClassName() { return callerInspector.getCallerClassName(); }
+    public static String callerClassName(int depth) { return callerInspector.getCallerClassName(depth); }
     public static String callerMethodName() { return new Throwable().getStackTrace()[2].getMethodName(); }
 
     public static String caller () {
         final StackTraceElement[] t = new Throwable().getStackTrace();
         if (t == null || t.length == 0) return "NO STACK TRACE!";
         return caller(t[Math.max(t.length-1, 2)]);
+    }
+
+    public static String caller (int depth) {
+        final StackTraceElement[] t = new Throwable().getStackTrace();
+        if (t == null || t.length == 0) return "NO STACK TRACE!";
+        return caller(t[Math.min(depth, t.length-1)]);
     }
 
     public static String caller(StackTraceElement s) { return s.getClassName() + "." + s.getMethodName() + ":" + s.getLineNumber(); }
