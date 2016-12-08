@@ -717,18 +717,40 @@ public class ReflectionUtil {
 
     public static String callerClassName() { return callerInspector.getCallerClassName(); }
     public static String callerClassName(int depth) { return callerInspector.getCallerClassName(depth); }
+    public static String callerClassName(String match) {
+        final StackTraceElement s = callerFrame(match);
+        return s == null ? "callerClassName: no match: "+match : s.getMethodName();
+    }
+
     public static String callerMethodName() { return new Throwable().getStackTrace()[2].getMethodName(); }
+    public static String callerMethodName(int depth) { return new Throwable().getStackTrace()[depth].getMethodName(); }
+    public static String callerMethodName(String match) {
+        final StackTraceElement s = callerFrame(match);
+        return s == null ? "callerMethodName: no match: "+match : s.getMethodName();
+    }
 
     public static String caller () {
         final StackTraceElement[] t = new Throwable().getStackTrace();
-        if (t == null || t.length == 0) return "NO STACK TRACE!";
+        if (t == null || t.length == 0) return "caller: NO STACK TRACE!";
         return caller(t[Math.max(t.length-1, 2)]);
     }
 
     public static String caller (int depth) {
         final StackTraceElement[] t = new Throwable().getStackTrace();
-        if (t == null || t.length == 0) return "NO STACK TRACE!";
+        if (t == null || t.length == 0) return "caller: NO STACK TRACE!";
         return caller(t[Math.min(depth, t.length-1)]);
+    }
+
+    public static String caller(String match) {
+        final StackTraceElement s = callerFrame(match);
+        return s == null ? "caller: no match: "+match : caller(s);
+    }
+
+    public static StackTraceElement callerFrame(String match) {
+        final StackTraceElement[] t = new Throwable().getStackTrace();
+        if (t == null || t.length == 0) return null;
+        for (StackTraceElement s : t) if (caller(s).contains(match)) return s;
+        return null;
     }
 
     public static String caller(StackTraceElement s) { return s.getClassName() + "." + s.getMethodName() + ":" + s.getLineNumber(); }
