@@ -88,6 +88,7 @@ public class StringUtil {
     public static String lastPathElement(String url) { return url.substring(url.lastIndexOf("/")+1); }
 
     public static String safeFunctionName (String s) { return s.replaceAll("\\W", ""); }
+    public static String safeSnakeName (String s) { return s.replaceAll("\\W", "_"); }
 
     public static String onlyDigits (String s) { return s.replaceAll("\\D+", ""); }
 
