@@ -268,9 +268,11 @@ public class CommandShell {
 
     public static String execScript (String contents) { return execScript(contents, null); }
 
-    public static String execScript (String contents, Map<String, String> env) {
+    public static String execScript (String contents, Map<String, String> env) { return execScript(contents, env, false); }
+
+    public static String execScript (String contents, Map<String, String> env, boolean ignoreReturn) {
         final CommandResult result = scriptResult(contents, env);
-        if (!result.isZeroExitStatus()) die("execScript: non-zero exit: "+result);
+        if (!result.isZeroExitStatus() && !ignoreReturn) die("execScript: non-zero exit: "+result);
         return result.getStdout();
     }
 
