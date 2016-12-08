@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static java.lang.Long.toHexString;
 import static org.cobbzilla.util.io.FileUtil.list;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
@@ -126,6 +127,7 @@ public class ZillaRuntime {
 
     @Getter @Setter private static long systemTimeOffset = 0;
     public static long now() { return System.currentTimeMillis() + systemTimeOffset; }
+    public static String hexnow() { return toHexString(now()); }
     public static long realNow() { return System.currentTimeMillis(); }
 
     public static <T> T pickRandom(T[] things) { return things[RandomUtils.nextInt(0, things.length)]; }
