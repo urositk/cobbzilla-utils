@@ -26,17 +26,17 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.http.HttpMethods.*;
 
 @NoArgsConstructor @ToString(of={"method", "uri"}) @Accessors(chain=true)
-public class HttpRequestBean<T> {
+public class HttpRequestBean {
 
     @Getter @Setter private String method = GET;
     @Getter @Setter private String uri;
 
-    @Getter @Setter private T data;
+    @Getter @Setter private String data;
     public boolean hasData () { return data != null; }
 
     @Getter @Setter private Multimap<String, String> headers = ArrayListMultimap.create();
-    public HttpRequestBean<T> withHeader (String name, String value) { setHeader(name, value); return this; }
-    public HttpRequestBean<T> setHeader (String name, String value) {
+    public HttpRequestBean withHeader (String name, String value) { setHeader(name, value); return this; }
+    public HttpRequestBean setHeader (String name, String value) {
         headers.put(name, value);
         return this;
     }
@@ -46,13 +46,13 @@ public class HttpRequestBean<T> {
 
     public HttpRequestBean (String method, String uri) { this(method, uri, null); }
 
-    public HttpRequestBean (String method, String uri, T data) {
+    public HttpRequestBean (String method, String uri, String data) {
         this.method = method;
         this.uri = uri;
         this.data = data;
     }
 
-    public HttpRequestBean (String method, String uri, T data, Multimap<String, String> headers) {
+    public HttpRequestBean (String method, String uri, String data, Multimap<String, String> headers) {
         this(method, uri, data);
         this.headers = headers;
     }
@@ -74,7 +74,7 @@ public class HttpRequestBean<T> {
 
     public boolean hasAuth () { return authType != null; }
 
-    public HttpRequestBean<T> setAuth(HttpAuthType authType, String name, String password) {
+    public HttpRequestBean setAuth(HttpAuthType authType, String name, String password) {
         setAuthType(authType);
         setAuthUsername(name);
         setAuthPassword(password);
@@ -95,10 +95,10 @@ public class HttpRequestBean<T> {
         return values.iterator().next();
     }
 
-    public static HttpRequestBean<String> get   (String path)              { return new HttpRequestBean<>(GET, path); }
-    public static HttpRequestBean<String> put   (String path, String json) { return new HttpRequestBean<>(PUT, path, json); }
-    public static HttpRequestBean<String> post  (String path, String json) { return new HttpRequestBean<>(POST, path, json); }
-    public static HttpRequestBean<String> delete(String path)              { return new HttpRequestBean<>(DELETE, path); }
+    public static HttpRequestBean get   (String path)              { return new HttpRequestBean(GET, path); }
+    public static HttpRequestBean put   (String path, String json) { return new HttpRequestBean(PUT, path, json); }
+    public static HttpRequestBean post  (String path, String json) { return new HttpRequestBean(POST, path, json); }
+    public static HttpRequestBean delete(String path)              { return new HttpRequestBean(DELETE, path); }
 
     public String cURL () {
         // todo: add support for HTTP auth fields: authType/username/password
