@@ -1,6 +1,7 @@
 package org.cobbzilla.util.collection.multi;
 
 import lombok.Getter;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public abstract class MultiResultDriverBase implements MultiResultDriver {
 
@@ -26,6 +27,6 @@ public abstract class MultiResultDriverBase implements MultiResultDriver {
     }
 
     @Override public void success(String message) { result.success(message); }
-    @Override public void failure(String message, Exception e) { result.fail(message, e.toString()); }
+    @Override public void failure(String message, Exception e) { result.fail(message, e.toString() + "\n- stack -\n" + ExceptionUtils.getStackTrace(e) + "\n- end stack -\n"); }
 
 }
