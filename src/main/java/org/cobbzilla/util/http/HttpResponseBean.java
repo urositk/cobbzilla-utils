@@ -26,7 +26,7 @@ public class HttpResponseBean {
 
     @Getter @Setter private int status;
     @Getter @Setter private Multimap<String, String> headers;
-    @Getter private byte[] entity;
+    @JsonIgnore @Getter private byte[] entity;
     @Getter @Setter private long contentLength;
     @Getter @Setter private String contentType;
 
