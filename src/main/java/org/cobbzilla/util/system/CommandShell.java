@@ -170,7 +170,11 @@ public class CommandShell {
             return new CommandResult(exitValue, outBuffer, errBuffer);
 
         } catch (Exception e) {
-            log.error("exec("+command.getCommandLine()+"): "+e+"\nstdout="+ellipsis(outBuffer.toString(), 1000)+"\nstderr="+ ellipsis(errBuffer.toString(), 1000));
+            final String stdout = outBuffer.toString().trim();
+            final String stderr = outBuffer.toString().trim();
+            log.error("exec("+command.getCommandLine()+"): " + e
+                    + (stdout.length() > 0 ? "\nstdout="+ellipsis(stdout, 1000) : "")
+                    + (stderr.length() > 0 ? "\nstderr="+ ellipsis(stderr, 1000) : ""));
             return new CommandResult(e, outBuffer, errBuffer);
         }
     }
@@ -268,28 +272,29 @@ public class CommandShell {
 
     public static String execScript (String contents) { return execScript(contents, null); }
 
-    public static String execScript (String contents, Map<String, String> env) { return execScript(contents, env, false); }
+    public static String execScript (String contents, Map<String, String> env) { return execScript(contents, env, null); }
 
-    public static String execScript (String contents, Map<String, String> env, boolean ignoreReturn) {
-        final CommandResult result = scriptResult(contents, env);
-        if (!result.isZeroExitStatus() && !ignoreReturn) die("execScript: non-zero exit: "+result);
+    public static String execScript (String contents, Map<String, String> env, List<Integer> exitValues) {
+        final CommandResult result = scriptResult(contents, env, null, exitValues);
+        if (!result.isZeroExitStatus() && !exitValues.contains(result.getExitStatus())) die("execScript: non-zero exit: "+result);
         return result.getStdout();
     }
 
-    public static CommandResult scriptResult (String contents) { return scriptResult(contents, null, null); }
+    public static CommandResult scriptResult (String contents) { return scriptResult(contents, null, null, null); }
 
     public static CommandResult scriptResult (String contents, Map<String, String> env) {
-        return scriptResult(contents, env, null);
+        return scriptResult(contents, env, null, null);
     }
 
     public static CommandResult scriptResult (String contents, String input) {
-        return scriptResult(contents, null, input);
+        return scriptResult(contents, null, input, null);
     }
 
-    public static CommandResult scriptResult (String contents, Map<String, String> env, String input) {
+    public static CommandResult scriptResult (String contents, Map<String, String> env, String input, List<Integer> exitValues) {
         try {
             @Cleanup("delete") final File script = tempScript(contents);
             final Command command = new Command(new CommandLine(script)).setEnv(env).setInput(input);
+            if (!empty(exitValues)) command.setExitValues(exitValues);
             return exec(command);
         } catch (Exception e) {
             return die("Error executing: "+e);
