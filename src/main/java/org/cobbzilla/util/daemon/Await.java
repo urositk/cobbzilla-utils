@@ -135,34 +135,36 @@ public class Await {
         return results;
     }
 
-    public static <T> Collection<T> awaitAll(Collection<Future<?>> futures, long timeout) throws AwaitTimeoutException {
+    public static <T> AwaitResult<T> awaitAll(Collection<Future<?>> futures, long timeout) {
         return awaitAll(futures, timeout, ClockProvider.SYSTEM);
     }
 
-    public static <T> Collection<T> awaitAll(Collection<Future<?>> futures, long timeout, ClockProvider clock) throws AwaitTimeoutException {
+    public static <T> AwaitResult<T> awaitAll(Collection<Future<?>> futures, long timeout, ClockProvider clock) {
         long start = clock.now();
-        final List<T> results = new ArrayList<>();
-        final List<?> awaiting = new ArrayList<>(futures);
+        final AwaitResult<T> result = new AwaitResult<>();
+        final Collection<Future<?>> awaiting = new ArrayList<>(futures);
+
         while (clock.now() - start < timeout) {
             for (Iterator iter = awaiting.iterator(); iter.hasNext(); ) {
                 final Future f = (Future) iter.next();
                 if (f.isDone()) {
                     iter.remove();
                     try {
-                        final T result = (T) f.get();
-                        if (result != null) {
-                            log.info("awaitAll: "+ result);
-                            results.add(result);
-                        }
+                        final T r = (T) f.get();
+                        if (r != null) log.info("awaitAll: "+ r);
+                        result.success(f, r);
+
                     } catch (Exception e) {
                         log.warn("awaitAll: "+e, e);
+                        result.fail(f, e);
                     }
                 }
             }
             if (awaiting.isEmpty()) break;
             sleep(200);
         }
-        if (clock.now() - start >= timeout) throw new AwaitTimeoutException(results);
-        return results;
+
+        result.timeout(awaiting);
+        return result;
     }
 }
