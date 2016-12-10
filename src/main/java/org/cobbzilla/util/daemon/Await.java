@@ -140,16 +140,14 @@ public class Await {
     }
 
     public static <T> Collection<T> awaitAll(Collection<Future<?>> futures, long timeout, ClockProvider clock) throws AwaitTimeoutException {
-        boolean allDone;
         long start = clock.now();
         final List<T> results = new ArrayList<>();
+        final List<?> awaiting = new ArrayList<>(futures);
         while (clock.now() - start < timeout) {
-            allDone = true;
-            for (Future f : futures) {
-                if (!f.isDone()) {
-                    allDone = false;
-                    break;
-                } else {
+            for (Iterator iter = awaiting.iterator(); iter.hasNext(); ) {
+                final Future f = (Future) iter.next();
+                if (f.isDone()) {
+                    iter.remove();
                     try {
                         final T result = (T) f.get();
                         if (result != null) {
@@ -161,7 +159,7 @@ public class Await {
                     }
                 }
             }
-            if (allDone) break;
+            if (awaiting.isEmpty()) break;
             sleep(200);
         }
         if (clock.now() - start >= timeout) throw new AwaitTimeoutException(results);
