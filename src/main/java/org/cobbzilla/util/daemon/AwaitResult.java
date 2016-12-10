@@ -24,4 +24,10 @@ public class AwaitResult<T> {
 
     public boolean allSucceeded() { return failures.isEmpty() && timeouts.isEmpty(); }
 
+    public List<T> getNotNullSuccesses() {
+        final List<T> ok = new ArrayList<>();
+        for (T t : getSuccesses().values()) if (t != null) ok.add(t);
+        return ok;
+    }
+
 }
