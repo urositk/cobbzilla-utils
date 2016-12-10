@@ -135,13 +135,14 @@ public class Await {
         return results;
     }
 
-    public static void awaitAll(Collection<Future> futures, long timeout) throws TimeoutException {
-        awaitAll(futures, timeout, ClockProvider.SYSTEM);
+    public static <T> Collection<T> awaitAll(Collection<Future<?>> futures, long timeout) throws TimeoutException {
+        return awaitAll(futures, timeout, ClockProvider.SYSTEM);
     }
 
-    public static void awaitAll(Collection<Future> futures, long timeout, ClockProvider clock) throws TimeoutException {
+    public static <T> Collection<T> awaitAll(Collection<Future<?>> futures, long timeout, ClockProvider clock) throws TimeoutException {
         boolean allDone;
         long start = clock.now();
+        final List<T> results = new ArrayList<>();
         while (clock.now() - start < timeout) {
             allDone = true;
             for (Future f : futures) {
@@ -150,8 +151,11 @@ public class Await {
                     break;
                 } else {
                     try {
-                        final Object result = f.get();
-                        if (result != null) log.info("awaitAll: "+ result);
+                        final T result = (T) f.get();
+                        if (result != null) {
+                            log.info("awaitAll: "+ result);
+                            results.add(result);
+                        }
                     } catch (Exception e) {
                         log.warn("awaitAll: "+e, e);
                     }
@@ -161,5 +165,6 @@ public class Await {
             sleep(200);
         }
         if (clock.now() - start >= timeout) throw new TimeoutException();
+        return results;
     }
 }
