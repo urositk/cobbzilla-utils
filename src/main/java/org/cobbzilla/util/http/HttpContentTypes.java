@@ -13,6 +13,7 @@ public class HttpContentTypes {
     public static final String IMAGE_PNG = "image/png";
     public static final String IMAGE_JPEG = "image/jpg";
     public static final String IMAGE_GIF = "image/gif";
+    public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 
     public static String contentType(String name) {
         final int dot = name.lastIndexOf('.');
