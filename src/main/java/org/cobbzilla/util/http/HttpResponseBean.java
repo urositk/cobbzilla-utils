@@ -39,13 +39,13 @@ public class HttpResponseBean {
         final Map<String, Object> map = new LinkedHashMap<>();
         map.put("status", status);
         map.put("headers", headers.asMap());
-        map.put("entity", hasContentType() ? HttpContentTypes.escape(getContentType(), getEntityString()) : getEntityString());
+        map.put("entity", hasContentType() ? HttpContentTypes.escape(contentType(), getEntityString()) : getEntityString());
         return map;
     }
 
     public boolean hasHeader (String name) { return !empty(getHeaderValues(name)); }
-    public boolean hasContentType () { return hasHeader(HttpHeaders.CONTENT_TYPE); }
-    public String getContentType () { return getFirstHeaderValue(HttpHeaders.CONTENT_TYPE); }
+    public boolean hasContentType () { return contentType != null || hasHeader(HttpHeaders.CONTENT_TYPE); }
+    public String contentType () { return contentType != null ? contentType : getFirstHeaderValue(HttpHeaders.CONTENT_TYPE); }
 
     public void addHeader(String name, String value) {
         if (headers == null) headers = LinkedListMultimap.create();
