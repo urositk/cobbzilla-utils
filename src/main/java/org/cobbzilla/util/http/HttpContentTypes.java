@@ -1,7 +1,6 @@
 package org.cobbzilla.util.http;
 
-import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
-import static org.apache.commons.lang3.StringEscapeUtils.escapeXml10;
+import static org.apache.commons.lang3.StringEscapeUtils.*;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 
 public class HttpContentTypes {
@@ -44,6 +43,15 @@ public class HttpContentTypes {
         switch (mime) {
             case APPLICATION_XML: return escapeXml10(data);
             case TEXT_HTML: return escapeHtml4(data);
+        }
+        return data;
+    }
+
+    public static String unescape(String mime, String data) {
+        if (empty(data)) return data;
+        switch (mime) {
+            case APPLICATION_XML: return unescapeXml(data);
+            case TEXT_HTML: return unescapeHtml4(data);
         }
         return data;
     }
