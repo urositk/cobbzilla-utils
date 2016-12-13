@@ -20,6 +20,7 @@ import org.cobbzilla.util.string.StringUtil;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
@@ -55,6 +56,15 @@ public class HttpRequestBean {
     public HttpRequestBean (String method, String uri, String data, Multimap<String, String> headers) {
         this(method, uri, data);
         this.headers = headers;
+    }
+
+    public Map<String, Object> toMap () {
+        final Map<String, Object> map = new LinkedHashMap<>();
+        map.put("method", method);
+        map.put("uri", uri);
+        map.put("headers", headers.asMap());
+        map.put("data", data);
+        return map;
     }
 
     @Getter(lazy=true, value=AccessLevel.PRIVATE) private final URI _uri = initURI();

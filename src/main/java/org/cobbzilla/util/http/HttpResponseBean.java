@@ -15,6 +15,8 @@ import org.cobbzilla.util.json.JsonUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.apache.http.HttpHeaders.CONTENT_LENGTH;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
@@ -31,6 +33,14 @@ public class HttpResponseBean {
     @Getter @Setter private String contentType;
 
     @JsonIgnore public boolean isOk() { return (status / 100) == 2; }
+
+    public Map<String, Object> toMap () {
+        final Map<String, Object> map = new LinkedHashMap<>();
+        map.put("status", status);
+        map.put("headers", headers.asMap());
+        map.put("entity", getEntityString());
+        return map;
+    }
 
     public void addHeader(String name, String value) {
         if (headers == null) headers = LinkedListMultimap.create();
