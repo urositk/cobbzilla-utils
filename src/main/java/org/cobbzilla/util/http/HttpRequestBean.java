@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.apache.commons.lang3.StringEscapeUtils.escapeXml10;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.http.HttpMethods.*;
 
@@ -63,7 +64,6 @@ public class HttpRequestBean {
         map.put("method", method);
         map.put("uri", uri);
         map.put("headers", headers.asMap());
-        map.put("data", data);
         return map;
     }
 

@@ -38,7 +38,6 @@ public class HttpResponseBean {
         final Map<String, Object> map = new LinkedHashMap<>();
         map.put("status", status);
         map.put("headers", headers.asMap());
-        map.put("entity", getEntityString());
         return map;
     }
 
