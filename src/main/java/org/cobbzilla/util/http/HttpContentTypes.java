@@ -2,6 +2,7 @@ package org.cobbzilla.util.http;
 
 import static org.apache.commons.lang3.StringEscapeUtils.*;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class HttpContentTypes {
 
