@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.apache.commons.lang3.StringEscapeUtils.escapeXml10;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.http.HttpMethods.*;
 
@@ -64,6 +63,7 @@ public class HttpRequestBean {
         map.put("method", method);
         map.put("uri", uri);
         map.put("headers", headers.asMap());
+        map.put("data", hasContentType() ? HttpContentTypes.escape(getContentType().getMimeType(), data) : data);
         return map;
     }
 
@@ -97,6 +97,7 @@ public class HttpRequestBean {
         if (empty(value)) return null;
         return ContentType.parse(value);
     }
+    public boolean hasContentType () { return getContentType() != null; }
 
     private String getFirstHeaderValue(String name) {
         if (!hasHeaders()) return null;

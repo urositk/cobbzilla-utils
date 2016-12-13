@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
 import org.cobbzilla.util.json.JsonUtil;
 
 import java.io.IOException;
@@ -38,8 +39,13 @@ public class HttpResponseBean {
         final Map<String, Object> map = new LinkedHashMap<>();
         map.put("status", status);
         map.put("headers", headers.asMap());
+        map.put("entity", hasContentType() ? HttpContentTypes.escape(getContentType(), getEntityString()) : getEntityString());
         return map;
     }
+
+    public boolean hasHeader (String name) { return !empty(getHeaderValues(name)); }
+    public boolean hasContentType () { return hasHeader(HttpHeaders.CONTENT_TYPE); }
+    public String getContentType () { return getFirstHeaderValue(HttpHeaders.CONTENT_TYPE); }
 
     public void addHeader(String name, String value) {
         if (headers == null) headers = LinkedListMultimap.create();
