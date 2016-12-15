@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
+import static org.cobbzilla.util.security.ShaUtil.sha256_hex;
 import static org.cobbzilla.util.string.StringUtil.*;
 
 @AllArgsConstructor @Slf4j
@@ -130,7 +131,25 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     public static final Handlebars.SafeString EMPTY_SAFE_STRING = new Handlebars.SafeString("");
 
-    public static void registerUtilityHelpers (Handlebars hb) {
+    public static void registerUtilityHelpers (final Handlebars hb) {
+        hb.registerHelper("sha256", new Helper<Object>() {
+            public CharSequence apply(Object src, Options options) {
+                if (empty(src)) return "";
+                src = HandlebarsUtil.apply(hb, src.toString(), (Map<String, Object>) options.context.model());
+                src = sha256_hex(src.toString());
+                return new Handlebars.SafeString(src.toString());
+            }
+        });
+
+        hb.registerHelper("urlEncode", new Helper<Object>() {
+            public CharSequence apply(Object src, Options options) {
+                if (empty(src)) return "";
+                src = HandlebarsUtil.apply(hb, src.toString(), (Map<String, Object>) options.context.model());
+                src = urlEncode(src.toString());
+                return new Handlebars.SafeString(src.toString());
+            }
+        });
+
         hb.registerHelper("find", new Helper<Object>() {
             public CharSequence apply(Object thing, Options options) {
                 final Iterator iter;
