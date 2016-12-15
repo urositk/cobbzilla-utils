@@ -9,6 +9,7 @@ import com.github.jknack.handlebars.io.TemplateSource;
 import lombok.AllArgsConstructor;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.iterators.ArrayIterator;
 import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -20,6 +21,9 @@ import org.joda.time.format.PeriodFormatterBuilder;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -122,6 +126,77 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     @Override public TemplateSource sourceAt(String source) throws IOException {
         return new StringTemplateSource(sourceName, source);
+    }
+
+    public static final Handlebars.SafeString EMPTY_SAFE_STRING = new Handlebars.SafeString("");
+
+    public static void registerUtilityHelpers (Handlebars hb) {
+        hb.registerHelper("find", new Helper<Object>() {
+            public CharSequence apply(Object thing, Options options) {
+                final Iterator iter;
+                if (thing instanceof Collection) {
+                    iter = ((Collection) thing).iterator();
+                } else if (thing instanceof Map) {
+                    iter = ((Map) thing).values().iterator();
+                } else if (Object[].class.isAssignableFrom(thing.getClass())) {
+                    iter = new ArrayIterator(thing);
+                } else {
+                    return die("find: invalid argument type "+thing.getClass().getName());
+                }
+                final String path = options.param(0);
+                final String arg = options.param(1);
+                final String output = options.param(2);
+                while (iter.hasNext()) {
+                    final Object item = iter.next();
+                    try {
+                        final Object val = ReflectionUtil.get(item, path);
+                        if (val != null && val.equals(arg)) return new Handlebars.SafeString(""+ReflectionUtil.get(item, output));
+                    } catch (Exception e) {
+                        log.warn("find: "+e);
+                    }
+                }
+                return EMPTY_SAFE_STRING;
+            }
+        });
+
+        hb.registerHelper("expr", new Helper<Object>() {
+            public CharSequence apply(Object val1, Options options) {
+                final String operator = options.param(0);
+                final Object val2 = options.param(1);
+                final String v1 = val1.toString();
+                final String v2 = val2.toString();
+
+                final BigDecimal result;
+                switch (operator) {
+                    case "+": result = big(v1).add(big(v2)); break;
+                    case "-": result = big(v1).subtract(big(v2)); break;
+                    case "*": result = big(v1).multiply(big(v2)); break;
+                    case "/": result = big(v1).divide(big(v2), BigDecimal.ROUND_HALF_EVEN); break;
+                    case "%": result = big(v1).remainder(big(v2)).abs(); break;
+                    case "^": result = big(v1).pow(big(v2).intValue()); break;
+                    default: return die("expr: invalid operator: "+operator);
+                }
+
+                // can't use trigraph (?:) operator here, if we do then for some reason rval always ends up as a double
+                final Number rval;
+                if (v1.contains(".") || v2.contains(".")) {
+                    rval = result.doubleValue();
+                } else {
+                    rval = result.intValue();
+                }
+                return new Handlebars.SafeString(rval.toString());
+            }
+        });
+
+        hb.registerHelper("truncate", new Helper<Integer>() {
+            public CharSequence apply(Integer max, Options options) {
+                final String val = options.param(0, " ");
+                if (empty(val)) return "";
+                if (max == -1 || max >= val.length()) return val;
+                return new Handlebars.SafeString(val.substring(0, max));
+            }
+        });
+
     }
 
     public static void registerCurrencyHelpers(Handlebars hb) {
