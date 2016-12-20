@@ -113,14 +113,14 @@ public class ZillaRuntime {
     public static BigDecimal big(int val) { return new BigDecimal(val); }
     public static BigDecimal big(byte val) { return new BigDecimal(String.valueOf(val)); }
 
-    public static int percent(int value, double pct) { return percent(value, pct, RoundingMode.HALF_EVEN); }
+    public static int percent(int value, double pct) { return percent(value, pct, RoundingMode.HALF_UP); }
 
     public static int percent(int value, double pct, RoundingMode rounding) {
         return big(value).multiply(big(pct)).setScale(0, rounding).intValue();
     }
 
     public static int percent(BigDecimal value, BigDecimal pct) {
-        return percent(value.intValue(), pct.multiply(big(0.01)).doubleValue(), RoundingMode.HALF_EVEN);
+        return percent(value.intValue(), pct.multiply(big(0.01)).doubleValue(), RoundingMode.HALF_UP);
     }
 
     public static String uuid() { return UUID.randomUUID().toString(); }
