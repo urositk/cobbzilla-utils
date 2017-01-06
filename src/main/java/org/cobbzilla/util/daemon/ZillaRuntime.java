@@ -28,8 +28,8 @@ public class ZillaRuntime {
     public static void terminate(Thread thread, long timeout) {
         if (thread == null || !thread.isAlive()) return;
         thread.interrupt();
-        long start = now();
-        while (thread.isAlive() && now() - start < timeout) {
+        long start = realNow();
+        while (thread.isAlive() && realNow() - start < timeout) {
             sleep(100, "terminate: waiting for thread to die: "+thread);
         }
         if (thread.isAlive()) {
