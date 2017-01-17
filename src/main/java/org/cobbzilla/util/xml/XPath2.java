@@ -25,7 +25,17 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 public class XPath2 {
 
     public static String matchElement (String element) { return "//*[local-name()='"+element+"']"; }
-    public static XPath2 xpath(String element) { return new XPath2(matchElement(element)); }
+    public static String matchElements (String elements) { return matchElements(elements.split("/")); }
+    public static String matchElements (String... elements) {
+        final StringBuilder b = new StringBuilder();
+        for (String element : elements) {
+            b.append("//*[local-name()='").append(element).append("']");
+        }
+        return b.toString();
+    }
+
+    public static XPath2 xpath(String element) { return new XPath2(matchElements(element)); }
+    public static XPath2 xpath(String... elements) { return new XPath2(matchElements(elements)); }
 
     @Getter(lazy=true) private static final XPathFactory xpathFactory = initXpathFactory();
     private static XPathFactory initXpathFactory() {
