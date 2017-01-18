@@ -12,10 +12,32 @@ import static org.cobbzilla.util.string.StringUtil.getPackagePath;
 @Slf4j
 public class StandardJsEngine extends JsEngine {
 
+    public static final JsEngineDriver DRIVER = new JsEngineDriver() {
+        @Override public <T> T evaluate(String code, Map<String, Object> context, String scriptName, Class<T> returnType) {
+            return StandardJsEngine.evaluate(code, context, scriptName, returnType);
+        }
+
+        @Override public boolean evaluateBoolean(String code, Map<String, Object> ctx, String scriptName) {
+            return StandardJsEngine.evaluateBoolean(code, ctx, scriptName);
+        }
+
+        @Override public Integer evaluateInt(String code, Map<String, Object> ctx, String scriptName) {
+            return StandardJsEngine.evaluateInt(code, ctx, scriptName);
+        }
+
+        @Override public Long evaluateLong(String code, Map<String, Object> ctx, String scriptName) {
+            return StandardJsEngine.evaluateLong(code, ctx, scriptName);
+        }
+    };
+
     private static final String STANDARD_FUNCTIONS = stream2string(getPackagePath(StandardJsEngine.class)+"/standard_js_lib.js");
 
     public static <T> T evaluate(String code, Map<String, Object> context, Class<T> returnType) {
-        return JsEngine.evaluate(STANDARD_FUNCTIONS+"\n"+code, context, "evaluate_"+sha256_hex(code), returnType);
+        return evaluate(code, context, "evaluate_"+sha256_hex(code), returnType);
+    }
+
+    public static <T> T evaluate(String code, Map<String, Object> context, String scriptName, Class<T> returnType) {
+        return JsEngine.evaluate(STANDARD_FUNCTIONS+"\n"+code, context, scriptName, returnType);
     }
 
     public static boolean evaluateBoolean(String code, Map<String, Object> ctx) {

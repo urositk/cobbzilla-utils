@@ -12,6 +12,24 @@ import static org.cobbzilla.util.json.JsonUtil.fromJsonOrDie;
 
 public class JsEngine {
 
+    public static final JsEngineDriver DRIVER = new JsEngineDriver() {
+        @Override public <T> T evaluate(String code, Map<String, Object> context, String scriptName, Class<T> returnType) {
+            return JsEngine.evaluate(code, context, scriptName, returnType);
+        }
+
+        @Override public boolean evaluateBoolean(String code, Map<String, Object> ctx, String scriptName) {
+            return JsEngine.evaluateBoolean(code, ctx, scriptName);
+        }
+
+        @Override public Integer evaluateInt(String code, Map<String, Object> ctx, String scriptName) {
+            return JsEngine.evaluateInt(code, ctx, scriptName);
+        }
+
+        @Override public Long evaluateLong(String code, Map<String, Object> ctx, String scriptName) {
+            return JsEngine.evaluateLong(code, ctx, scriptName);
+        }
+    };
+
     public static String scriptName (Object caller, String name) {
         return caller.getClass().getSimpleName() + ":" + name;
     }
