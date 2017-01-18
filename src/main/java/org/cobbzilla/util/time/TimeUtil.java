@@ -53,6 +53,10 @@ public class TimeUtil {
         return String.format("%1$02d:%2$02d:%3$02d.%4$04d", hours, mins, secs, millis);
     }
 
+    public static long addYear (long time) {
+        return new DateTime(time).withFieldAdded(DurationFieldType.years(), 1).getMillis();
+    }
+
     public static long add365days (long time) {
         return new DateTime(time).withFieldAdded(DurationFieldType.days(), 365).getMillis();
     }
