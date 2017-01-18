@@ -14,6 +14,7 @@ public class StreamUtil {
 
     public static final String SUFFIX = ".tmp";
     public static final String PREFIX = "stream2file";
+    public static final String CLASSPATH_PROTOCOL = "classpath://";
 
     public static File stream2file (InputStream in) {
         return stream2file(in, false);
@@ -170,4 +171,14 @@ public class StreamUtil {
             }
         }
     }
+
+    public static String fromClasspathOrString(String path) {
+        final boolean isClasspath = path.startsWith(CLASSPATH_PROTOCOL);
+        if (isClasspath) {
+            path = path.substring(CLASSPATH_PROTOCOL.length());
+            return stream2string(path);
+        }
+        return path;
+    }
+
 }
