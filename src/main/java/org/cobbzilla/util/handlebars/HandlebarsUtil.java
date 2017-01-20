@@ -246,6 +246,13 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                 return new Handlebars.SafeString(formatDollarsAndCentsWithSign(longVal(src)));
             }
         });
+
+        hb.registerHelper("dollarsAndCentsPlain", new Helper<Object>() {
+            public CharSequence apply(Object src, Options options) {
+                if (empty(src)) return "";
+                return new Handlebars.SafeString(formatDollarsAndCentsPlain(longVal(src)));
+            }
+        });
     }
 
     public static void registerDateHelpers(Handlebars hb) {
@@ -282,7 +289,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         if (src == null) return now();
         String srcStr = src.toString().trim();
 
-        if (srcStr == "" || srcStr == "0" || srcStr == "now") return now();
+        if (srcStr.equals("") || srcStr.equals("0") || srcStr.equals("now")) return now();
 
         if (srcStr.startsWith("now")) {
             // Multiple periods may be added to the original timestamp (separated by comma), but in the correct order.
@@ -299,6 +306,24 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         }
 
         return ((Number) src).longValue();
+    }
+
+    public static final String CLOSE_XML_DECL = "?>";
+
+    public static void registerXmlHelpers(final Handlebars hb) {
+        hb.registerHelper("strip_xml_declaration", new Helper<Object>() {
+            public CharSequence apply(Object src, Options options) {
+                if (empty(src)) return "";
+                String xml = src.toString().trim();
+                if (xml.startsWith("<?xml")) {
+                    final int closeDecl = xml.indexOf(CLOSE_XML_DECL);
+                    if (closeDecl != -1) {
+                        xml = xml.substring(closeDecl + CLOSE_XML_DECL.length()).trim();
+                    }
+                }
+                return new Handlebars.SafeString(xml);
+            }
+        });
     }
 
 }
