@@ -3,12 +3,14 @@ package org.cobbzilla.util.string;
 import com.google.common.base.CaseFormat;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.lang3.LocaleUtils;
 import org.cobbzilla.util.security.MD5Util;
 import org.cobbzilla.util.time.ImprovedTimezone;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -451,6 +453,10 @@ public class StringUtil {
     public static double parsePercent (String pct) {
         if (empty(pct)) die("parsePercent: "+pct);
         return Double.parseDouble(chop(removeWhitespace(pct), "%"));
+    }
+
+    public static ReaderInputStream stream(String data) {
+        return new ReaderInputStream(new StringReader(data), UTF8cs);
     }
 
 }
