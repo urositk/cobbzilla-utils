@@ -1,8 +1,6 @@
 package org.cobbzilla.util.http;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.Multimap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,13 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
+import org.cobbzilla.util.collection.NameAndValue;
 import org.cobbzilla.util.json.JsonUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.http.HttpHeaders.CONTENT_LENGTH;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
@@ -28,7 +25,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 public class HttpResponseBean {
 
     @Getter @Setter private int status;
-    @Getter @Setter private Multimap<String, String> headers;
+    @Getter @Setter private List<NameAndValue> headers;
     @JsonIgnore @Getter private byte[] entity;
     @Getter @Setter private long contentLength;
     @Getter @Setter private String contentType;
@@ -38,7 +35,7 @@ public class HttpResponseBean {
     public Map<String, Object> toMap () {
         final Map<String, Object> map = new LinkedHashMap<>();
         map.put("status", status);
-        map.put("headers", headers.asMap());
+        map.put("headers", headers.toArray());
         map.put("entity", hasContentType() ? HttpContentTypes.escape(contentType(), getEntityString()) : getEntityString());
         return map;
     }
@@ -48,10 +45,10 @@ public class HttpResponseBean {
     public String contentType () { return contentType != null ? contentType : getFirstHeaderValue(HttpHeaders.CONTENT_TYPE); }
 
     public void addHeader(String name, String value) {
-        if (headers == null) headers = LinkedListMultimap.create();
+        if (headers == null) headers = new ArrayList<>();
         if (name.equalsIgnoreCase(CONTENT_TYPE)) setContentType(value);
         else if (name.equalsIgnoreCase(CONTENT_LENGTH)) setContentLength(Long.valueOf(value));
-        headers.put(name, value);
+        headers.add(new NameAndValue(name, value));
     }
 
     public HttpResponseBean setEntityBytes(byte[] bytes) { this.entity = bytes; return this; }
@@ -72,11 +69,17 @@ public class HttpResponseBean {
         return entity == null ? null : JsonUtil.fromJsonOrDie(getEntityString(), clazz);
     }
 
-    public Collection<String> getHeaderValues (String name) { return headers.get(name); }
+    public Collection<String> getHeaderValues (String name) {
+        final List<String> values = new ArrayList<>();
+        for (NameAndValue header : headers) if (header.getName().equalsIgnoreCase(name)) values.add(header.getValue());
+        return values;
+    }
+
 
     public String getFirstHeaderValue (String name) {
-        final Collection<String> values = headers.get(name);
-        return values == null || values.isEmpty() ? null : values.iterator().next();
+        if (empty(headers)) return null;
+        for (NameAndValue header : headers) if (header.getName().equalsIgnoreCase(name)) return header.getValue();
+        return null;
     }
 
     public HttpResponseBean setHttpHeaders(Header[] headers) {

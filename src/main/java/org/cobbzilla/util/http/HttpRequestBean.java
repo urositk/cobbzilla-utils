@@ -1,8 +1,6 @@
 package org.cobbzilla.util.http;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.http.HttpHeaders;
@@ -16,12 +14,11 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.cobbzilla.util.collection.NameAndValue;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.http.HttpMethods.*;
@@ -32,13 +29,13 @@ public class HttpRequestBean {
     @Getter @Setter private String method = GET;
     @Getter @Setter private String uri;
 
-    @Getter @Setter private String data;
-    public boolean hasData () { return data != null; }
+    @Getter @Setter private String entity;
+    public boolean hasData () { return entity != null; }
 
-    @Getter @Setter private Multimap<String, String> headers = ArrayListMultimap.create();
+    @Getter @Setter private List<NameAndValue> headers = new ArrayList<>();
     public HttpRequestBean withHeader (String name, String value) { setHeader(name, value); return this; }
     public HttpRequestBean setHeader (String name, String value) {
-        headers.put(name, value);
+        headers.add(new NameAndValue(name, value));
         return this;
     }
     public boolean hasHeaders () { return !empty(headers); }
@@ -47,23 +44,28 @@ public class HttpRequestBean {
 
     public HttpRequestBean (String method, String uri) { this(method, uri, null); }
 
-    public HttpRequestBean (String method, String uri, String data) {
+    public HttpRequestBean (String method, String uri, String entity) {
         this.method = method;
         this.uri = uri;
-        this.data = data;
+        this.entity = entity;
     }
 
-    public HttpRequestBean (String method, String uri, String data, Multimap<String, String> headers) {
-        this(method, uri, data);
+    public HttpRequestBean (String method, String uri, String entity, List<NameAndValue> headers) {
+        this(method, uri, entity);
         this.headers = headers;
+    }
+
+    public HttpRequestBean (String method, String uri, String entity, NameAndValue[] headers) {
+        this(method, uri, entity);
+        this.headers = Arrays.asList(headers);
     }
 
     public Map<String, Object> toMap () {
         final Map<String, Object> map = new LinkedHashMap<>();
         map.put("method", method);
         map.put("uri", uri);
-        map.put("headers", headers.asMap());
-        map.put("data", hasContentType() ? HttpContentTypes.escape(getContentType().getMimeType(), data) : data);
+        map.put("headers", headers.toArray());
+        map.put("entity", hasContentType() ? HttpContentTypes.escape(getContentType().getMimeType(), entity) : entity);
         return map;
     }
 
@@ -101,9 +103,8 @@ public class HttpRequestBean {
 
     private String getFirstHeaderValue(String name) {
         if (!hasHeaders()) return null;
-        final Collection<String> values = headers.get(name);
-        if (empty(values)) return null;
-        return values.iterator().next();
+        for (NameAndValue header : getHeaders()) if (header.getName().equalsIgnoreCase(name)) return header.getValue();
+        return null;
     }
 
     public static HttpRequestBean get   (String path)              { return new HttpRequestBean(GET, path); }
@@ -114,14 +115,12 @@ public class HttpRequestBean {
     public String cURL () {
         // todo: add support for HTTP auth fields: authType/username/password
         final StringBuilder b = new StringBuilder("curl '"+getUri()).append("'");
-        for (Map.Entry<String, Collection<String>> headerSet : getHeaders().asMap().entrySet()) {
-            final String name = headerSet.getKey();
-            for (String value : headerSet.getValue()) {
-                b.append(" -H '").append(name).append(": ").append(value).append("'");
-            }
+        for (NameAndValue header : getHeaders()) {
+            final String name = header.getName();
+            b.append(" -H '").append(name).append(": ").append(header.getValue()).append("'");
         }
         if (getMethod().equals(PUT) || getMethod().equals(POST)) {
-            b.append(" --data-binary '").append(getData()).append("'");
+            b.append(" --data-binary '").append(getEntity()).append("'");
         }
         return b.toString();
     }

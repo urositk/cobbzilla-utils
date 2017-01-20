@@ -1,6 +1,5 @@
 package org.cobbzilla.util.http;
 
-import com.google.common.collect.Multimap;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
@@ -19,6 +18,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
+import org.cobbzilla.util.collection.NameAndValue;
 import org.cobbzilla.util.string.StringUtil;
 import org.cobbzilla.util.system.CommandResult;
 import org.cobbzilla.util.system.CommandShell;
@@ -138,11 +138,8 @@ public class HttpUtil {
 
         final HttpUriRequest request = initHttpRequest(requestBean);
 
-        final Multimap<String, String> headers = requestBean.getHeaders();
-        for (String headerName  : headers.keySet()) {
-            for (String headerValue : headers.get(headerName)) {
-                request.setHeader(headerName, headerValue);
-            }
+        for (NameAndValue header : requestBean.getHeaders()) {
+            request.setHeader(header.getName(), header.getValue());
         }
 
         final HttpResponse response = client.execute(request);
@@ -210,7 +207,7 @@ public class HttpUtil {
             }
 
             if (requestBean.hasData() && request instanceof HttpEntityEnclosingRequestBase) {
-                setData(requestBean.getData(), (HttpEntityEnclosingRequestBase) request);
+                setData(requestBean.getEntity(), (HttpEntityEnclosingRequestBase) request);
             }
 
             return request;

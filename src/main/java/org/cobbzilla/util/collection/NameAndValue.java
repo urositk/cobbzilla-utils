@@ -10,7 +10,7 @@ import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
-@NoArgsConstructor @AllArgsConstructor @Accessors(chain=true) @ToString
+@NoArgsConstructor @AllArgsConstructor @Accessors(chain=true)
 public class NameAndValue {
 
     @Getter @Setter private String name;
@@ -20,6 +20,8 @@ public class NameAndValue {
     @Getter @Setter private String value;
     public boolean hasValue () { return !empty(value); }
     @JsonIgnore public boolean getHasValue () { return !empty(value); }
+
+    @Override public String toString() { return getName()+": "+getValue(); }
 
     public static NameAndValue[] evaluate (NameAndValue[] pairs, Map<String, Object> context) {
         return evaluate(pairs, context, StandardJsEngine.DRIVER);
