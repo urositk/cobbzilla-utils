@@ -53,11 +53,12 @@ public class HttpResponseBean {
 
     public HttpResponseBean setEntityBytes(byte[] bytes) { this.entity = bytes; return this; }
 
-    public void setEntity (InputStream entity) {
+    public HttpResponseBean setEntity (InputStream entity) {
         try {
             this.entity = entity == null ? null : IOUtils.toByteArray(entity);
+            return this;
         } catch (IOException e) {
-            die("setEntity: error reading stream: " + e, e);
+            return die("setEntity: error reading stream: " + e, e);
         }
     }
 
