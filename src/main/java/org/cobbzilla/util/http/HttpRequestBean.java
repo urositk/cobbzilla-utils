@@ -64,7 +64,7 @@ public class HttpRequestBean {
         final Map<String, Object> map = new LinkedHashMap<>();
         map.put("method", method);
         map.put("uri", uri);
-        map.put("headers", headers.toArray());
+        if (!empty(headers)) map.put("headers", headers.toArray());
         map.put("entity", hasContentType() ? HttpContentTypes.escape(getContentType().getMimeType(), entity) : entity);
         return map;
     }

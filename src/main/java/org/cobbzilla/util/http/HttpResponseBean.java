@@ -35,7 +35,7 @@ public class HttpResponseBean {
     public Map<String, Object> toMap () {
         final Map<String, Object> map = new LinkedHashMap<>();
         map.put("status", status);
-        map.put("headers", headers.toArray());
+        if (!empty(headers)) map.put("headers", headers.toArray());
         map.put("entity", hasContentType() ? HttpContentTypes.escape(contentType(), getEntityString()) : getEntityString());
         return map;
     }
