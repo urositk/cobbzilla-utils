@@ -84,6 +84,11 @@ function compare_pct (field, total, comparison, compareVal) {
     return function (item) { return comparison(pct(item[field], total), compareVal); }
 }
 
+// apply itemFunc to each item in array arr. if any such invocation of itemFunc returns true, then this function returns true
+function match_any (arr, itemFunc) {
+    return arr != null && arr.length > 0 && arr.find(itemFunc) != 'undefined';
+}
+
 // functions for rounding up/down to nearest multiple
 function up (x, multiple) { return multiple * parseInt(Math.ceil(parseFloat(x)/parseFloat(multiple))); }
 function down (x, multiple) { return multiple * parseInt(Math.floor(parseFloat(x)/parseFloat(multiple))); }
