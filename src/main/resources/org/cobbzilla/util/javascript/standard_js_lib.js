@@ -39,7 +39,7 @@ function find (arr, field, value, comparison) {
     });
 }
 
-function contains (arr, field, comparison, value) { return find(arr, field, value, comparison); }
+function contains (arr, field, comparison, value) { return find(arr, field, value, comparison) != null; }
 
 // function to find the all object in array that match field==value
 // field may contain embedded dots to navigate within each object element of the array
