@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.iterators.ArrayIterator;
+import org.apache.commons.lang3.StringUtils;
 import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -69,6 +70,31 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     }
 
     public static String apply(Handlebars handlebars, String value, Map<String, Object> ctx) {
+        return apply(handlebars, value, ctx, (char) 0, (char) 0);
+    }
+
+    public static final String DUMMY_START3 = "~~~___~~~";
+    public static final String DUMMY_START2 = "~~__~~";
+    public static final String DUMMY_END3 = "___~~~___";
+    public static final String DUMMY_END2 = "__~~__";
+    public static String apply(Handlebars handlebars, String value, Map<String, Object> ctx, char altStart, char altEnd) {
+        if (altStart != 0 && altEnd != 0) {
+            final String s3 = StringUtils.repeat(altStart, 3);
+            final String s2 = StringUtils.repeat(altStart, 2);
+            final String e3 = StringUtils.repeat(altEnd, 3);
+            final String e2 = StringUtils.repeat(altEnd, 2);
+            // escape existing handlebars delimiters with dummy placeholders (we'll put them back later)
+            value = value.replaceAll("\\{\\{\\{", DUMMY_START3).replaceAll("}}}", DUMMY_END3)
+                    .replaceAll("\\{\\{", DUMMY_START2).replaceAll("}}", DUMMY_END2)
+                    // replace our custom start/end delimiters with handlebars standard ones
+                    .replaceAll(s3, "{{{").replaceAll(e3, "}}}")
+                    .replaceAll(s2, "{{").replaceAll(e2, "}}");
+            // run handlebars, then put the real handlebars stuff back (removing the dummy placeholders)
+            value = apply(handlebars, value, ctx)
+                    .replaceAll(DUMMY_START3, "{{{").replaceAll(DUMMY_END3, "}}}")
+                    .replaceAll(DUMMY_START2, "{{").replaceAll(DUMMY_END2, "}}");
+            return value;
+        }
         try {
             @Cleanup final StringWriter writer = new StringWriter(value.length());
             handlebars.compile(value).apply(ctx, writer);
