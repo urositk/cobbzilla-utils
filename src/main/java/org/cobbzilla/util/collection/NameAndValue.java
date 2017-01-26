@@ -1,17 +1,30 @@
 package org.cobbzilla.util.collection;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.cobbzilla.util.javascript.JsEngineDriver;
 import org.cobbzilla.util.javascript.StandardJsEngine;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @NoArgsConstructor @AllArgsConstructor @Accessors(chain=true)
 public class NameAndValue {
+
+    public static List<NameAndValue> map2list(Map<String, Object> map) {
+        final List<NameAndValue> list = new ArrayList<>(map.size());
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            list.add(new NameAndValue(entry.getKey(), entry.getValue() == null ? null : entry.getValue().toString()));
+        }
+        return list;
+    }
 
     @Getter @Setter private String name;
     public boolean hasName () { return !empty(name); }
