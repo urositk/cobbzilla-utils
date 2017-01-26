@@ -64,6 +64,18 @@ public class ZillaRuntime {
 
     public static boolean empty(String s) { return s == null || s.length() == 0; }
 
+    /**
+     * Determines if the parameter is "empty", by criteria described in @return
+     * Tries to avoid throwing exceptions, handling just about any case in a true/false fashion.
+     *
+     * @param o anything
+     * @return true if and only o is:
+     *    * null
+     *    * a collection, map, iterable or array that contains no objects
+     *    * a file that does not exist or whose size is zero
+     *    * a directory that does not exist or that contains no files
+     *    * any object whose .toString method returns a zero-length string
+     */
     public static boolean empty(Object o) {
         if (o == null) return true;
         if (o instanceof Collection) return ((Collection)o).isEmpty();
