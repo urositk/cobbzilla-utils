@@ -572,6 +572,7 @@ public class ReflectionUtil {
             try {
                 target = MethodUtils.invokeMethod(target, isMethod, null);
             } catch (Exception e2) {
+                if (target instanceof Map) return ((Map) target).get(token);
                 return die("Error calling "+methodName+" and "+isMethod+": "+e+", "+e2);
             }
         }
