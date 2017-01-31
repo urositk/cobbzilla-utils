@@ -1,6 +1,7 @@
 package org.cobbzilla.util.handlebars;
 
 import com.github.jknack.handlebars.Handlebars;
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -50,7 +51,7 @@ public class PdfMerger {
         final Map<String, String> fieldMappings = (Map<String, String>) context.get("fields");
 
         // load the document
-        final PDDocument pdfDocument = PDDocument.load(in);
+        @Cleanup final PDDocument pdfDocument = PDDocument.load(in);
 
         // get the document catalog
         final PDAcroForm acroForm = pdfDocument.getDocumentCatalog().getAcroForm();
@@ -123,7 +124,6 @@ public class PdfMerger {
         // Save and close the filled out form.
         pdfDocument.getDocumentCatalog().setPageMode(PageMode.USE_THUMBS);
         pdfDocument.save(output);
-        pdfDocument.close();
 
         return output;
     }
