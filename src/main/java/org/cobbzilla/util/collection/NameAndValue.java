@@ -10,6 +10,7 @@ import org.cobbzilla.util.javascript.JsEngineDriver;
 import org.cobbzilla.util.javascript.StandardJsEngine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +56,14 @@ public class NameAndValue {
         }
 
         return results;
+    }
+
+    public static Map<String, String> toMap(NameAndValue[] attrs) {
+        final Map<String, String> map = new HashMap<>();
+        for (NameAndValue attr : attrs) {
+            map.put(attr.getName(), attr.value);
+        }
+        return map;
     }
 
 }
