@@ -2,14 +2,22 @@ package org.cobbzilla.util.xml;
 
 import org.atteo.xmlcombiner.XmlCombiner;
 import org.cobbzilla.util.string.StringUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.system.Bytes.KB;
 
-public class XmlMerger {
+public class XmlUtil {
 
     public static OutputStream merge (OutputStream out, String... documents) {
         try {
@@ -36,6 +44,29 @@ public class XmlMerger {
         return document
                 .replace("<"+fromElement+">", "<"+toElement+">")
                 .replace("</"+fromElement+">", "</"+toElement+">");
+    }
+
+    public static Document readDocument (String xml) {
+        try {
+            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder builder = factory.newDocumentBuilder();
+            final InputSource is = new InputSource(new StringReader(xml));
+            return builder.parse(is);
+        } catch (Exception e) {
+            return die("fromString: "+e, e);
+        }
+    }
+
+    public static Node applyRecursively (Element element, XmlElementFunction func) {
+        func.apply(element);
+        final NodeList childNodes = element.getChildNodes();
+        if (childNodes != null && childNodes.getLength() > 0) {
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                final Node item = childNodes.item(i);
+                if (item instanceof Element) applyRecursively((Element) item, func);
+            }
+        }
+        return element;
     }
 
 }
