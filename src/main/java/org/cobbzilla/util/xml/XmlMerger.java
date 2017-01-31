@@ -32,4 +32,10 @@ public class XmlMerger {
         return merge(buffer, documents).toString();
     }
 
+    public static String replaceElement (String document, String fromElement, String toElement) {
+        return document
+                .replace("<"+fromElement+">", "<"+toElement+">")
+                .replace("</"+fromElement+">", "</"+toElement+">");
+    }
+
 }
