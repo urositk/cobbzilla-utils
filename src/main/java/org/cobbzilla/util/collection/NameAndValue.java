@@ -60,8 +60,10 @@ public class NameAndValue {
 
     public static Map<String, String> toMap(NameAndValue[] attrs) {
         final Map<String, String> map = new HashMap<>();
-        for (NameAndValue attr : attrs) {
-            map.put(attr.getName(), attr.value);
+        if (!empty(attrs)) {
+            for (NameAndValue attr : attrs) {
+                map.put(attr.getName(), attr.value);
+            }
         }
         return map;
     }
