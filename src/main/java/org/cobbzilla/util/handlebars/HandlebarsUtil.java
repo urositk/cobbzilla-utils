@@ -30,6 +30,7 @@ import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 import static org.cobbzilla.util.security.ShaUtil.sha256_hex;
+import static org.cobbzilla.util.string.Base64.encodeFromFile;
 import static org.cobbzilla.util.string.StringUtil.*;
 
 @AllArgsConstructor @Slf4j
@@ -352,4 +353,27 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         });
     }
 
+    public static void registerFileHelpers(final Handlebars hb) {
+        hb.registerHelper("rawImagePng", new Helper<Object>() {
+            public CharSequence apply(Object src, Options options) {
+                if (empty(src)) return "";
+                final Object width = options.get("width");
+                final String widthAttr = empty(width) ? "" : "width=\"" + width + "\" ";
+                return new Handlebars.SafeString("<img " + widthAttr + "src=\"data:image/png;base64," + src.toString() +
+                                                 "\"/>");
+            }
+        });
+
+        hb.registerHelper("base64File", new Helper<Object>() {
+            public CharSequence apply(Object src, Options options) {
+                if (empty(src)) return "";
+                try {
+                    return new Handlebars.SafeString(encodeFromFile(src.toString()));
+                } catch (IOException e) {
+                    log.error("Cannot read file from: " + src.toString(), e);
+                    return "";
+                }
+            }
+        });
+    }
 }
