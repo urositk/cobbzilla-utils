@@ -1,5 +1,6 @@
 package org.cobbzilla.util.daemon;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -24,10 +25,16 @@ public class AwaitResult<T> {
 
     public boolean allSucceeded() { return failures.isEmpty() && timeouts.isEmpty(); }
 
-    public List<T> getNotNullSuccesses() {
+    @JsonIgnore public List<T> getNotNullSuccesses() {
         final List<T> ok = new ArrayList<>();
         for (T t : getSuccesses().values()) if (t != null) ok.add(t);
         return ok;
+    }
+
+    public String toString() {
+        return "successes=" + successes.toString()
+                + ", failures=" + failures.toString()
+                + ", timeouts=" + timeouts.toString();
     }
 
 }
