@@ -272,7 +272,9 @@ public class CommandShell {
 
     public static String execScript (String contents) { return execScript(contents, null); }
 
-    public static String execScript (String contents, Map<String, String> env) { return execScript(contents, env, null); }
+    public static String execScript (String contents, Map<String, String> env) {
+        return execScript(contents, env, Collections.<Integer>emptyList());
+    }
 
     public static String execScript (String contents, Map<String, String> env, List<Integer> exitValues) {
         final CommandResult result = scriptResult(contents, env, null, exitValues);
