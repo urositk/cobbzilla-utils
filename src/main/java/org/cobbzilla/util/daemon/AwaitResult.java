@@ -32,9 +32,9 @@ public class AwaitResult<T> {
     }
 
     public String toString() {
-        return "successes=" + successes.toString()
-                + ", failures=" + failures.toString()
-                + ", timeouts=" + timeouts.toString();
+        return "successes=" + successes.size()
+                + ", failures=" + failures.size()
+                + ", timeouts=" + timeouts.size();
     }
 
 }
