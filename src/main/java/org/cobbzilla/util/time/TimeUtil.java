@@ -1,12 +1,17 @@
 package org.cobbzilla.util.time;
 
+import org.cobbzilla.util.string.StringUtil;
 import org.joda.time.DateTime;
 import org.joda.time.DurationFieldType;
+import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.daemon.ZillaRuntime.hexnow;
 import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 
 public class TimeUtil {
@@ -15,6 +20,16 @@ public class TimeUtil {
     public static final long HOUR   = TimeUnit.HOURS.toMillis(1);
     public static final long MINUTE = TimeUnit.MINUTES.toMillis(1);
     public static final long SECOND = TimeUnit.SECONDS.toMillis(1);
+
+    public static final DateTimeFormatter DATE_FORMAT_MMDDYYYY = DateTimeFormat.forPattern("MM/dd/yyyy");
+    public static final DateTimeFormatter DATE_FORMAT_MMMM_D_YYYY = DateTimeFormat.forPattern("MMMM d, yyyy");
+    public static final DateTimeFormatter DATE_FORMAT_YYYY_MM_DD = DateTimeFormat.forPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter DATE_FORMAT_MMM_DD_YYYY = DateTimeFormat.forPattern("MMM dd, yyyy");
+
+    // For now only m (months) and d (days) are supported
+    // Both have to be present at the same time in that same order, but the value for each can be 0 to exclude that one - e.g. 0m15d.
+    public static final PeriodFormatter PERIOD_FORMATTER = new PeriodFormatterBuilder()
+            .appendMonths().appendSuffix("m").appendDays().appendSuffix("d").toFormatter();
 
     public static Long parse(String time, DateTimeFormatter formatter) {
         return empty(time) ? null : formatter.parseDateTime(time).getMillis();
@@ -53,11 +68,30 @@ public class TimeUtil {
         return String.format("%1$02d:%2$02d:%3$02d.%4$04d", hours, mins, secs, millis);
     }
 
+    public static long parseDuration(String duration) {
+        if (empty(duration)) return 0;
+        final long val = Long.parseLong(StringUtil.chopSuffix(duration));
+        switch (duration.charAt(duration.length()-1)) {
+            case 's': return TimeUnit.SECONDS.toMillis(val);
+            case 'm': return TimeUnit.MINUTES.toMillis(val);
+            case 'h': return TimeUnit.HOURS.toMillis(val);
+            case 'd': return TimeUnit.DAYS.toMillis(val);
+            default: return Long.parseLong(duration);
+        }
+    }
+
     public static long addYear (long time) {
         return new DateTime(time).withFieldAdded(DurationFieldType.years(), 1).getMillis();
     }
 
     public static long add365days (long time) {
         return new DateTime(time).withFieldAdded(DurationFieldType.days(), 365).getMillis();
+    }
+
+    public static String timestamp() { return timestamp(ClockProvider.ZILLA); }
+
+    public static String timestamp(ClockProvider clock) {
+        final long now = clock.now();
+        return DATE_FORMAT_YYYY_MM_DD.print(now)+"-"+hexnow(now);
     }
 }

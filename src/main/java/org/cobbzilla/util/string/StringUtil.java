@@ -21,7 +21,8 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.cobbzilla.util.daemon.ZillaRuntime.*;
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 public class StringUtil {
 
@@ -136,24 +137,6 @@ public class StringUtil {
     public static final long HOUR = TimeUnit.HOURS.toMillis(1);
     public static final long MINUTE = TimeUnit.MINUTES.toMillis(1);
     public static final long SECOND = TimeUnit.SECONDS.toMillis(1);
-
-    public static String formatDuration(long durationMillis) {
-        return String.format("%d:%02d:%02d", durationMillis / HOUR, (durationMillis % HOUR) / MINUTE, (durationMillis % MINUTE) / SECOND);
-    }
-
-    public static String formatDurationFrom(long start) { return formatDuration(now() - start); }
-
-    public static long parseDuration(String duration) {
-        if (empty(duration)) return 0;
-        final long val = Long.parseLong(chopSuffix(duration));
-        switch (duration.charAt(duration.length()-1)) {
-            case 's': return TimeUnit.SECONDS.toMillis(val);
-            case 'm': return TimeUnit.MINUTES.toMillis(val);
-            case 'h': return TimeUnit.HOURS.toMillis(val);
-            case 'd': return TimeUnit.DAYS.toMillis(val);
-            default: return Long.parseLong(duration);
-        }
-    }
 
     public static String chopSuffix(String val) { return val.substring(0, val.length()-1); }
 

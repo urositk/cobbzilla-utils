@@ -12,12 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.cobbzilla.util.reflect.ReflectionUtil;
+import org.cobbzilla.util.time.TimeUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -35,16 +32,6 @@ import static org.cobbzilla.util.string.StringUtil.*;
 
 @AllArgsConstructor @Slf4j
 public class HandlebarsUtil extends AbstractTemplateLoader {
-
-    public static final DateTimeFormatter DATE_FORMAT_MMDDYYYY = DateTimeFormat.forPattern("MM/dd/yyyy");
-    public static final DateTimeFormatter DATE_FORMAT_MMMM_D_YYYY = DateTimeFormat.forPattern("MMMM d, yyyy");
-    public static final DateTimeFormatter DATE_FORMAT_YYYY_MM_DD = DateTimeFormat.forPattern("yyyy-MM-dd");
-    public static final DateTimeFormatter DATE_FORMAT_MMM_DD_YYYY = DateTimeFormat.forPattern("MMM dd, yyyy");
-
-    // For now only m (months) and d (days) are supported to add to datetime values within Handlebars (both has to be
-    // present at the same time in that same order, but the value for each can be 0 to exclude that one - i.e. 0m15d).
-    public static final PeriodFormatter PERIOD_FORMATTER = new PeriodFormatterBuilder()
-            .appendMonths().appendSuffix("m").appendDays().appendSuffix("d").toFormatter();
 
     private String sourceName = "unknown";
 
@@ -286,28 +273,28 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         hb.registerHelper("date_short", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) src = "now";
-                return new Handlebars.SafeString(DATE_FORMAT_MMDDYYYY.print(longVal(src)));
+                return new Handlebars.SafeString(TimeUtil.DATE_FORMAT_MMDDYYYY.print(longVal(src)));
             }
         });
 
         hb.registerHelper("date_yyyy_mm_dd", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) src = "now";
-                return new Handlebars.SafeString(DATE_FORMAT_YYYY_MM_DD.print(longVal(src)));
+                return new Handlebars.SafeString(TimeUtil.DATE_FORMAT_YYYY_MM_DD.print(longVal(src)));
             }
         });
 
         hb.registerHelper("date_mmm_dd_yyyy", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) src = "now";
-                return new Handlebars.SafeString(DATE_FORMAT_MMM_DD_YYYY.print(longVal(src)));
+                return new Handlebars.SafeString(TimeUtil.DATE_FORMAT_MMM_DD_YYYY.print(longVal(src)));
             }
         });
 
         hb.registerHelper("date_long", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) src = "now";
-                return new Handlebars.SafeString(DATE_FORMAT_MMMM_D_YYYY.print(longVal(src)));
+                return new Handlebars.SafeString(TimeUtil.DATE_FORMAT_MMMM_D_YYYY.print(longVal(src)));
             }
         });
     }
@@ -327,7 +314,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                 if (period.startsWith("-")) {
                     sign = -1;
                 }
-                result = result.plus(Period.parse(period, PERIOD_FORMATTER).multipliedBy(sign));
+                result = result.plus(Period.parse(period, TimeUtil.PERIOD_FORMATTER).multipliedBy(sign));
             }
             return result.getMillis();
         }
