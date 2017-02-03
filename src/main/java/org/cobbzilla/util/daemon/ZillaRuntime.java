@@ -140,6 +140,7 @@ public class ZillaRuntime {
     @Getter @Setter private static long systemTimeOffset = 0;
     public static long now() { return System.currentTimeMillis() + systemTimeOffset; }
     public static String hexnow() { return toHexString(now()); }
+    public static String hexnow(long now) { return toHexString(now); }
     public static long realNow() { return System.currentTimeMillis(); }
 
     public static <T> T pickRandom(T[] things) { return things[RandomUtils.nextInt(0, things.length)]; }
