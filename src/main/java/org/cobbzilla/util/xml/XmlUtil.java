@@ -10,9 +10,12 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.system.Bytes.KB;
@@ -53,8 +56,25 @@ public class XmlUtil {
             final InputSource is = new InputSource(new StringReader(xml));
             return builder.parse(is);
         } catch (Exception e) {
-            return die("fromString: "+e, e);
+            return die("readDocument: "+e, e);
         }
+    }
+
+    public static void writeDocument (Document doc, Writer writer) {
+        try {
+            final TransformerFactory tf = TransformerFactory.newInstance();
+            final Transformer transformer = tf.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+        } catch (Exception e) {
+            die("writeDocument: " + e, e);
+        }
+    }
+
+    public static String writeDocument(Document doc) {
+        final StringWriter writer = new StringWriter();
+        writeDocument(doc, writer);
+        return writer.getBuffer().toString();
     }
 
     public static Node applyRecursively (Element element, XmlElementFunction func) {
