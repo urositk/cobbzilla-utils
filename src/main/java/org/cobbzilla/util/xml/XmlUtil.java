@@ -50,7 +50,7 @@ public class XmlUtil {
 
     public static String replaceElement (String document, String fromElement, String toElement) {
         return document
-                .replaceAll("<"+Pattern.quote(fromElement)+"([^>]*)>", "<"+Pattern.quote(toElement)+"$1>")
+                .replaceAll("<\\w*"+Pattern.quote(fromElement)+"([^>]*)>", "<"+Pattern.quote(toElement)+"$1>")
                 .replace("</"+fromElement+">", "</"+toElement+">")
                 .replace("<"+fromElement+"/>", "<"+toElement+"/>");
     }
