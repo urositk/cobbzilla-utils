@@ -19,6 +19,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
@@ -49,8 +50,9 @@ public class XmlUtil {
 
     public static String replaceElement (String document, String fromElement, String toElement) {
         return document
-                .replace("<"+fromElement+">", "<"+toElement+">")
-                .replace("</"+fromElement+">", "</"+toElement+">");
+                .replaceAll("<"+Pattern.quote(fromElement)+"([^>]*)>", "<"+Pattern.quote(toElement)+"$1>")
+                .replace("</"+fromElement+">", "</"+toElement+">")
+                .replace("<"+fromElement+"/>", "<"+toElement+"/>");
     }
 
     public static Element textElement(Document doc, String element, String text) {
