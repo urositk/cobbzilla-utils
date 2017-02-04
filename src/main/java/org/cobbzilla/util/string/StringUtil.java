@@ -20,6 +20,8 @@ import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
@@ -442,4 +444,9 @@ public class StringUtil {
         return new ReaderInputStream(new StringReader(data), UTF8cs);
     }
 
+    public static String firstMatch(String s, String regex) {
+        final Pattern p = Pattern.compile(regex);
+        final Matcher m = p.matcher(s);
+        return m.find() ? m.group(0) : null;
+    }
 }
