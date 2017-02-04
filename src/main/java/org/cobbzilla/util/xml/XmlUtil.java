@@ -52,7 +52,7 @@ public class XmlUtil {
         return document
                 .replaceAll("<\\s*"+Pattern.quote(fromElement)+"([^>]*)>", "<"+Pattern.quote(toElement)+"$1>")
                 .replaceAll("</\\s*"+fromElement+"\\s*>", "</"+toElement+">")
-                .replace("<\\s*"+fromElement+"\\s*/>", "<"+toElement+"/>");
+                .replaceAll("<\\s*"+fromElement+"\\s*/>", "<"+toElement+"/>");
     }
 
     public static Element textElement(Document doc, String element, String text) {
