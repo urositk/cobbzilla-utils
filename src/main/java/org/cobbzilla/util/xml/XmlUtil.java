@@ -1,5 +1,6 @@
 package org.cobbzilla.util.xml;
 
+import lombok.AllArgsConstructor;
 import org.atteo.xmlcombiner.XmlCombiner;
 import org.cobbzilla.util.string.StringUtil;
 import org.w3c.dom.Document;
@@ -16,6 +17,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.system.Bytes.KB;
@@ -47,6 +50,12 @@ public class XmlUtil {
         return document
                 .replace("<"+fromElement+">", "<"+toElement+">")
                 .replace("</"+fromElement+">", "</"+toElement+">");
+    }
+
+    public static Element textElement(Document doc, String element, String text) {
+        final Element node = doc.createElement(element);
+        node.appendChild(doc.createTextNode(text));
+        return node;
     }
 
     public static Document readDocument (String xml) {
@@ -89,4 +98,22 @@ public class XmlUtil {
         return element;
     }
 
+    public static List<Element> findElements(Document doc, final String name) {
+        final List<Element> found = new ArrayList<>();
+        applyRecursively(doc.getDocumentElement(), new MatchLocalName(name, found));
+        return found;
+    }
+
+    public static List<Element> findElements(Element element, final String name) {
+        final List<Element> found = new ArrayList<>();
+        applyRecursively(element, new MatchLocalName(name, found));
+        return found;
+    }
+
+    @AllArgsConstructor
+    public static class MatchLocalName implements XmlElementFunction {
+        private final String name;
+        private final List<Element> found;
+        @Override public void apply(Element element) { if (element.getLocalName().equalsIgnoreCase(name)) found.add(element); }
+    }
 }
