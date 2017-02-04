@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.system.Bytes.KB;
 
 public class XmlUtil {
@@ -100,20 +101,24 @@ public class XmlUtil {
 
     public static List<Element> findElements(Document doc, final String name) {
         final List<Element> found = new ArrayList<>();
-        applyRecursively(doc.getDocumentElement(), new MatchLocalName(name, found));
+        applyRecursively(doc.getDocumentElement(), new MatchNodeName(name, found));
         return found;
     }
 
     public static List<Element> findElements(Element element, final String name) {
         final List<Element> found = new ArrayList<>();
-        applyRecursively(element, new MatchLocalName(name, found));
+        applyRecursively(element, new MatchNodeName(name, found));
         return found;
     }
 
     @AllArgsConstructor
-    public static class MatchLocalName implements XmlElementFunction {
+    public static class MatchNodeName implements XmlElementFunction {
         private final String name;
         private final List<Element> found;
-        @Override public void apply(Element element) { if (element.getLocalName().equalsIgnoreCase(name)) found.add(element); }
+        @Override public void apply(Element element) {
+            if (element != null && !empty(element.getNodeName()) && element.getNodeName().equalsIgnoreCase(name)) {
+                found.add(element);
+            }
+        }
     }
 }
