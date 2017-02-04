@@ -19,7 +19,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
@@ -50,7 +49,7 @@ public class XmlUtil {
 
     public static String replaceElement (String document, String fromElement, String toElement) {
         return document
-                .replaceAll("<\\s*"+Pattern.quote(fromElement)+"([^>]*)>", "<"+Pattern.quote(toElement)+"$1>")
+                .replaceAll("<\\s*"+fromElement+"([^>]*)>", "<"+toElement+"$1>")
                 .replaceAll("</\\s*"+fromElement+"\\s*>", "</"+toElement+">")
                 .replaceAll("<\\s*"+fromElement+"\\s*/>", "<"+toElement+"/>");
     }
@@ -111,6 +110,13 @@ public class XmlUtil {
         final List<Element> found = new ArrayList<>();
         applyRecursively(element, new MatchNodeName(name, found));
         return found;
+    }
+
+    public static Element findUniqueElement(Document doc, String name) {
+        final List<Element> elements = findElements(doc, name);
+        if (empty(elements)) return die("add: no "+name+" element found");
+        if (elements.size() > 1) return die("add: multiple "+name+" elements found");
+        return elements.get(0);
     }
 
     @AllArgsConstructor
