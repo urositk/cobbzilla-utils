@@ -23,13 +23,13 @@ public class ElementIdGenerator {
         return e;
     }
 
-    public Element create(Document doc, String name) { return id(doc.createElement(name)); }
+    public Element create(Document doc, String elementName) { return id(doc.createElement(elementName)); }
 
-    public Element text(Document doc, String name, String text) { return text(doc, name, text, null); }
+    public Element text(Document doc, String elementName, String text) { return text(doc, elementName, text, null); }
 
-    public Element text(Document doc, String name, String text, Integer truncate) {
+    public Element text(Document doc, String elementName, String text, Integer truncate) {
         if (truncate != null && text.trim().length() > truncate) text = text.trim().substring(0, truncate);
-        final Element element = create(doc, name);
+        final Element element = create(doc, elementName);
         element.appendChild(doc.createTextNode(text));
         return element;
     }
