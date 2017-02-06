@@ -114,7 +114,7 @@ public class XmlUtil {
 
     public static Element findUniqueElement(Document doc, String name) {
         final List<Element> elements = findElements(doc, name);
-        if (empty(elements)) return die("add: no "+name+" element found");
+        if (empty(elements)) return null;
         if (elements.size() > 1) return die("add: multiple "+name+" elements found");
         return elements.get(0);
     }
