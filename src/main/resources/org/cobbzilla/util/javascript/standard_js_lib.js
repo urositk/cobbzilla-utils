@@ -41,7 +41,7 @@ function find (arr, field, value, comparison) {
 
 function contains (arr, field, comparison, value) {
     var found = find(arr, field, value, comparison);
-    return found !== null && found !== false;
+    return (typeof found !== 'undefined') && found !== null && found == true;
 }
 
 // function to find the all object in array that match field==value
