@@ -2,12 +2,10 @@ package org.cobbzilla.util.daemon;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.ToString;
 
 import java.util.*;
 import java.util.concurrent.Future;
 
-@ToString
 public class AwaitResult<T> {
 
     @Getter private Map<Future, T> successes = new HashMap<>();
