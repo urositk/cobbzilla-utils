@@ -19,6 +19,14 @@ function le (x, compare) { return x <= compare; }
 function eq (x, compare) { return x == compare; }
 function ne (x, compare) { return x != compare; }
 
+function _get_element(arr, field) {
+    if (arr == null) return null;
+
+    var v = arr[field];
+    if (v === undefined && typeof arr.get === 'function') return arr.get(field);
+    return v;
+}
+
 // function to find the first object in array that matches field==value
 // field may contain embedded dots to navigate within each object element of the array
 function find (arr, field, value, comparison) {
@@ -28,14 +36,17 @@ function find (arr, field, value, comparison) {
         var target = obj;
         var path = field;
         var dotPos = path.indexOf('.');
+        var v;
         while (dotPos != -1) {
             var prop = path.substring(0, dotPos);
-            if (!target[prop]) return false;
-            target = target[prop];
+            v = _get_element(target, prop);
+            if (!v) return false;
+            target = v;
             path = path.substring(dotPos+1);
             dotPos = path.indexOf('.');
         }
-        return target[path] && comparison(target[path], value);
+        v = _get_element(target, path);
+        return v && comparison(v, value);
     });
 }
 
