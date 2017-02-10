@@ -79,9 +79,9 @@ function find_all (arr, field, value, comparison) {
 // 1) applies itemFunc function to an item, 2) uses comparison function to compare the result against compareVal
 function compare (itemFunc, comparison, compareVal) {
     return function (item) {
-        if (typeof item != 'undefined') {
+        if ((typeof item != 'undefined') && item != null) {
             var val = itemFunc(item);
-            if (typeof val != 'undefined') {
+            if ((typeof val != 'undefined') && val != null) {
                 return comparison(itemFunc(item), compareVal);
             }
         }
@@ -91,7 +91,11 @@ function compare (itemFunc, comparison, compareVal) {
 
 // return an itemFunc that treats item.field as a percentage, and multiplies it by total, and compares it against compareVal
 function compare_pct (field, total, comparison, compareVal) {
-    return function (item) { return comparison(pct(item[field], total), compareVal); }
+    return function (item) {
+        if ((typeof item == 'undefined') || item == null) return false;
+        var val = _get_element(item, field);
+        return (typeof val != 'undefined') && val != null && comparison(pct(val, total), compareVal);
+    }
 }
 
 // apply itemFunc to each item in array arr. if any such invocation of itemFunc returns true, then this function returns true
