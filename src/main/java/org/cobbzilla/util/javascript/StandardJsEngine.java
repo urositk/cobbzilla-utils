@@ -40,6 +40,33 @@ public class StandardJsEngine extends JsEngine {
         return JsEngine.evaluate(STANDARD_FUNCTIONS+"\n"+code, context, scriptName, returnType);
     }
 
+    public static boolean evaluateBooleanWithIncludes(String code, Map<String, Object> context) {
+        return evaluateBooleanWithIncludes(code, context, "evaluateBooleanWithIncludes_"+sha256_hex(code));
+    }
+
+    public static boolean evaluateBooleanWithIncludes(String code, Map<String, Object> context, boolean defaultValue) {
+        try {
+            return evaluateBooleanWithIncludes(code, context, "evaluateBooleanWithIncludes_"+sha256_hex(code));
+        } catch (Exception e) {
+            log.debug("evaluateBooleanWithIncludes: returning "+defaultValue+" due to exception:"+e);
+            return defaultValue;
+        }
+    }
+
+    public static boolean evaluateBooleanWithIncludes(String code, Map<String, Object> context, String scriptName) {
+        if (code.startsWith("!")) code = stream2string(code.substring(1));
+        return evaluateBoolean(code, context, scriptName);
+    }
+
+    public static <T> T evaluateWithIncludes(String code, Map<String, Object> context, Class<T> returnType) {
+        return evaluateWithIncludes(code, context, "evaluate_"+sha256_hex(code), returnType);
+    }
+
+    public static <T> T evaluateWithIncludes(String code, Map<String, Object> context, String scriptName, Class<T> returnType) {
+        if (code.startsWith("!")) code = stream2string(code.substring(1));
+        return evaluate(STANDARD_FUNCTIONS+"\n"+code, context, scriptName, returnType);
+    }
+
     public static boolean evaluateBoolean(String code, Map<String, Object> ctx) {
         return evaluateBoolean(code, ctx, false);
     }
