@@ -21,8 +21,16 @@ import java.net.URI;
 import java.util.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.http.HttpContentTypes.NV_HTTP_JSON;
 import static org.cobbzilla.util.http.HttpMethods.*;
 
+/**
+ * A simple bean class that encapsulates the four things needed to make an HTTP request:
+ *   * an HTTP request `method`, like GET, POST, PUT, etc. The default is GET
+ *   * a `uri`, this is the only required parameter
+ *   * an optional `entity`, representing the request body to send for methods like POST and PUT
+ *   * an optional array of `headers`, name/value pairs (allowing duplicates) that will be the HTTP request headers
+ */
 @NoArgsConstructor @ToString(of={"method", "uri"}) @Accessors(chain=true)
 public class HttpRequestBean {
 
@@ -111,6 +119,9 @@ public class HttpRequestBean {
     public static HttpRequestBean put   (String path, String json) { return new HttpRequestBean(PUT, path, json); }
     public static HttpRequestBean post  (String path, String json) { return new HttpRequestBean(POST, path, json); }
     public static HttpRequestBean delete(String path)              { return new HttpRequestBean(DELETE, path); }
+
+    public static HttpRequestBean putJson (String path, String json) { return new HttpRequestBean(PUT, path, json, NV_HTTP_JSON); }
+    public static HttpRequestBean postJson(String path, String json) { return new HttpRequestBean(POST, path, json, NV_HTTP_JSON); }
 
     public String cURL () {
         // todo: add support for HTTP auth fields: authType/username/password
