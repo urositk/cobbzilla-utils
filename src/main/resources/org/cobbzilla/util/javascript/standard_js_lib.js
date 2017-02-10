@@ -27,11 +27,8 @@ function _get_element(arr, field) {
     return v;
 }
 
-// function to find the first object in array that matches field==value
-// field may contain embedded dots to navigate within each object element of the array
-function find (arr, field, value, comparison) {
-    if (typeof comparison == 'undefined') comparison = eq;
-    return arr == null ? null : arr.find(function (obj) {
+function match_object (field, value, comparison, found) {
+    return function (obj) {
         if (typeof obj == 'undefined' || obj == null) return false;
         var target = obj;
         var path = field;
@@ -46,8 +43,21 @@ function find (arr, field, value, comparison) {
             dotPos = path.indexOf('.');
         }
         v = _get_element(target, path);
-        return v && comparison(v, value);
-    });
+        if (v && comparison(v, value)) {
+            if (typeof found != 'undefined') {
+                found.push(obj);
+            } else {
+                return true;
+            }
+        }
+    };
+}
+
+// function to find the first object in array that matches field==value
+// field may contain embedded dots to navigate within each object element of the array
+function find (arr, field, value, comparison) {
+    if (typeof comparison == 'undefined') comparison = eq;
+    return arr == null ? null : arr.find(match_object(field, value, comparison));
 }
 
 function contains (arr, field, comparison, value) {
@@ -57,25 +67,11 @@ function contains (arr, field, comparison, value) {
 
 // function to find the all object in array that match field==value
 // field may contain embedded dots to navigate within each object element of the array
-function find_all (arr, field, value) {
+function find_all (arr, field, value, comparison) {
+    if (typeof comparison == 'undefined') comparison = eq;
     var found = [];
     if (arr == null || arr.length == 0) return found;
-    arr.find(function (obj) {
-        if (typeof obj == 'undefined' || obj == null) return false;
-        var target = obj;
-        var path = field;
-        var dotPos = path.indexOf('.');
-        while (dotPos != -1) {
-            var prop = path.substring(0, dotPos);
-            if (!target[prop]) return false;
-            target = target[prop];
-            path = path.substring(dotPos+1);
-            dotPos = path.indexOf('.');
-        }
-        if (target[path] && target[path] == value) {
-            found.push(obj);
-        }
-    });
+    arr.find(match_object(field, value, comparison, found));
     return found;
 }
 
