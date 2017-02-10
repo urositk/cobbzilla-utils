@@ -1,6 +1,12 @@
 package org.cobbzilla.util.http;
 
+import org.cobbzilla.util.collection.MapBuilder;
+import org.cobbzilla.util.collection.NameAndValue;
+
+import java.util.Map;
+
 import static org.apache.commons.lang3.StringEscapeUtils.*;
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
@@ -14,6 +20,17 @@ public class HttpContentTypes {
     public static final String IMAGE_JPEG = "image/jpg";
     public static final String IMAGE_GIF = "image/gif";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+    // useful when constructing HttpRequestBeans that will be used against a JSON API
+
+    private static NameAndValue[] nvHttp(String type) { return new NameAndValue[]{new NameAndValue(CONTENT_TYPE, type)}; }
+
+    public static final NameAndValue[] NV_HTTP_JSON = nvHttp(APPLICATION_JSON);
+    public static final NameAndValue[] NV_HTTP_XML = nvHttp(APPLICATION_XML);
+
+    public static final Map<String, NameAndValue[]> HTTP_CONTENT_TYPES = MapBuilder.build(new Object[][] {
+            { APPLICATION_JSON, NV_HTTP_JSON },
+            { APPLICATION_XML, NV_HTTP_XML },
+    });
 
     public static String contentType(String name) {
         final int dot = name.lastIndexOf('.');
