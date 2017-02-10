@@ -100,7 +100,9 @@ function compare_pct (field, total, comparison, compareVal) {
 
 // apply itemFunc to each item in array arr. if any such invocation of itemFunc returns true, then this function returns true
 function match_any (arr, itemFunc) {
-    return arr != null && arr.length > 0 && arr.find(itemFunc) != 'undefined';
+    if (typeof arr == 'undefined' || arr == null || arr.length == 0) return false;
+    var found = arr.find(itemFunc);
+    return (typeof found != 'undefined') && found != null;
 }
 
 // functions for rounding up/down to nearest multiple
