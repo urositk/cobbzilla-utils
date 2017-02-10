@@ -1,5 +1,8 @@
 package org.cobbzilla.util.daemon;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -78,8 +81,15 @@ public class ZillaRuntime {
      */
     public static boolean empty(Object o) {
         if (o == null) return true;
+        if (o instanceof String) return o.toString().length() == 0;
         if (o instanceof Collection) return ((Collection)o).isEmpty();
         if (o instanceof Map) return ((Map)o).isEmpty();
+        if (o instanceof JsonNode) {
+            if (o instanceof ObjectNode) return ((ObjectNode) o).size() == 0;
+            if (o instanceof ArrayNode) return ((ArrayNode) o).size() == 0;
+            final String json = ((JsonNode) o).textValue();
+            return json == null || json.length() == 0;
+        }
         if (o instanceof Iterable) return !((Iterable)o).iterator().hasNext();
         if (o instanceof File) {
             final File f = (File) o;
