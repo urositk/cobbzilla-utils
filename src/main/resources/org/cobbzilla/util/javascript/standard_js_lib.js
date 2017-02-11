@@ -1,5 +1,5 @@
 // returns true if item is in arr array
-function found (item, arr) { return arr != null && arr.indexOf(''+item) != -1; }
+function found (item, arr) { return (typeof arr != 'undefined') && arr != null && arr.indexOf(''+item) != -1; }
 
 // returns true if any element in items array is found in arr array
 function found_any (items, arr) {
@@ -57,7 +57,7 @@ function match_object (field, value, comparison, found) {
 // field may contain embedded dots to navigate within each object element of the array
 function find (arr, field, value, comparison) {
     if (typeof comparison == 'undefined') comparison = eq;
-    return arr == null ? null : arr.find(match_object(field, value, comparison));
+    return (typeof arr == 'undefined') || arr == null ? null : arr.find(match_object(field, value, comparison));
 }
 
 function contains (arr, field, comparison, value) {
@@ -70,7 +70,7 @@ function contains (arr, field, comparison, value) {
 function find_all (arr, field, value, comparison) {
     if (typeof comparison == 'undefined') comparison = eq;
     var found = [];
-    if (arr == null || arr.length == 0) return found;
+    if ((typeof arr == 'undefined') || arr == null || arr.length == 0) return found;
     arr.find(match_object(field, value, comparison, found));
     return found;
 }
@@ -100,7 +100,7 @@ function compare_pct (field, total, comparison, compareVal) {
 
 // apply itemFunc to each item in array arr. if any such invocation of itemFunc returns true, then this function returns true
 function match_any (arr, itemFunc) {
-    if (typeof arr == 'undefined' || arr == null || arr.length == 0) return false;
+    if ((typeof arr == 'undefined') || arr == null || arr.length == 0) return false;
     var found = arr.find(itemFunc);
     return (typeof found != 'undefined') && found != null;
 }
