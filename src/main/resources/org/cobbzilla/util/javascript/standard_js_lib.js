@@ -46,10 +46,12 @@ function match_object (field, value, comparison, found) {
         if (v && comparison(v, value)) {
             if (typeof found != 'undefined') {
                 found.push(obj);
+                return false;
             } else {
                 return true;
             }
         }
+        return false;
     };
 }
 
@@ -57,7 +59,16 @@ function match_object (field, value, comparison, found) {
 // field may contain embedded dots to navigate within each object element of the array
 function find (arr, field, value, comparison) {
     if (typeof comparison == 'undefined') comparison = eq;
-    return (typeof arr == 'undefined') || arr == null ? null : arr.find(match_object(field, value, comparison));
+    return _find(arr, match_object(field, value, comparison));
+    // arr.find(match_object(field, value, comparison));
+}
+
+function _find (arr, func) {
+    if ((typeof arr == 'undefined') || arr == null) return null;
+    for (var i=0; i<arr.length; i++) {
+        if (func(arr[i])) return arr[i];
+    }
+    return null;
 }
 
 function contains (arr, field, comparison, value) {
@@ -71,7 +82,8 @@ function find_all (arr, field, value, comparison) {
     if (typeof comparison == 'undefined') comparison = eq;
     var found = [];
     if ((typeof arr == 'undefined') || arr == null || arr.length == 0) return found;
-    arr.find(match_object(field, value, comparison, found));
+    _find(arr, match_object(field, value, comparison, found));
+    // arr.find(match_object(field, value, comparison, found));
     return found;
 }
 
@@ -101,7 +113,8 @@ function compare_pct (field, total, comparison, compareVal) {
 // apply itemFunc to each item in array arr. if any such invocation of itemFunc returns true, then this function returns true
 function match_any (arr, itemFunc) {
     if ((typeof arr == 'undefined') || arr == null || arr.length == 0) return false;
-    var found = arr.find(itemFunc);
+    // var found = arr.find(itemFunc);
+    var found = _find(arr, itemFunc);
     return (typeof found != 'undefined') && found != null;
 }
 

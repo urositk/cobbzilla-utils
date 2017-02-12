@@ -2,79 +2,154 @@ package org.cobbzilla.util.javascript;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
+import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
+import javax.script.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.json.JsonUtil.fromJsonOrDie;
 
+@Accessors(chain=true) @Slf4j
 public class JsEngine {
 
-    public static final JsEngineDriver DRIVER = new JsEngineDriver() {
-        @Override public <T> T evaluate(String code, Map<String, Object> context, String scriptName, Class<T> returnType) {
-            return JsEngine.evaluate(code, context, scriptName, returnType);
-        }
+    private final ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+    private final List<ScriptEngine> availableScriptEngines;
 
-        @Override public boolean evaluateBoolean(String code, Map<String, Object> ctx, String scriptName) {
-            return JsEngine.evaluateBoolean(code, ctx, scriptName);
-        }
+    private int maxEngines;
+    private String defaultScript;
+    public String getDefaultScript () { return empty(defaultScript) ? "" : defaultScript; }
 
-        @Override public Integer evaluateInt(String code, Map<String, Object> ctx, String scriptName) {
-            return JsEngine.evaluateInt(code, ctx, scriptName);
-        }
+    public JsEngine() { this(new JsEngineConfig(1, 1, null)); }
 
-        @Override public Long evaluateLong(String code, Map<String, Object> ctx, String scriptName) {
-            return JsEngine.evaluateLong(code, ctx, scriptName);
+    public JsEngine(JsEngineConfig config) {
+        availableScriptEngines = new ArrayList<>(config.getMinEngines());
+        maxEngines = config.getMaxEngines();
+        defaultScript = config.getDefaultScript();
+        for (int i=0; i<config.getMinEngines(); i++) {
+            availableScriptEngines.add(getNashorn(false));
         }
-    };
-
-    public static String scriptName (Object caller, String name) {
-        return caller.getClass().getSimpleName() + ":" + name;
     }
 
-    public static <T> T evaluate(String code, Map<String, Object> context, String scriptName, Class<T> returnType) {
-        final Context ctx = Context.enter();
-        final Scriptable scope = ctx.initStandardObjects();
+    protected ScriptEngine getNashorn() { return getNashorn(true); }
 
-        for (Map.Entry<String, Object> entry : context.entrySet()) {
-            final Object value = entry.getValue();
-            final Object wrappedOut;
-            if (value instanceof JsWrappable) {
-                wrappedOut = Context.javaToJS(((JsWrappable) value).jsObject(), scope);
-            } else if (value instanceof ArrayNode) {
-                final Object[] array = fromJsonOrDie((JsonNode) value, Object[].class);
-                wrappedOut = Context.javaToJS(array, scope);
-            } else if (value instanceof JsonNode) {
-                final Object object = fromJsonOrDie((JsonNode) value, Object.class); // todo: insert as a JS object
-                wrappedOut = Context.javaToJS(object, scope);
-            } else {
-                wrappedOut = Context.javaToJS(value, scope);
+    private final AtomicInteger nashCounter = new AtomicInteger(0);
+    private final AtomicInteger inUse = new AtomicInteger(0);
+    protected ScriptEngine getNashorn(boolean report) {
+        final ScriptEngine engine = scriptEngineManager.getEngineByName("nashorn");
+        if (report) log.info("getNashorn: creating scripting engine #"+nashCounter.incrementAndGet()+" ("+availableScriptEngines.size()+" available, "+inUse.get()+" in use)");
+        return engine;
+    }
+
+    public <T> T evaluate(String code, Map<String, Object> context) {
+        ScriptEngine engine = null;
+        final int numEngines;
+        synchronized (availableScriptEngines) {
+            numEngines = availableScriptEngines.size();
+            if (numEngines > 0) {
+                engine = availableScriptEngines.remove(0);
             }
-            ScriptableObject.putProperty(scope, entry.getKey(), wrappedOut);
         }
-        final Object result = ctx.evaluateString(scope, code, scriptName, 1, null);
-        return result == null ? null : (T) Context.jsToJava(result, returnType);
+        if (engine == null) {
+            if (numEngines >= maxEngines) return die("evaluate("+code+"): maxEngines ("+maxEngines+") reached, no js engines available to execute, "+inUse.get()+" in use");
+            engine = getNashorn();
+        }
+        inUse.incrementAndGet();
+
+        try {
+            final ScriptContext scriptContext = new SimpleScriptContext();
+            final SimpleBindings bindings = new SimpleBindings();
+            for (Map.Entry<String, Object> entry : context.entrySet()) {
+                final Object value = entry.getValue();
+                final Object wrappedOut;
+                Object[] wrappedArray = null;
+                if (value instanceof JsWrappable) {
+                    wrappedOut = ((JsWrappable) value).jsObject();
+                } else if (value instanceof ArrayNode) {
+                    wrappedOut = fromJsonOrDie((JsonNode) value, Object[].class);
+                } else if (value instanceof JsonNode) {
+                    wrappedOut = fromJsonOrDie((JsonNode) value, Object.class);
+                } else if (value.getClass().isArray()) {
+                    wrappedArray = (Object[]) value;
+                    wrappedOut = null;
+                } else {
+                    wrappedOut = value;
+                }
+                if (wrappedArray != null) {
+                    bindings.put(entry.getKey(), wrappedArray);
+                } else {
+                    bindings.put(entry.getKey(), wrappedOut);
+                }
+            }
+            scriptContext.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+            try {
+                Object eval = engine.eval(getDefaultScript()+"\n"+code, scriptContext);
+                return (T) eval;
+            } catch (ScriptException e) {
+                throw new IllegalStateException(e);
+            }
+        } finally {
+            synchronized (availableScriptEngines) {
+                availableScriptEngines.add(engine);
+            }
+            inUse.decrementAndGet();
+        }
     }
 
-    public static boolean evaluateBoolean(String code, Map<String, Object> ctx, String scriptName) {
-        final Object result = evaluate(code, ctx, scriptName, Object.class);
+    public boolean evaluateBoolean(String code, Map<String, Object> ctx) {
+        final Object result = evaluate(code, ctx);
         return result == null ? false : Boolean.valueOf(result.toString().toLowerCase());
     }
 
-    public static Integer evaluateInt(String code, Map<String, Object> ctx, String scriptName) {
-        final Object result = evaluate(code, ctx, scriptName, Object.class);
+    public boolean evaluateBoolean(String code, Map<String, Object> ctx, boolean defaultValue) {
+        try {
+            return evaluateBoolean(code, ctx);
+        } catch (Exception e) {
+            log.debug("evaluateBoolean: returning "+defaultValue+" due to exception:"+e);
+            return defaultValue;
+        }
+    }
+
+    public Integer evaluateInt(String code, Map<String, Object> ctx) {
+        final Object result = evaluate(code, ctx);
         if (result == null) return null;
         if (result instanceof Number) return ((Number) result).intValue();
         return Integer.parseInt(result.toString().trim());
     }
 
-    public static Long evaluateLong(String code, Map<String, Object> ctx, String scriptName) {
-        final Object result = evaluate(code, ctx, scriptName, Object.class);
+    public Long evaluateLong(String code, Map<String, Object> ctx) {
+        final Object result = evaluate(code, ctx);
         if (result == null) return null;
         if (result instanceof Number) return ((Number) result).longValue();
         return Long.parseLong(result.toString().trim());
     }
 
+    public String evaluateString(String condition, Map<String, Object> ctx) {
+        final Object rval = evaluate(condition, ctx);
+        if (rval == null) return null;
+
+        if (rval instanceof String) return rval.toString();
+        if (rval instanceof Number) {
+            if (rval.toString().endsWith(".0")) return ""+((Number) rval).longValue();
+            return rval.toString();
+        }
+        return rval.toString();
+    }
+
+    public String functionOfX(String value, String script) {
+        final Map<String, Object> ctx = new HashMap<>();
+        ctx.put("x", value);
+        try {
+            return String.valueOf(evaluateInt(script, ctx));
+        } catch (Exception e) {
+            log.warn("functionOfX('"+value+"', '"+script+"', NOT applying due to exception: "+e);
+            return value;
+        }
+    }
 }

@@ -6,8 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.cobbzilla.util.javascript.JsEngineDriver;
-import org.cobbzilla.util.javascript.StandardJsEngine;
+import org.cobbzilla.util.javascript.JsEngine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,10 +37,10 @@ public class NameAndValue {
     @Override public String toString() { return getName()+": "+getValue(); }
 
     public static NameAndValue[] evaluate (NameAndValue[] pairs, Map<String, Object> context) {
-        return evaluate(pairs, context, StandardJsEngine.DRIVER);
+        return evaluate(pairs, context, new JsEngine());
     }
 
-    public static NameAndValue[] evaluate (NameAndValue[] pairs, Map<String, Object> context, JsEngineDriver engineDriver) {
+    public static NameAndValue[] evaluate (NameAndValue[] pairs, Map<String, Object> context, JsEngine engine) {
 
         if (empty(context) || empty(pairs)) return pairs;
 
@@ -49,7 +48,7 @@ public class NameAndValue {
         for (int i=0; i<pairs.length; i++) {
             final boolean isCode = pairs[i].getHasValue() && pairs[i].getValue().trim().startsWith("@");
             if (isCode) {
-                results[i] = new NameAndValue(pairs[i].getName(), engineDriver.evaluate(pairs[i].getValue().trim().substring(1), context, String.class));
+                results[i] = new NameAndValue(pairs[i].getName(), engine.evaluateString(pairs[i].getValue().trim().substring(1), context));
             } else {
                 results[i] = pairs[i];
             }

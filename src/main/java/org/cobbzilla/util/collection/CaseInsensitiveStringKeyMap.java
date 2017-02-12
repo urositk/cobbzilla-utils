@@ -2,8 +2,6 @@ package org.cobbzilla.util.collection;
 
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CaseInsensitiveStringKeyMap<V> extends ConcurrentHashMap<String, V> {
@@ -12,7 +10,7 @@ public class CaseInsensitiveStringKeyMap<V> extends ConcurrentHashMap<String, V>
 
     public String key(Object key) { return key == null ? null : key.toString().toLowerCase(); }
 
-    @Override public Set<String> keySet() { return new HashSet<>(origKeys.values()); }
+    @Override public KeySetView<String, V> keySet() { return super.keySet(); }
 
     @Override public Enumeration<String> keys() { return Collections.enumeration(origKeys.values()); }
 
