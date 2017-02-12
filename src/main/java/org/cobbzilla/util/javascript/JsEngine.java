@@ -69,7 +69,9 @@ public class JsEngine {
                 final Object value = entry.getValue();
                 final Object wrappedOut;
                 Object[] wrappedArray = null;
-                if (value instanceof JsWrappable) {
+                if (value == null) {
+                    wrappedOut = null;
+                } else if (value instanceof JsWrappable) {
                     wrappedOut = ((JsWrappable) value).jsObject();
                 } else if (value instanceof ArrayNode) {
                     wrappedOut = fromJsonOrDie((JsonNode) value, Object[].class);
