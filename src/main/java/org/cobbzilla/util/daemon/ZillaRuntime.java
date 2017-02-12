@@ -191,4 +191,13 @@ public class ZillaRuntime {
     }
 
     public static int processorCount() { return Runtime.getRuntime().availableProcessors(); }
+
+    public static String hashOf (Object... things) {
+        final StringBuilder b = new StringBuilder();
+        for (Object thing : things) {
+            b.append(thing == null ? "null" : thing).append(":::");
+        }
+        return b.toString();
+    }
+
 }
