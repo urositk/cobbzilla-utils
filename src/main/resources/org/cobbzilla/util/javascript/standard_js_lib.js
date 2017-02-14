@@ -1,5 +1,5 @@
 // returns true if item is in arr array
-function found (item, arr) { return (typeof arr != 'undefined') && arr != null && arr.indexOf(''+item) != -1; }
+function found (item, arr) { return (typeof arr != 'undefined') && arr != null && _findIndex(arr, function(o){return ''+o == item}) != -1; }
 
 // returns true if any element in items array is found in arr array
 function found_any (items, arr) {
@@ -69,6 +69,14 @@ function _find (arr, func) {
         if (func(arr[i])) return arr[i];
     }
     return null;
+}
+
+function _findIndex (arr, func) {
+    if ((typeof arr == 'undefined') || arr == null) return null;
+    for (var i=0; i<arr.length; i++) {
+        if (func(arr[i])) return i;
+    }
+    return -1;
 }
 
 function contains (arr, field, comparison, value) {
