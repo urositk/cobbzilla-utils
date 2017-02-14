@@ -89,7 +89,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             return writer.toString();
 
         } catch (Exception e) {
-            return die("apply: "+e, e);
+            return die("apply("+value+"): "+e, e);
         } catch (Error e) {
             log.warn("apply: "+e, e);
             throw e;
