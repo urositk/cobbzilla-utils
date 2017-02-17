@@ -236,35 +236,35 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         hb.registerHelper("dollarsNoSign", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) return "";
-                return new Handlebars.SafeString(formatDollarsNoSign(longVal(src)));
+                return new Handlebars.SafeString(formatDollarsNoSign(longDollarVal(src)));
             }
         });
 
         hb.registerHelper("dollarsWithSign", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) return "";
-                return new Handlebars.SafeString(formatDollarsWithSign(longVal(src)));
+                return new Handlebars.SafeString(formatDollarsWithSign(longDollarVal(src)));
             }
         });
 
         hb.registerHelper("dollarsAndCentsNoSign", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) return "";
-                return new Handlebars.SafeString(formatDollarsAndCentsNoSign(longVal(src)));
+                return new Handlebars.SafeString(formatDollarsAndCentsNoSign(longDollarVal(src)));
             }
         });
 
         hb.registerHelper("dollarsAndCentsWithSign", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) return "";
-                return new Handlebars.SafeString(formatDollarsAndCentsWithSign(longVal(src)));
+                return new Handlebars.SafeString(formatDollarsAndCentsWithSign(longDollarVal(src)));
             }
         });
 
         hb.registerHelper("dollarsAndCentsPlain", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) return "";
-                return new Handlebars.SafeString(formatDollarsAndCentsPlain(longVal(src)));
+                return new Handlebars.SafeString(formatDollarsAndCentsPlain(longDollarVal(src)));
             }
         });
     }
@@ -320,6 +320,11 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         }
 
         return ((Number) src).longValue();
+    }
+
+    public static long longDollarVal(Object src) {
+        final Long val = ReflectionUtil.toLong(src);
+        return val == null ? 0 : val;
     }
 
     public static final String CLOSE_XML_DECL = "?>";
