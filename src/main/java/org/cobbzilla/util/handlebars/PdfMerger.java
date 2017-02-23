@@ -14,11 +14,13 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
+import org.cobbzilla.util.string.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +49,14 @@ public class PdfMerger {
     public static File merge(InputStream in,
                              Map<String, Object> context,
                              Handlebars handlebars) throws Exception {
+        return merge(in, context, handlebars, new ArrayList<>());
+    }
+
+    @SuppressWarnings("Duplicates")
+    public static File merge(InputStream in,
+                             Map<String, Object> context,
+                             Handlebars handlebars,
+                             List<String> validationErrors) throws Exception {
 
         final Map<String, String> fieldMappings = (Map<String, String>) context.get("fields");
 
@@ -65,7 +75,8 @@ public class PdfMerger {
                 try {
                     String fieldValue = fieldMappings == null ? null : fieldMappings.get(field.getFullyQualifiedName());
                     if (!empty(fieldValue)) {
-                        fieldValue = HandlebarsUtil.apply(handlebars, fieldValue, context);
+                        fieldValue = safeApply(context, handlebars, fieldValue, validationErrors);
+                        if (fieldValue == null) continue;
                     }
                     if (field instanceof PDCheckBox) {
                         PDCheckBox box = (PDCheckBox) field;
@@ -86,7 +97,8 @@ public class PdfMerger {
                         }
                         if (empty(formValue)) formValue = fieldValue;
                         if (!empty(formValue)) {
-                            formValue = HandlebarsUtil.apply(handlebars, formValue, context);
+                            formValue = safeApply(context, handlebars, formValue, validationErrors);
+                            if (formValue == null) continue;
                             try {
                                 field.setValue(formValue);
                             } catch (Exception e) {
@@ -125,7 +137,22 @@ public class PdfMerger {
         pdfDocument.getDocumentCatalog().setPageMode(PageMode.USE_THUMBS);
         pdfDocument.save(output);
 
+        if (validationErrors != null && !validationErrors.isEmpty()) return die("merge: "+StringUtil.toString(validationErrors));
         return output;
+    }
+
+    public static String safeApply(Map<String, Object> context, Handlebars handlebars, String fieldValue, List<String> validationErrors) {
+        try {
+            return HandlebarsUtil.apply(handlebars, fieldValue, context);
+        } catch (Exception e) {
+            if (validationErrors != null) {
+                log.warn("safeApply("+fieldValue+"): "+e);
+                validationErrors.add(fieldValue+"\t"+e.getMessage());
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
     protected static void insertImage(PDDocument pdfDocument, Object insert, Class<? extends ImageInsertion> clazz) throws IOException {
