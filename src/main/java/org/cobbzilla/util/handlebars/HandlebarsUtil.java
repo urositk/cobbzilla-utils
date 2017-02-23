@@ -1,5 +1,6 @@
 package org.cobbzilla.util.handlebars;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
@@ -24,6 +25,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 import static org.cobbzilla.util.security.ShaUtil.sha256_hex;
@@ -75,8 +77,8 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             value = value.replaceAll("\\{\\{\\{", DUMMY_START3).replaceAll("}}}", DUMMY_END3)
                     .replaceAll("\\{\\{", DUMMY_START2).replaceAll("}}", DUMMY_END2)
                     // replace our custom start/end delimiters with handlebars standard ones
-                    .replaceAll(s3, "{{{").replaceAll(e3, "}}}")
-                    .replaceAll(s2, "{{").replaceAll(e2, "}}");
+                    .replaceAll(Pattern.quote(s3), "{{{").replaceAll(Pattern.quote(e3), "}}}")
+                    .replaceAll(Pattern.quote(s2), "{{").replaceAll(Pattern.quote(e2), "}}");
             // run handlebars, then put the real handlebars stuff back (removing the dummy placeholders)
             value = apply(handlebars, value, ctx)
                     .replaceAll(DUMMY_START3, "{{{").replaceAll(DUMMY_END3, "}}}")
@@ -96,7 +98,22 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         }
     }
 
+    /**
+     * Using reflection, we find all public getters of a thing (and if the getter returns an object, find all
+     * of its public getters, recursively and so on). We limit our results to those getters that have corresponding
+     * setters: methods whose sole parameter is of a compatible type with the return type of the getter.
+     * For each such property whose value is a String, we apply handlebars using the provided context.
+     * @param handlebars the handlebars template processor
+     * @param thing the object to operate upon
+     * @param ctx the context to apply
+     * @param <T> the return type
+     * @return the thing, possibly with String-valued properties having been modified
+     */
     public static <T> T applyReflectively(Handlebars handlebars, T thing, Map<String, Object> ctx) {
+        return applyReflectively(handlebars, thing, ctx, '{', '}');
+    }
+
+    public static <T> T applyReflectively(Handlebars handlebars, T thing, Map<String, Object> ctx, char altStart, char altEnd) {
         for (Method getterCandidate : thing.getClass().getMethods()) {
 
             if (!getterCandidate.getName().startsWith("get")) continue;
@@ -113,12 +130,12 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                     final Object value = getterCandidate.invoke(thing, (Object[]) null);
                     if (value == null) break;
                     if (value instanceof String) {
-                        if (value.toString().contains("{{")) {
-                            setterCandidate.invoke(thing, apply(handlebars, (String) value, ctx));
+                        if (value.toString().contains(""+altStart+altStart)) {
+                            setterCandidate.invoke(thing, apply(handlebars, (String) value, ctx, altStart, altEnd));
                         }
                     } else {
                         // recurse
-                        setterCandidate.invoke(thing, applyReflectively(handlebars, value, ctx));
+                        setterCandidate.invoke(thing, applyReflectively(handlebars, value, ctx, altStart, altEnd));
                     }
                 } catch (Exception e) {
                     // no setter for getter
@@ -227,6 +244,16 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                 if (empty(val)) return "";
                 if (max == -1 || max >= val.length()) return val;
                 return new Handlebars.SafeString(val.substring(0, max));
+            }
+        });
+
+        hb.registerHelper("length", new Helper<Object>() {
+            public CharSequence apply(Object thing, Options options) {
+                if (empty(thing)) return "0";
+                if (thing.getClass().isArray()) return ""+((Object[]) thing).length;
+                if (thing instanceof Collection) return ""+((Collection) thing).size();
+                if (thing instanceof ArrayNode) return ""+((ArrayNode) thing).size();
+                return "";
             }
         });
 
