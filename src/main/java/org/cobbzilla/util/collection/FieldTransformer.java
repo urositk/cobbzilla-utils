@@ -17,7 +17,7 @@ public class FieldTransformer implements Transformer {
     public static final FieldTransformer TO_ID = new FieldTransformer("id");
     public static final FieldTransformer TO_UUID = new FieldTransformer("uuid");
 
-    @Getter @Setter private String field;
+    @Getter private final String field;
 
     @Override public Object transform(Object o) { return ReflectionUtil.get(o, field); }
 
