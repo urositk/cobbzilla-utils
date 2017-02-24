@@ -63,7 +63,16 @@ public class ZillaRuntime {
     public static <T> T notSupported()               { return notSupported("not supported"); }
     public static <T> T notSupported(String message) { return _throw(new UnsupportedOperationException(message)); }
 
-    private static <T> T _throw (RuntimeException e) { if (errorApi != null) errorApi.report(e); throw e; }
+    private static <T> T _throw (RuntimeException e) {
+        String message = e.getMessage();
+        Throwable cause = e.getCause();
+        if (errorApi != null) {
+            if (cause != null && cause instanceof Exception) errorApi.report(message, (Exception) cause);
+            else errorApi.report(e);
+        }
+        if (cause != null) log.error("Inner exception: " + message, cause);
+        throw e;
+    }
 
     public static boolean empty(String s) { return s == null || s.length() == 0; }
 
