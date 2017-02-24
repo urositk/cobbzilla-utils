@@ -112,7 +112,7 @@ public class PdfMerger {
                 field.setReadOnly(true);
                 field.getCOSObject().setInt("Ff", 1);
             }
-            acroForm.flatten();
+            // acroForm.flatten();
         }
 
         // add images
