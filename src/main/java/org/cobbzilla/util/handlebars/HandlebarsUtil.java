@@ -68,7 +68,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     public static final String DUMMY_END3 = "___~~~___";
     public static final String DUMMY_END2 = "__~~__";
     public static String apply(Handlebars handlebars, String value, Map<String, Object> ctx, char altStart, char altEnd) {
-        if (altStart != 0 && altEnd != 0) {
+        if (altStart != 0 && altEnd != 0 && (altStart != '{' && altEnd != '}')) {
             final String s3 = StringUtils.repeat(altStart, 3);
             final String s2 = StringUtils.repeat(altStart, 2);
             final String e3 = StringUtils.repeat(altEnd, 3);
