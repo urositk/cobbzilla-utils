@@ -163,6 +163,12 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     public static final Handlebars.SafeString EMPTY_SAFE_STRING = new Handlebars.SafeString("");
 
     public static void registerUtilityHelpers (final Handlebars hb) {
+        hb.registerHelper("exists", new Helper<Object>() {
+            public CharSequence apply(Object src, Options options) throws IOException {
+                return empty(src) ? null : options.apply(options.fn);
+            }
+        });
+
         hb.registerHelper("sha256", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) return "";
