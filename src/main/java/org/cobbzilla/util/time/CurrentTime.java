@@ -12,8 +12,10 @@ public class CurrentTime {
     @Getter @Setter private String timestamp;
     @Getter @Setter private String yyyyMMdd;
     @Getter @Setter private String yyyyMMddHHmmss;
+    @Getter @Setter private String zone;
 
     public CurrentTime(DateTimeZone tz) {
+        zone = tz.getID();
         now = ZillaRuntime.now();
         final DateTime time = new DateTime(now, tz);
         yyyyMMdd = TimeUtil.DATE_FORMAT_YYYY_MM_DD.print(time);
