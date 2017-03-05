@@ -20,7 +20,7 @@ public class ResultSetBean {
     public boolean isEmpty () { return rows.isEmpty(); }
 
     public Map<String, Object> first () { return rows.get(0); }
-    public int count () { return isEmpty() ? 0 : Integer.parseInt(rows.get(0).entrySet().iterator().next().getValue().toString()); }
+    public Integer count () { return isEmpty() ? null : Integer.valueOf(rows.get(0).entrySet().iterator().next().getValue().toString()); }
 
     public ResultSetBean (ResultSet rs) throws SQLException { read(rs); }
     public ResultSetBean (PreparedStatement ps) throws SQLException { read(ps); }
