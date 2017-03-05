@@ -21,10 +21,11 @@ public class ResultSetBean {
 
     public Map<String, Object> first () { return rows.get(0); }
     public Integer count () { return isEmpty() ? null : Integer.valueOf(rows.get(0).entrySet().iterator().next().getValue().toString()); }
+    public int countOrZero () { return isEmpty() ? 0 : Integer.parseInt(rows.get(0).entrySet().iterator().next().getValue().toString()); }
 
-    public ResultSetBean (ResultSet rs) throws SQLException { read(rs); }
-    public ResultSetBean (PreparedStatement ps) throws SQLException { read(ps); }
-    public ResultSetBean (Connection conn, String sql) throws SQLException { read(conn, sql); }
+    public ResultSetBean (ResultSet rs)                throws SQLException { rows.addAll(read(rs)); }
+    public ResultSetBean (PreparedStatement ps)        throws SQLException { rows.addAll(read(ps)); }
+    public ResultSetBean (Connection conn, String sql) throws SQLException { rows.addAll(read(conn, sql)); }
 
     private List<Map<String, Object>> read(Connection conn, String sql) throws SQLException {
         @Cleanup final PreparedStatement ps = conn.prepareStatement(sql);
