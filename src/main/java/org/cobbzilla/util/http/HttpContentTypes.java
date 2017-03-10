@@ -74,4 +74,7 @@ public class HttpContentTypes {
         }
         return data;
     }
+
+    public static String multipartWithBoundary(String boundary) { return "multipart/form-data; boundary=" + boundary; }
+
 }
