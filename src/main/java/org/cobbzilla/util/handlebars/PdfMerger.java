@@ -3,6 +3,7 @@ package org.cobbzilla.util.handlebars;
 import com.github.jknack.handlebars.Handlebars;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -203,4 +205,21 @@ public class PdfMerger {
         merger.mergeDocuments(MemoryUsageSetting.setupMixed(maxMemory, maxDisk));
     }
 
+    public static void scrubAcroForm(File file, OutputStream output) throws IOException {
+        @Cleanup final InputStream pdfIn = FileUtils.openInputStream(file);
+        @Cleanup final PDDocument pdfDoc = PDDocument.load(pdfIn);
+        final PDAcroForm acroForm = pdfDoc.getDocumentCatalog().getAcroForm();
+
+        if (acroForm == null) {
+            Files.copy(file.toPath(), output);
+        } else {
+            acroForm.setNeedAppearances(false);
+
+            File tempFile = temp(".pdf");
+            pdfDoc.save(tempFile);
+            pdfDoc.close();
+            Files.copy(tempFile.toPath(), output);
+            tempFile.delete();
+        }
+    }
 }
