@@ -10,11 +10,12 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.system.Sleep.sleep;
+import static org.cobbzilla.util.time.TimeUtil.formatDuration;
 
 @Slf4j
 public class HtmlScreenCapture extends PhantomUtil {
 
-    private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(5);
+    private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(15);
 
     public HtmlScreenCapture (String phantomJsPath) { super(phantomJsPath); }
     public HtmlScreenCapture (PhantomJSDriver driver) { super(driver); }
@@ -24,11 +25,15 @@ public class HtmlScreenCapture extends PhantomUtil {
             "  page.render('@@FILE@@');\n" +
             "});\n";
 
-    public synchronized void capture (String url, File file) {
+    public synchronized void capture (String url, File file) { capture(url, file, TIMEOUT); }
+
+    public synchronized void capture (String url, File file, long timeout) {
         execJs(SCRIPT.replace("@@URL@@", url).replace("@@FILE@@", abs(file)));
         long start = now();
-        while (file.length() == 0 && now() - start < TIMEOUT) sleep(50);
-        if (file.length() == 0 && now() - start >= TIMEOUT) die("capture: file was never written to: "+abs(file));
+        while (file.length() == 0 && now() - start < timeout) sleep(100);
+        if (file.length() == 0 && now() - start >= timeout) {
+            die("capture: after "+formatDuration(timeout)+" file was never written to: "+abs(file));
+        }
     }
 
     public void capture (File in, File out) {
