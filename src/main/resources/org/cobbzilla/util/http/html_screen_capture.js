@@ -18,8 +18,14 @@ function checkExists (path, start, timeout) {
         }
     }, 250);
 }
-page.paperSize = { width: '620px', height: '830px', margin: '30px' };
+
+// @see https://github.com/ariya/phantomjs/issues/12685
+// @see https://github.com/ariya/phantomjs/issues/12936
+// the 2 lines below essentially hack phantomjs into outputting the right size PDF for US 8.5x11in paper when run on
+// a linux machine. It has to do with the DPI of some underlying software, perhaps there is a better way to make the adjustment.
+// or we should allow caller to name a saved preset config. then we could add support for A4 paper/etc.
 page.zoomFactor = 1.25;
+page.paperSize = { width: '615px', height: '790px', margin: '30px' };
 
 page.open(url, function(status) {
   if (status !== 'success') {
