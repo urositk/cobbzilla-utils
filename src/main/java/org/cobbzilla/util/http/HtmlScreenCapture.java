@@ -1,6 +1,7 @@
 package org.cobbzilla.util.http;
 
 import lombok.extern.slf4j.Slf4j;
+import org.cobbzilla.util.io.StreamUtil;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
 import java.io.File;
@@ -9,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.now;
 import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.string.StringUtil.getPackagePath;
 import static org.cobbzilla.util.system.Sleep.sleep;
 import static org.cobbzilla.util.time.TimeUtil.formatDuration;
 
@@ -20,10 +22,7 @@ public class HtmlScreenCapture extends PhantomUtil {
     public HtmlScreenCapture (String phantomJsPath) { super(phantomJsPath); }
     public HtmlScreenCapture (PhantomJSDriver driver) { super(driver); }
 
-    public static final String SCRIPT = "var page = require('webpage').create();\n" +
-            "page.open('@@URL@@', function() {\n" +
-            "  page.render('@@FILE@@');\n" +
-            "});\n";
+    public static final String SCRIPT = StreamUtil.loadResourceAsStringOrDie(getPackagePath(HtmlScreenCapture.class)+"/html_screen_capture.js");
 
     public synchronized void capture (String url, File file) { capture(url, file, TIMEOUT); }
 
