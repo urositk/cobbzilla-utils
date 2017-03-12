@@ -18,12 +18,10 @@ public class PhantomUtil {
     public PhantomUtil(String phantomjs) { driver = defaultDriver(phantomjs); }
 
     public PhantomJSDriver defaultDriver(String phantomjs) {
-        PhantomJSDriver phantomJSDriver;
         final DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setJavascriptEnabled(true);
         capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, phantomjs);
-        phantomJSDriver = new PhantomJSDriver(capabilities);
-        return phantomJSDriver;
+        return new PhantomJSDriver(capabilities);
     }
 
     public void execJs(String script) { getDriver().executePhantomJS(script); }
