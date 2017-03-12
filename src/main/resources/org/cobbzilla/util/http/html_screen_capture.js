@@ -18,19 +18,15 @@ function checkExists (path, start, timeout) {
         }
     }, 250);
 }
-page.paperSize = { width: '595px', height: '842px', margin: '0px' };
+page.paperSize = { width: '620px', height: '830px', margin: '30px' };
 page.zoomFactor = 1.25;
 
 page.open(url, function(status) {
   if (status !== 'success') {
-    console.log('Unable to load: '+url);
+    console.log('Error loading ('+status+'): '+url);
     phantom.exit(1);
 
   } else {
-      //page.evaluate(function () {
-          page.render(outFile);
-          //checkExists(outFile, Date.now(), 60000);
-          //phantom.exit(0);
-      //});
+    page.render(outFile);
   }
 });
