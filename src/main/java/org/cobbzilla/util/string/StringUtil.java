@@ -5,6 +5,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.lang3.LocaleUtils;
+import org.cobbzilla.util.io.StreamUtil;
+import org.cobbzilla.util.javascript.JsEngine;
+import org.cobbzilla.util.javascript.JsEngineConfig;
 import org.cobbzilla.util.security.MD5Util;
 import org.cobbzilla.util.time.ImprovedTimezone;
 import org.joda.time.DateTimeZone;
@@ -449,4 +452,18 @@ public class StringUtil {
         final Matcher m = p.matcher(s);
         return m.find() ? m.group(0) : null;
     }
+
+    private static final String DIFF_JS
+            = StreamUtil.loadResourceAsStringOrDie(getPackagePath(StringUtil.class)+"/diff_match_patch.js") + "\n"
+            + StreamUtil.loadResourceAsStringOrDie(getPackagePath(StringUtil.class)+"/calc_diff.js") + "\n";
+    public static JsEngine DIFF_JS_ENGINE = new JsEngine(new JsEngineConfig(5, 20, null));
+    public static String diff (String text1, String text2, Map<String, String> opts) {
+        if (opts == null) opts = new HashMap<>();
+        final Map<String, Object> ctx = new HashMap<>();
+        ctx.put("text1", text1);
+        ctx.put("text2", text2);
+        ctx.put("opts", opts);
+        return DIFF_JS_ENGINE.evaluate(DIFF_JS, ctx);
+    }
+
 }
