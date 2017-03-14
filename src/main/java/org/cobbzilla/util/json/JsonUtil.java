@@ -338,7 +338,20 @@ public class JsonUtil {
         if (node instanceof DoubleNode) return new DoubleNode(Double.parseDouble(replacement));
         if (node instanceof DecimalNode) return new DecimalNode(new BigDecimal(replacement));
         if (node instanceof BigIntegerNode) return new BigIntegerNode(new BigInteger(replacement));
-        throw new IllegalArgumentException("Path "+path+" refers to an unsupported ValueNode: "+ nodeClass);
+        return die("Path "+path+" refers to an unsupported ValueNode: "+ nodeClass);
+    }
+
+    public static Object getNodeAsJava(JsonNode node, String path) {
+        final String nodeClass = node.getClass().getName();
+        if ( ! (node instanceof ValueNode) ) die("Path "+path+" does not refer to a value (it is a "+ nodeClass +")");
+        if (node instanceof TextNode) return node.textValue();
+        if (node instanceof BooleanNode) return node.booleanValue();
+        if (node instanceof IntNode) return node.intValue();
+        if (node instanceof LongNode) return node.longValue();
+        if (node instanceof DoubleNode) return node.doubleValue();
+        if (node instanceof DecimalNode) return node.decimalValue();
+        if (node instanceof BigIntegerNode) return node.bigIntegerValue();
+        return die("Path "+path+" refers to an unsupported ValueNode: "+ nodeClass);
     }
 
     public static JsonNode getValueNode(Object data) {
@@ -350,7 +363,7 @@ public class JsonUtil {
         if (data instanceof Double) return new DoubleNode((Double) data);
         if (data instanceof BigDecimal) return new DecimalNode((BigDecimal) data);
         if (data instanceof BigInteger) return new BigIntegerNode((BigInteger) data);
-        throw new IllegalArgumentException("Cannot create value node from: "+data+" (type "+data.getClass().getName()+")");
+        return die("Cannot create value node from: "+data+" (type "+data.getClass().getName()+")");
     }
 
     public static JsonNode toNode (File f) { return fromJsonOrDie(FileUtil.toStringOrDie(f), JsonNode.class); }
