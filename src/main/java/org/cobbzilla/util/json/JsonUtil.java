@@ -342,6 +342,7 @@ public class JsonUtil {
     }
 
     public static Object getNodeAsJava(JsonNode node, String path) {
+        if (node == null || node instanceof NullNode) return null;
         final String nodeClass = node.getClass().getName();
         if ( ! (node instanceof ValueNode) ) die("Path "+path+" does not refer to a value (it is a "+ nodeClass +")");
         if (node instanceof TextNode) return node.textValue();
