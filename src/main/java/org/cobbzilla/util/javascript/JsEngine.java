@@ -35,11 +35,12 @@ public class JsEngine {
         for (int i=0; i<config.getMinEngines(); i++) {
             availableScriptEngines.add(getNashorn(false));
         }
+        nashCounter = new AtomicInteger(availableScriptEngines.size());
     }
 
     protected ScriptEngine getNashorn() { return getNashorn(true); }
 
-    private final AtomicInteger nashCounter = new AtomicInteger(0);
+    private final AtomicInteger nashCounter;
     private final AtomicInteger inUse = new AtomicInteger(0);
     protected ScriptEngine getNashorn(boolean report) {
         final ScriptEngine engine = scriptEngineManager.getEngineByName("nashorn");
