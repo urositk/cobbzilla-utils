@@ -1518,6 +1518,17 @@ public class Base64
     }   // end decodeFromFile
 
 
+    /**
+     * See {@link #encodeFromFile(java.io.File)}.
+     *
+     * @param filename Filename for reading binary data
+     * @return base64-encoded string
+     * @throws java.io.IOException if there is an error
+     * @since 2.1
+     */
+    public static String encodeFromFile(String filename) throws java.io.IOException {
+        return encodeFromFile(new java.io.File(filename));
+    }
 
     /**
      * Convenience method for reading a binary file
@@ -1528,20 +1539,17 @@ public class Base64
      * In earlier versions, it just returned false, but
      * in retrospect that's a pretty poor way to handle it.</p>
      *
-     * @param filename Filename for reading binary data
+     * @param file File for reading binary data
      * @return base64-encoded string
      * @throws java.io.IOException if there is an error
-     * @since 2.1
      */
-    public static String encodeFromFile( String filename )
-            throws java.io.IOException {
+    public static String encodeFromFile(java.io.File file) throws java.io.IOException {
 
         String encodedData = null;
         Base64.InputStream bis = null;
         try
         {
             // Set up some useful variables
-            java.io.File file = new java.io.File( filename );
             byte[] buffer = new byte[ Math.max((int)(file.length() * 1.4+1),40) ]; // Need max() for math on small files (v2.2.1); Need +1 for a few corner cases (v2.3.5)
             int length   = 0;
             int numBytes = 0;

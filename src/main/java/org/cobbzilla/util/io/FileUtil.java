@@ -21,6 +21,7 @@ import static org.cobbzilla.util.io.TempDir.quickTemp;
 @Slf4j
 public class FileUtil {
 
+    private static final List<String> DEFAULT_PATHS = new ArrayList<String>() {{ add("."); }};
     public static final File DEFAULT_TEMPDIR = new File(System.getProperty("java.io.tmpdir"));
     private static final File[] EMPTY_ARRAY = {};
     public static final String sep = File.separator;
@@ -29,6 +30,22 @@ public class FileUtil {
 
     public static boolean isReadableNonEmptyFile (File f) {
         return f != null && f.exists() && f.canRead() && f.length() > 0;
+    }
+
+    /**
+     * Iterate through given paths and return File object for the first found path and filename combination which
+     * results with an existing readable and non empty file.
+     *
+     * @param paths    List of paths to look for the file in
+     * @param filename The name of the file.
+     * @return         First found file or null.
+     */
+    public static File firstFoundFile(List<String> paths, String filename) {
+        for (String path : (paths != null) ? paths : DEFAULT_PATHS) {
+            File f = new File(path, filename);
+            if (isReadableNonEmptyFile(f)) return f;
+        }
+        return null;
     }
 
     public static File[] list(File dir) {
