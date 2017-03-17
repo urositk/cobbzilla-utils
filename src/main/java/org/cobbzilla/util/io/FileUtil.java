@@ -21,7 +21,6 @@ import static org.cobbzilla.util.io.TempDir.quickTemp;
 @Slf4j
 public class FileUtil {
 
-    private static final List<String> DEFAULT_PATHS = new ArrayList<String>() {{ add("."); }};
     public static final File DEFAULT_TEMPDIR = new File(System.getProperty("java.io.tmpdir"));
     private static final File[] EMPTY_ARRAY = {};
     public static final String sep = File.separator;
@@ -41,10 +40,16 @@ public class FileUtil {
      * @return         First found file or null.
      */
     public static File firstFoundFile(List<String> paths, String filename) {
-        for (String path : (paths != null) ? paths : DEFAULT_PATHS) {
-            File f = new File(path, filename);
-            if (isReadableNonEmptyFile(f)) return f;
+        if (!empty(paths)) {
+            for (String path : paths) {
+                File f = new File(path, filename);
+                if (isReadableNonEmptyFile(f)) return f;
+            }
         }
+        // Finally try from withing the current folder:
+        File f = new File(filename);
+        if (isReadableNonEmptyFile(f)) return f;
+
         return null;
     }
 
