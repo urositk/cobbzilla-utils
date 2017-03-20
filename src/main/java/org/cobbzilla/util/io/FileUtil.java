@@ -31,6 +31,28 @@ public class FileUtil {
         return f != null && f.exists() && f.canRead() && f.length() > 0;
     }
 
+    /**
+     * Iterate through given paths and return File object for the first found path and filename combination which
+     * results with an existing readable and non empty file.
+     *
+     * @param paths    List of paths to look for the file in
+     * @param filename The name of the file.
+     * @return         First found file or null.
+     */
+    public static File firstFoundFile(List<String> paths, String filename) {
+        if (!empty(paths)) {
+            for (String path : paths) {
+                File f = new File(path, filename);
+                if (isReadableNonEmptyFile(f)) return f;
+            }
+        }
+        // Finally try from withing the current folder:
+        File f = new File(filename);
+        if (isReadableNonEmptyFile(f)) return f;
+
+        return null;
+    }
+
     public static File[] list(File dir) {
         final File[] files = dir.listFiles();
         if (files == null) return EMPTY_ARRAY;

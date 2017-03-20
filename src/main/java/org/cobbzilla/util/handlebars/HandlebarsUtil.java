@@ -12,19 +12,18 @@ import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang3.StringUtils;
+import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.util.time.TimeUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
@@ -160,7 +159,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         return new StringTemplateSource(sourceName, source);
     }
 
-    public static final Handlebars.SafeString EMPTY_SAFE_STRING = new Handlebars.SafeString("");
+    public static final CharSequence EMPTY_SAFE_STRING = "";
 
     public static void registerUtilityHelpers (final Handlebars hb) {
         hb.registerHelper("exists", new Helper<Object>() {
@@ -378,27 +377,49 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         });
     }
 
+    @AllArgsConstructor
+    private static class FileLoaderHelper implements Helper<String> {
+        private List<String> paths;
+        private boolean isBase64EncoderOn;
+
+        @Override public CharSequence apply(String filename, Options options) throws IOException {
+            if (empty(filename)) return EMPTY_SAFE_STRING;
+            File f = FileUtil.firstFoundFile(paths, filename);
+            if (f == null) {
+                log.error("Cannot find readable file " + filename + " under paths " + paths);
+                return EMPTY_SAFE_STRING;
+            }
+
+            try {
+                return new Handlebars.SafeString((isBase64EncoderOn) ? encodeFromFile(f) : FileUtil.toString(f));
+            } catch (IOException e) {
+                log.error("Cannot read file from: " + f, e);
+                return EMPTY_SAFE_STRING;
+            }
+        }
+    }
+
     public static void registerFileHelpers(final Handlebars hb) {
+        registerFileHelpers(hb, null);
+    }
+
+    public static void registerFileHelpers(final Handlebars hb, final List<String> paths) {
+
         hb.registerHelper("rawImagePng", new Helper<Object>() {
             public CharSequence apply(Object src, Options options) {
                 if (empty(src)) return "";
+
+                java.io.File f = FileUtil.firstFoundFile(paths, src.toString());
+                String imgSrc = (f == null) ? src.toString() : f.getAbsolutePath();
+
                 final Object width = options.get("width");
                 final String widthAttr = empty(width) ? "" : "width=\"" + width + "\" ";
-                return new Handlebars.SafeString("<img " + widthAttr + "src=\"data:image/png;base64," + src.toString() +
-                                                 "\"/>");
+                return new Handlebars.SafeString(
+                        "<img " + widthAttr + "src=\"data:image/png;base64," + imgSrc + "\"/>");
             }
         });
 
-        hb.registerHelper("base64File", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
-                try {
-                    return new Handlebars.SafeString(encodeFromFile(src.toString()));
-                } catch (IOException e) {
-                    log.error("Cannot read file from: " + src.toString(), e);
-                    return "";
-                }
-            }
-        });
+        hb.registerHelper("base64File", new FileLoaderHelper(paths, true));
+        hb.registerHelper("textFile", new FileLoaderHelper(paths, false));
     }
 }
