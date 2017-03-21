@@ -33,6 +33,11 @@ public class ReflectionUtil {
         return null;
     }
 
+    public static Boolean toBoolean(Object object, String field, boolean defaultValue) {
+        final Boolean val = toBoolean(get(object, field));
+        return val == null ? defaultValue : val;
+    }
+
     public static Long toLong(Object object) {
         if (object == null) return null;
         if (object instanceof Number) return ((Number) object).longValue();
