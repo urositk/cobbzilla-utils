@@ -40,6 +40,7 @@ public class HttpContentTypes {
             case "png":              return IMAGE_PNG;
             case "jpg": case "jpeg": return IMAGE_JPEG;
             case "gif":              return IMAGE_GIF;
+            case "xml":              return APPLICATION_XML;
             case "pdf":              return APPLICATION_PDF;
             case "json":             return APPLICATION_JSON;
             default: return die("contentType: no content-type could be determined for name: "+name);
@@ -52,6 +53,7 @@ public class HttpContentTypes {
             case IMAGE_PNG:        return ".png";
             case IMAGE_JPEG:       return ".jpeg";
             case IMAGE_GIF:        return ".gif";
+            case APPLICATION_XML:  return ".xml";
             case APPLICATION_PDF:  return ".pdf";
             case APPLICATION_JSON: return ".json";
             default: return die("fileExt: no file extension could be determined for content-type: "+contentType);
