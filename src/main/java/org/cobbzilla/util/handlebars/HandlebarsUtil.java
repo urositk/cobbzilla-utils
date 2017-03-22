@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
+import static org.cobbzilla.util.io.StreamUtil.stream2string;
 import static org.cobbzilla.util.security.ShaUtil.sha256_hex;
 import static org.cobbzilla.util.string.Base64.encodeFromFile;
 import static org.cobbzilla.util.string.StringUtil.*;
@@ -386,8 +387,13 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             if (empty(filename)) return EMPTY_SAFE_STRING;
             File f = FileUtil.firstFoundFile(paths, filename);
             if (f == null) {
-                log.error("Cannot find readable file " + filename + " under paths " + paths);
-                return EMPTY_SAFE_STRING;
+                // try classpath
+                try {
+                    return new Handlebars.SafeString(stream2string(filename));
+                } catch (Exception e) {
+                    log.error("Cannot find readable file " + filename + " under paths " + paths);
+                    return EMPTY_SAFE_STRING;
+                }
             }
 
             try {
