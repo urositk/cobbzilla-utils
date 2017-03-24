@@ -90,7 +90,11 @@ public class FileUtil {
     }
 
     public static File[] listDirs(File dir) {
-        final File[] files = dir.listFiles(DirFilter.instance);
+        return listDirs(dir, null);
+    }
+
+    public static File[] listDirs(File dir, String regex) {
+        final File[] files = dir.listFiles(empty(regex) ? DirFilter.instance : new DirFilter(regex));
         if (files == null) return EMPTY_ARRAY;
         return files;
     }
