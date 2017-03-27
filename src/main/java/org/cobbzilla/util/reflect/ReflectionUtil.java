@@ -295,20 +295,8 @@ public class ReflectionUtil {
                 // if specific fields were given, it must be one of those
                 if (fields != null && !ArrayUtils.contains(fields, fieldName)) continue;
 
-                // getter must not be marked Transient
-                final Annotation[] getterNotes = getter.getAnnotations();
-                if (getterNotes != null) {
-                    for (Annotation a : getterNotes) {
-                        final Class<?>[] interfaces = a.getClass().getInterfaces();
-                        if (interfaces != null) {
-                            for (Class<?> i : interfaces) {
-                                if (i.getSimpleName().equals("Transient")) {
-                                    continue checkGetter;
-                                }
-                            }
-                        }
-                    }
-                }
+                // getter must not be marked @Transient
+                if (isIgnored(src, fieldName, getter)) continue;
 
                 // what would the setter be called?
                 final String setterName = setterForGetter(getter.getName());
@@ -355,6 +343,30 @@ public class ReflectionUtil {
             throw new IllegalArgumentException("Error copying "+dest.getClass().getSimpleName()+" from src="+src+": "+e, e);
         }
         return copyCount;
+    }
+
+    private static <T> boolean isIgnored(T o, String fieldName, Method getter) {
+        Field field = null;
+        try {
+            field = o.getClass().getDeclaredField(fieldName);
+        } catch (NoSuchFieldException ignored) {}
+        return isIgnored(getter.getAnnotations()) || (field != null && isIgnored(field.getAnnotations()));
+    }
+
+    private static boolean isIgnored(Annotation[] annotations) {
+        if (annotations != null) {
+            for (Annotation a : annotations) {
+                final Class<?>[] interfaces = a.getClass().getInterfaces();
+                if (interfaces != null) {
+                    for (Class<?> i : interfaces) {
+                        if (i.getSimpleName().equals("Transient")) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public static String fieldName(String method) {
