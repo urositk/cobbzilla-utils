@@ -12,6 +12,7 @@ import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.io.IOUtils;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.util.time.TimeUtil;
@@ -27,8 +28,10 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
+import static org.cobbzilla.util.io.StreamUtil.loadResourceAsStream;
 import static org.cobbzilla.util.io.StreamUtil.stream2string;
 import static org.cobbzilla.util.security.ShaUtil.sha256_hex;
+import static org.cobbzilla.util.string.Base64.encodeBytes;
 import static org.cobbzilla.util.string.Base64.encodeFromFile;
 import static org.cobbzilla.util.string.StringUtil.*;
 
@@ -389,7 +392,10 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             if (f == null) {
                 // try classpath
                 try {
-                    return new Handlebars.SafeString(stream2string(filename));
+                    final String content = isBase64EncoderOn
+                            ? encodeBytes(IOUtils.toByteArray(loadResourceAsStream(filename)))
+                            : stream2string(filename);
+                    return new Handlebars.SafeString(content);
                 } catch (Exception e) {
                     log.error("Cannot find readable file " + filename + " under paths " + paths);
                     return EMPTY_SAFE_STRING;
@@ -397,7 +403,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             }
 
             try {
-                return new Handlebars.SafeString((isBase64EncoderOn) ? encodeFromFile(f) : FileUtil.toString(f));
+                return new Handlebars.SafeString(isBase64EncoderOn ? encodeFromFile(f) : FileUtil.toString(f));
             } catch (IOException e) {
                 log.error("Cannot read file from: " + f, e);
                 return EMPTY_SAFE_STRING;
