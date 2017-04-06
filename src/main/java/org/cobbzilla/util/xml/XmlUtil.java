@@ -119,6 +119,11 @@ public class XmlUtil {
         return elements.get(0);
     }
 
+    public static Element findFirstElement(Document doc, String name) {
+        final List<Element> elements = findElements(doc, name);
+        return empty(elements) ? null : elements.get(0);
+    }
+
     @AllArgsConstructor
     public static class MatchNodeName implements XmlElementFunction {
         private final String name;
