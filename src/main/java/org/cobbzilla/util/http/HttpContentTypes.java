@@ -60,6 +60,10 @@ public class HttpContentTypes {
         }
     }
 
+    public static String fileExtNoDot (String contentType) {
+        return fileExt(contentType).substring(1);
+    }
+
     public static String escape(String mime, String data) {
         switch (mime) {
             case APPLICATION_XML: return escapeXml10(data);
