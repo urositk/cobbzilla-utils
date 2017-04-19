@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 import static org.cobbzilla.util.io.StreamUtil.loadResourceAsStream;
 import static org.cobbzilla.util.io.StreamUtil.stream2string;
+import static org.cobbzilla.util.json.JsonUtil.json;
 import static org.cobbzilla.util.security.ShaUtil.sha256_hex;
 import static org.cobbzilla.util.string.Base64.encodeBytes;
 import static org.cobbzilla.util.string.Base64.encodeFromFile;
@@ -178,6 +179,13 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                 src = HandlebarsUtil.apply(hb, src.toString(), (Map<String, Object>) options.context.model());
                 src = sha256_hex(src.toString());
                 return new Handlebars.SafeString(src.toString());
+            }
+        });
+
+        hb.registerHelper("json", new Helper<Object>() {
+            public CharSequence apply(Object src, Options options) {
+                if (empty(src)) return "";
+                return new Handlebars.SafeString(json(src));
             }
         });
 
