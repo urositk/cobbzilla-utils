@@ -1,6 +1,5 @@
 package org.cobbzilla.util.http;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
@@ -10,21 +9,26 @@ import java.io.File;
 
 import static org.cobbzilla.util.io.FileUtil.abs;
 
-@AllArgsConstructor
 public class PhantomUtil {
 
-    @Getter private final PhantomJSDriver driver;
+    @Getter private final String phantomjs;
 
-    public PhantomUtil(String phantomjs) { driver = defaultDriver(phantomjs); }
+    public PhantomUtil(String phantomjs) { this.phantomjs = phantomjs; }
 
-    public PhantomJSDriver defaultDriver(String phantomjs) {
+    private PhantomJSDriver defaultDriver(String phantomjs) {
         final DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setJavascriptEnabled(true);
         capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, phantomjs);
         return new PhantomJSDriver(capabilities);
     }
 
-    public void execJs(String script) { getDriver().executePhantomJS(script); }
+    public PhantomJSHandle execJs(String script) {
+        final PhantomJSDriver driver = defaultDriver(phantomjs);
+        final PhantomJSHandle handle = new PhantomJSHandle(driver);
+        driver.setErrorHandler(handle);
+        driver.executePhantomJS(script);
+        return handle;
+    }
 
     public static final String LOAD_AND_EXEC = "var page = require('webpage').create();\n" +
             "page.open('@@URL@@', function() {\n" +
@@ -34,9 +38,7 @@ public class PhantomUtil {
     public void loadPage (File file) { loadPageAndExec(file, "console.log('successfully loaded "+abs(file)+"')"); }
     public void loadPage(String url) { loadPageAndExec(url, "console.log('successfully loaded "+url+"')"); }
 
-    public void loadPageAndExec(File file, String script) {
-        loadPageAndExec("file://"+abs(file), script);
-    }
+    public void loadPageAndExec(File file, String script) { loadPageAndExec("file://"+abs(file), script); }
 
     public void loadPageAndExec(String url, String script) {
         execJs(LOAD_AND_EXEC.replace("@@URL@@", url).replace("@@JS@@", script));

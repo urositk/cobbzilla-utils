@@ -1,8 +1,8 @@
 package org.cobbzilla.util.http;
 
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.io.StreamUtil;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -20,18 +20,24 @@ public class HtmlScreenCapture extends PhantomUtil {
     private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(15);
 
     public HtmlScreenCapture (String phantomJsPath) { super(phantomJsPath); }
-    public HtmlScreenCapture (PhantomJSDriver driver) { super(driver); }
 
     public static final String SCRIPT = StreamUtil.loadResourceAsStringOrDie(getPackagePath(HtmlScreenCapture.class)+"/html_screen_capture.js");
 
     public synchronized void capture (String url, File file) { capture(url, file, TIMEOUT); }
 
     public synchronized void capture (String url, File file, long timeout) {
-        execJs(SCRIPT.replace("@@URL@@", url).replace("@@FILE@@", abs(file)));
-        long start = now();
-        while (file.length() == 0 && now() - start < timeout) sleep(100);
-        if (file.length() == 0 && now() - start >= timeout) {
-            die("capture: after "+formatDuration(timeout)+" file was never written to: "+abs(file));
+        final String script = SCRIPT.replace("@@URL@@", url).replace("@@FILE@@", abs(file));
+        log.info("capture: calling execJs("+script+")");
+
+        try {
+            @Cleanup final PhantomJSHandle handle = execJs(script);
+            long start = now();
+            while (file.length() == 0 && now() - start < timeout) sleep(100);
+            if (file.length() == 0 && now() - start >= timeout) {
+                die("capture: after " + formatDuration(timeout) + " file was never written to: " + abs(file));
+            }
+        } catch (Exception e) {
+            die("capture: unexpected exception: "+e, e);
         }
     }
 

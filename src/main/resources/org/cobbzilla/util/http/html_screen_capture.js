@@ -2,7 +2,6 @@
 
 var page = require('webpage').create();
 var fs = require('fs');
-
 var url = '@@URL@@';
 var outFile = '@@FILE@@';
 
