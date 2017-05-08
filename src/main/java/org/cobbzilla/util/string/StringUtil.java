@@ -66,6 +66,11 @@ public class StringUtil {
         return results;
     }
 
+    public static String[] split2array (String s, String delim) {
+        final List<String> vals = split(s, delim);
+        return vals.toArray(new String[vals.size()]);
+    }
+
     public static List<Long> splitLongs (String s, String delim) {
         final StringTokenizer st = new StringTokenizer(s, delim);
         final List<Long> results = new ArrayList<>();
