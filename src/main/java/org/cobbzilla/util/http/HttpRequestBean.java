@@ -81,9 +81,9 @@ public class HttpRequestBean {
 
     private URI initURI() { return StringUtil.uriOrDie(uri); }
 
-    public String getHost () { return get_uri().getHost(); }
-    public int getPort () { return get_uri().getPort(); }
-    public String getPath () { return get_uri().getPath(); }
+    @JsonIgnore public String getHost () { return get_uri().getHost(); }
+    @JsonIgnore public int getPort () { return get_uri().getPort(); }
+    @JsonIgnore public String getPath () { return get_uri().getPath(); }
 
     @JsonIgnore @Getter(lazy=true) private final HttpHost httpHost = initHttpHost();
     private HttpHost initHttpHost() { return new HttpHost(getHost(), getPort(), get_uri().getScheme()); }
@@ -101,7 +101,7 @@ public class HttpRequestBean {
         return this;
     }
 
-    public ContentType getContentType() {
+    @JsonIgnore public ContentType getContentType() {
         if (!hasHeaders()) return null;
         final String value = getFirstHeaderValue(HttpHeaders.CONTENT_TYPE);
         if (empty(value)) return null;

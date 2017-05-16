@@ -19,6 +19,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
@@ -122,6 +123,22 @@ public class XmlUtil {
     public static Element findFirstElement(Document doc, String name) {
         final List<Element> elements = findElements(doc, name);
         return empty(elements) ? null : elements.get(0);
+    }
+
+    public static <T> T findLargest(Document doc, final ElementMatcher matcher, final ElementTransformer<T> transformer) {
+        final AtomicReference<T> largest = new AtomicReference<>();
+        applyRecursively(doc.getDocumentElement(), element -> {
+            if (matcher.matches(element)) {
+                final T val = transformer.transform(element);
+                if (val != null) {
+                    synchronized (largest) {
+                        final T curVal = largest.get();
+                        if (curVal == null || ((Comparable) val).compareTo(curVal) > 0) largest.set(val);
+                    }
+                }
+            }
+        });
+        return largest.get();
     }
 
     @AllArgsConstructor

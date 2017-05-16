@@ -48,6 +48,13 @@ public class JsonUtil {
         FULL_MAPPER_ALLOW_COMMENTS_AND_UNKNOWN_FIELDS.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
     }
 
+    public static final ObjectMapper FULL_MAPPER_ALLOW_UNKNOWN_FIELDS = new ObjectMapper()
+            .configure(SerializationFeature.INDENT_OUTPUT, true)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    static {
+        FULL_MAPPER_ALLOW_UNKNOWN_FIELDS.getFactory().enable(JsonParser.Feature.ALLOW_COMMENTS);
+    }
+
     public static final ObjectMapper NOTNULL_MAPPER = FULL_MAPPER
             .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -69,6 +76,19 @@ public class JsonUtil {
     }
     public static ObjectWriter buildWriter(ObjectMapper mapper, Class<? extends PublicView> view) {
         return mapper.writerWithView(view);
+    }
+
+    public static String find(JsonNode array, String name, String value, String returnValue) {
+        if (array instanceof ArrayNode) {
+            for (int i=0; i<array.size(); i++) {
+                final JsonNode n = array.get(i).get(name);
+                if (n != null && n.textValue().equals(value)) {
+                    final JsonNode valNode = array.get(i).get(returnValue);
+                    return valNode == null ? null : valNode.textValue();
+                }
+            }
+        }
+        return null;
     }
 
     public static class PublicView {}

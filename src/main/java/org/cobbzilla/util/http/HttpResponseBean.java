@@ -24,6 +24,8 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 @Slf4j @Accessors(chain=true) @ToString(of={"status", "headers"})
 public class HttpResponseBean {
 
+    public static final HttpResponseBean OK = new HttpResponseBean().setStatus(HttpStatusCodes.OK);
+
     @Getter @Setter private int status;
     @Getter @Setter private List<NameAndValue> headers;
     @JsonIgnore @Getter private byte[] entity;
@@ -72,7 +74,7 @@ public class HttpResponseBean {
 
     public Collection<String> getHeaderValues (String name) {
         final List<String> values = new ArrayList<>();
-        for (NameAndValue header : headers) if (header.getName().equalsIgnoreCase(name)) values.add(header.getValue());
+        if (!empty(headers)) for (NameAndValue header : headers) if (header.getName().equalsIgnoreCase(name)) values.add(header.getValue());
         return values;
     }
 
