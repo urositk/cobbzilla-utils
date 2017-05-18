@@ -141,6 +141,22 @@ public class XmlUtil {
         return largest.get();
     }
 
+    public static void removeElements(Document doc, String name) {
+        for (Element e : XmlUtil.findElements(doc, name)) e.getParentNode().removeChild(e);
+    }
+
+    public static boolean same(Node n1, Node n2) {
+        if (n1 == n2) return true;
+        if (!n1.getNodeName().equals(n2.getNodeName())) return false;
+        final String id1 = id(n1);
+        final String id2 = id(n2);
+        return id1 != null && id2 != null && id1.equals(id2);
+    }
+
+    public static String id (Node n) {
+        return n.hasAttributes() ? n.getAttributes().getNamedItem("id").getTextContent() : null;
+    }
+
     @AllArgsConstructor
     public static class MatchNodeName implements XmlElementFunction {
         private final String name;

@@ -35,8 +35,6 @@ public class ElementIdGenerator {
     }
 
     @Getter(lazy=true) private final XmlElementFunction idFunction = initIdFunction();
-    private XmlElementFunction initIdFunction() {
-        return new XmlElementFunction() { @Override public void apply(Element element) { id(element); } };
-    }
+    private XmlElementFunction initIdFunction() { return this::id; }
 
 }
