@@ -125,6 +125,11 @@ public class XmlUtil {
         return empty(elements) ? null : elements.get(0);
     }
 
+    public static Element findFirstElement(Element e, String name) {
+        final List<Element> elements = findElements(e, name);
+        return empty(elements) ? null : elements.get(0);
+    }
+
     public static <T> T findLargest(Document doc, final ElementMatcher matcher, final ElementTransformer<T> transformer) {
         final AtomicReference<T> largest = new AtomicReference<>();
         applyRecursively(doc.getDocumentElement(), element -> {
@@ -155,6 +160,17 @@ public class XmlUtil {
 
     public static String id (Node n) {
         return n.hasAttributes() ? n.getAttributes().getNamedItem("id").getTextContent() : null;
+    }
+
+    public static Element getElementById(Document doc, final String id) {
+        final AtomicReference<Element> found = new AtomicReference<>();
+        applyRecursively(doc.getDocumentElement(), element -> {
+            if (id.equals(id(element))) {
+                if (found.get() != null) die("multiple elements found with id="+id);
+                found.set(element);
+            }
+        });
+        return found.get();
     }
 
     @AllArgsConstructor
