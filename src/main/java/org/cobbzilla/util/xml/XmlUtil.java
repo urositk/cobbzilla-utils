@@ -20,12 +20,17 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.system.Bytes.KB;
 
 public class XmlUtil {
+
+    public static final String XML10_UTF8 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    public static final String XML10_UTF8_REGEX = "(<\\?xml [^?]+\\?>)";
+    public static final Pattern XML10_UTF8_PATTERN = Pattern.compile(XML10_UTF8_REGEX);
 
     public static OutputStream merge (OutputStream out, String... documents) {
         try {
@@ -171,6 +176,10 @@ public class XmlUtil {
             }
         });
         return found.get();
+    }
+
+    public static String stripXmlPreamble(String xml) {
+        return XML10_UTF8_PATTERN.matcher(xml).replaceAll("");
     }
 
     @AllArgsConstructor
