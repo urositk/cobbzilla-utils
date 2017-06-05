@@ -362,8 +362,27 @@ public class JsonUtil {
     }
 
     public static Object getNodeAsJava(JsonNode node, String path) {
+
         if (node == null || node instanceof NullNode) return null;
         final String nodeClass = node.getClass().getName();
+
+        if (node instanceof ArrayNode) {
+            final Object[] array = new Object[node.size()];
+            for (int i=0; i<node.size(); i++) {
+                array[i] = getNodeAsJava(node.get(i), path+"["+i+"]");
+            }
+            return array;
+        }
+
+        if (node instanceof ObjectNode) {
+            final Map<String, Object> map = new HashMap<>(node.size());
+            for (Iterator<String> iter = node.fieldNames(); iter.hasNext(); ) {
+                final String name = iter.next();
+                map.put(name, getNodeAsJava(node.get(name), path+"."+name));
+            }
+            return map;
+        }
+
         if ( ! (node instanceof ValueNode) ) return node; // return as-is...
         if (node instanceof TextNode) return node.textValue();
         if (node instanceof BooleanNode) return node.booleanValue();
