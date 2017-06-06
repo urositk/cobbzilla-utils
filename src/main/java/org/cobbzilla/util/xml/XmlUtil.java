@@ -1,6 +1,5 @@
 package org.cobbzilla.util.xml;
 
-import lombok.AllArgsConstructor;
 import org.atteo.xmlcombiner.XmlCombiner;
 import org.cobbzilla.util.string.StringUtil;
 import org.w3c.dom.Document;
@@ -118,6 +117,13 @@ public class XmlUtil {
         return found;
     }
 
+    public static List<Element> findElements(Element element, final String name, final String content) {
+        if (content == null) return findElements(element, name);
+        final List<Element> found = new ArrayList<>();
+        applyRecursively(element, new MatchNodeNameAndText(name, content, found));
+        return found;
+    }
+
     public static Element findUniqueElement(Document doc, String name) {
         final List<Element> elements = findElements(doc, name);
         if (empty(elements)) return null;
@@ -132,6 +138,11 @@ public class XmlUtil {
 
     public static Element findFirstElement(Element e, String name) {
         final List<Element> elements = findElements(e, name);
+        return empty(elements) ? null : elements.get(0);
+    }
+
+    public static Element findFirstElement(Element e, String name, String content) {
+        final List<Element> elements = findElements(e, name, content);
         return empty(elements) ? null : elements.get(0);
     }
 
@@ -182,14 +193,42 @@ public class XmlUtil {
         return XML10_UTF8_PATTERN.matcher(xml).replaceAll("");
     }
 
-    @AllArgsConstructor
-    public static class MatchNodeName implements XmlElementFunction {
-        private final String name;
-        private final List<Element> found;
+    private static abstract class MatchNodeXMLFunction implements XmlElementFunction {
+        protected final String value;
+        protected final List<Element> found;
+
+        public MatchNodeXMLFunction(String value, List<Element> found) {
+            if (value == null) die("Value cannot be null");
+            this.value = value;
+            this.found = found;
+        }
+
+        protected abstract boolean check(Element element);
+
         @Override public void apply(Element element) {
-            if (element != null && !empty(element.getNodeName()) && element.getNodeName().equalsIgnoreCase(name)) {
-                found.add(element);
-            }
+            if (element != null && check(element)) found.add(element);
+        }
+    }
+
+    private static class MatchNodeName extends MatchNodeXMLFunction {
+        public MatchNodeName(String value, List<Element> found) { super(value, found); }
+
+        @Override protected boolean check(Element element) {
+            return value.equalsIgnoreCase(element.getNodeName());
+        }
+    }
+
+    public static class MatchNodeNameAndText extends MatchNodeName {
+        private final String text;
+
+        public MatchNodeNameAndText(String name, String text, List<Element> found) {
+            super(name, found);
+            if (text == null) die("Text cannot be null");
+            this.text = text.trim();
+        }
+
+        @Override protected boolean check(Element element) {
+            return super.check(element) && text.equals(element.getTextContent().trim());
         }
     }
 }
