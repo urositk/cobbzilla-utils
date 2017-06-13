@@ -1,3 +1,12 @@
+// returns length of array or collection
+function len (thing) {
+    try {
+        return thing.size();
+    } catch (err) {
+        return thing.length;
+    }
+}
+
 // returns true if item is in arr array
 function found (item, arr) { return (typeof arr != 'undefined') && arr != null && _findIndex(arr, function(o){return ''+o == item}) != -1; }
 
