@@ -405,16 +405,14 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                             : stream2string(filename);
                     return new Handlebars.SafeString(content);
                 } catch (Exception e) {
-                    log.error("Cannot find readable file " + filename + " under paths " + paths);
-                    return EMPTY_SAFE_STRING;
+                    return die("Cannot find readable file " + filename + " under paths " + paths);
                 }
             }
 
             try {
                 return new Handlebars.SafeString(isBase64EncoderOn ? encodeFromFile(f) : FileUtil.toString(f));
             } catch (IOException e) {
-                log.error("Cannot read file from: " + f, e);
-                return EMPTY_SAFE_STRING;
+                return die("Cannot read file from: " + f, e);
             }
         }
     }
