@@ -27,6 +27,7 @@ public class TimeUtil {
     public static final DateTimeFormatter DATE_FORMAT_YYYYMMDD = DateTimeFormat.forPattern("yyyyMMdd");
     public static final DateTimeFormatter DATE_FORMAT_MMM_DD_YYYY = DateTimeFormat.forPattern("MMM dd, yyyy");
     public static final DateTimeFormatter DATE_FORMAT_YYYY_MM_DD_HH_mm_ss = DateTimeFormat.forPattern("yyyy-MM-dd-HH-mm-ss");
+    public static final DateTimeFormatter DATE_FORMAT_YYYYMMDDHHMMSS = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
     // For now only m (months) and d (days) are supported
     // Both have to be present at the same time in that same order, but the value for each can be 0 to exclude that one - e.g. 0m15d.
