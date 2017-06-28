@@ -9,6 +9,8 @@ import com.github.jknack.handlebars.io.StringTemplateSource;
 import com.github.jknack.handlebars.io.TemplateSource;
 import lombok.AllArgsConstructor;
 import lombok.Cleanup;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +19,9 @@ import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.util.time.TimeUtil;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.IOException;
@@ -167,183 +171,171 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     public static final CharSequence EMPTY_SAFE_STRING = "";
 
     public static void registerUtilityHelpers (final Handlebars hb) {
-        hb.registerHelper("exists", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) throws IOException {
-                return empty(src) ? null : options.apply(options.fn);
-            }
+        hb.registerHelper("exists", (src, options) -> empty(src) ? null : options.apply(options.fn));
+
+        hb.registerHelper("sha256", (src, options) -> {
+            if (empty(src)) return "";
+            src = apply(hb, src.toString(), (Map<String, Object>) options.context.model());
+            src = sha256_hex(src.toString());
+            return new Handlebars.SafeString(src.toString());
         });
 
-        hb.registerHelper("sha256", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
-                src = HandlebarsUtil.apply(hb, src.toString(), (Map<String, Object>) options.context.model());
-                src = sha256_hex(src.toString());
-                return new Handlebars.SafeString(src.toString());
-            }
+        hb.registerHelper("json", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(json(src));
         });
 
-        hb.registerHelper("json", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
-                return new Handlebars.SafeString(json(src));
-            }
+        hb.registerHelper("urlEncode", (src, options) -> {
+            if (empty(src)) return "";
+            src = apply(hb, src.toString(), (Map<String, Object>) options.context.model());
+            src = urlEncode(src.toString());
+            return new Handlebars.SafeString(src.toString());
         });
 
-        hb.registerHelper("urlEncode", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
-                src = HandlebarsUtil.apply(hb, src.toString(), (Map<String, Object>) options.context.model());
-                src = urlEncode(src.toString());
-                return new Handlebars.SafeString(src.toString());
+        hb.registerHelper("find", (thing, options) -> {
+            final Iterator iter;
+            if (thing instanceof Collection) {
+                iter = ((Collection) thing).iterator();
+            } else if (thing instanceof Map) {
+                iter = ((Map) thing).values().iterator();
+            } else if (Object[].class.isAssignableFrom(thing.getClass())) {
+                iter = new ArrayIterator(thing);
+            } else {
+                return die("find: invalid argument type "+thing.getClass().getName());
             }
-        });
-
-        hb.registerHelper("find", new Helper<Object>() {
-            public CharSequence apply(Object thing, Options options) {
-                final Iterator iter;
-                if (thing instanceof Collection) {
-                    iter = ((Collection) thing).iterator();
-                } else if (thing instanceof Map) {
-                    iter = ((Map) thing).values().iterator();
-                } else if (Object[].class.isAssignableFrom(thing.getClass())) {
-                    iter = new ArrayIterator(thing);
-                } else {
-                    return die("find: invalid argument type "+thing.getClass().getName());
+            final String path = options.param(0);
+            final String arg = options.param(1);
+            final String output = options.param(2);
+            while (iter.hasNext()) {
+                final Object item = iter.next();
+                try {
+                    final Object val = ReflectionUtil.get(item, path);
+                    if (val != null && val.equals(arg)) return new Handlebars.SafeString(""+ReflectionUtil.get(item, output));
+                } catch (Exception e) {
+                    log.warn("find: "+e);
                 }
-                final String path = options.param(0);
-                final String arg = options.param(1);
-                final String output = options.param(2);
-                while (iter.hasNext()) {
-                    final Object item = iter.next();
-                    try {
-                        final Object val = ReflectionUtil.get(item, path);
-                        if (val != null && val.equals(arg)) return new Handlebars.SafeString(""+ReflectionUtil.get(item, output));
-                    } catch (Exception e) {
-                        log.warn("find: "+e);
-                    }
-                }
-                return EMPTY_SAFE_STRING;
             }
+            return EMPTY_SAFE_STRING;
         });
 
-        hb.registerHelper("expr", new Helper<Object>() {
-            public CharSequence apply(Object val1, Options options) {
-                final String operator = options.param(0);
-                final Object val2 = options.param(1);
-                final String v1 = val1.toString();
-                final String v2 = val2.toString();
+        hb.registerHelper("expr", (val1, options) -> {
+            final String operator = options.param(0);
+            final Object val2 = options.param(1);
+            final String v1 = val1.toString();
+            final String v2 = val2.toString();
 
-                final BigDecimal result;
-                switch (operator) {
-                    case "+": result = big(v1).add(big(v2)); break;
-                    case "-": result = big(v1).subtract(big(v2)); break;
-                    case "*": result = big(v1).multiply(big(v2)); break;
-                    case "/": result = big(v1).divide(big(v2), BigDecimal.ROUND_HALF_EVEN); break;
-                    case "%": result = big(v1).remainder(big(v2)).abs(); break;
-                    case "^": result = big(v1).pow(big(v2).intValue()); break;
-                    default: return die("expr: invalid operator: "+operator);
-                }
-
-                // can't use trigraph (?:) operator here, if we do then for some reason rval always ends up as a double
-                final Number rval;
-                if (v1.contains(".") || v2.contains(".")) {
-                    rval = result.doubleValue();
-                } else {
-                    rval = result.intValue();
-                }
-                return new Handlebars.SafeString(rval.toString());
+            final BigDecimal result;
+            switch (operator) {
+                case "+": result = big(v1).add(big(v2)); break;
+                case "-": result = big(v1).subtract(big(v2)); break;
+                case "*": result = big(v1).multiply(big(v2)); break;
+                case "/": result = big(v1).divide(big(v2), BigDecimal.ROUND_HALF_EVEN); break;
+                case "%": result = big(v1).remainder(big(v2)).abs(); break;
+                case "^": result = big(v1).pow(big(v2).intValue()); break;
+                default: return die("expr: invalid operator: "+operator);
             }
+
+            // can't use trigraph (?:) operator here, if we do then for some reason rval always ends up as a double
+            final Number rval;
+            if (v1.contains(".") || v2.contains(".")) {
+                rval = result.doubleValue();
+            } else {
+                rval = result.intValue();
+            }
+            return new Handlebars.SafeString(rval.toString());
         });
 
-        hb.registerHelper("truncate", new Helper<Integer>() {
-            public CharSequence apply(Integer max, Options options) {
-                final String val = options.param(0, " ");
-                if (empty(val)) return "";
-                if (max == -1 || max >= val.length()) return val;
-                return new Handlebars.SafeString(val.substring(0, max));
-            }
+        hb.registerHelper("truncate", (Helper<Integer>) (max, options) -> {
+            final String val = options.param(0, " ");
+            if (empty(val)) return "";
+            if (max == -1 || max >= val.length()) return val;
+            return new Handlebars.SafeString(val.substring(0, max));
         });
 
-        hb.registerHelper("length", new Helper<Object>() {
-            public CharSequence apply(Object thing, Options options) {
-                if (empty(thing)) return "0";
-                if (thing.getClass().isArray()) return ""+((Object[]) thing).length;
-                if (thing instanceof Collection) return ""+((Collection) thing).size();
-                if (thing instanceof ArrayNode) return ""+((ArrayNode) thing).size();
-                return "";
-            }
+        hb.registerHelper("length", (thing, options) -> {
+            if (empty(thing)) return "0";
+            if (thing.getClass().isArray()) return ""+((Object[]) thing).length;
+            if (thing instanceof Collection) return ""+((Collection) thing).size();
+            if (thing instanceof ArrayNode) return ""+((ArrayNode) thing).size();
+            return "";
         });
 
     }
 
     public static void registerCurrencyHelpers(Handlebars hb) {
-        hb.registerHelper("dollarsNoSign", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
-                return new Handlebars.SafeString(formatDollarsNoSign(longDollarVal(src)));
-            }
+        hb.registerHelper("dollarsNoSign", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(formatDollarsNoSign(longDollarVal(src)));
         });
 
-        hb.registerHelper("dollarsWithSign", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
-                return new Handlebars.SafeString(formatDollarsWithSign(longDollarVal(src)));
-            }
+        hb.registerHelper("dollarsWithSign", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(formatDollarsWithSign(longDollarVal(src)));
         });
 
-        hb.registerHelper("dollarsAndCentsNoSign", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
-                return new Handlebars.SafeString(formatDollarsAndCentsNoSign(longDollarVal(src)));
-            }
+        hb.registerHelper("dollarsAndCentsNoSign", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(formatDollarsAndCentsNoSign(longDollarVal(src)));
         });
 
-        hb.registerHelper("dollarsAndCentsWithSign", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
-                return new Handlebars.SafeString(formatDollarsAndCentsWithSign(longDollarVal(src)));
-            }
+        hb.registerHelper("dollarsAndCentsWithSign", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(formatDollarsAndCentsWithSign(longDollarVal(src)));
         });
 
-        hb.registerHelper("dollarsAndCentsPlain", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
-                return new Handlebars.SafeString(formatDollarsAndCentsPlain(longDollarVal(src)));
-            }
+        hb.registerHelper("dollarsAndCentsPlain", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(formatDollarsAndCentsPlain(longDollarVal(src)));
         });
+    }
+
+    @Getter @Setter private static String defaultTimeZone = "US/Eastern";
+
+    private abstract static class DateHelper implements Helper<Object> {
+
+        protected DateTimeZone getTimeZone (Options options) {
+            final String timeZoneName = options.param(0, getDefaultTimeZone());
+            try {
+                return DateTimeZone.forID(timeZoneName);
+            } catch (Exception e) {
+                return die("date_short: invalid timezone: "+timeZoneName);
+            }
+        }
+
+        protected CharSequence print (DateTimeFormatter formatter, Object src, Options options) {
+            if (empty(src)) src = "now";
+            final DateTimeZone timeZone = getTimeZone(options);
+            return new Handlebars.SafeString(formatter.print(new DateTime(longVal(src, timeZone), timeZone)));
+        }
     }
 
     public static void registerDateHelpers(Handlebars hb) {
-        hb.registerHelper("date_short", new Helper<Object>() {
+        hb.registerHelper("date_short", new DateHelper() {
             public CharSequence apply(Object src, Options options) {
-                if (empty(src)) src = "now";
-                return new Handlebars.SafeString(TimeUtil.DATE_FORMAT_MMDDYYYY.print(longVal(src)));
+                return print(TimeUtil.DATE_FORMAT_MMDDYYYY, src, options);
             }
         });
 
-        hb.registerHelper("date_yyyy_mm_dd", new Helper<Object>() {
+        hb.registerHelper("date_yyyy_mm_dd", new DateHelper() {
             public CharSequence apply(Object src, Options options) {
-                if (empty(src)) src = "now";
-                return new Handlebars.SafeString(TimeUtil.DATE_FORMAT_YYYY_MM_DD.print(longVal(src)));
+                return print(TimeUtil.DATE_FORMAT_YYYY_MM_DD, src, options);
             }
         });
 
-        hb.registerHelper("date_mmm_dd_yyyy", new Helper<Object>() {
+        hb.registerHelper("date_mmm_dd_yyyy", new DateHelper() {
             public CharSequence apply(Object src, Options options) {
-                if (empty(src)) src = "now";
-                return new Handlebars.SafeString(TimeUtil.DATE_FORMAT_MMM_DD_YYYY.print(longVal(src)));
+                return print(TimeUtil.DATE_FORMAT_MMM_DD_YYYY, src, options);
             }
         });
 
-        hb.registerHelper("date_long", new Helper<Object>() {
+        hb.registerHelper("date_long", new DateHelper() {
             public CharSequence apply(Object src, Options options) {
-                if (empty(src)) src = "now";
-                return new Handlebars.SafeString(TimeUtil.DATE_FORMAT_MMMM_D_YYYY.print(longVal(src)));
+                return print(TimeUtil.DATE_FORMAT_MMMM_D_YYYY, src, options);
             }
         });
     }
 
-    public static long longVal(Object src) {
+    public static long longVal(Object src, DateTimeZone timeZone) {
         if (src == null) return now();
         String srcStr = src.toString().trim();
 
@@ -352,7 +344,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         if (srcStr.startsWith("now")) {
             // Multiple periods may be added to the original timestamp (separated by comma), but in the correct order.
             String[] splitSrc = srcStr.substring(3).split(",");
-            DateTime result = new DateTime(now()); // todo: allow caller to set timezone. may not be able to use static method
+            DateTime result = new DateTime(now(), timeZone);
             for (String period : splitSrc) {
                 int sign = 1;
                 if (period.startsWith("-")) {
@@ -374,18 +366,16 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     public static final String CLOSE_XML_DECL = "?>";
 
     public static void registerXmlHelpers(final Handlebars hb) {
-        hb.registerHelper("strip_xml_declaration", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
-                String xml = src.toString().trim();
-                if (xml.startsWith("<?xml")) {
-                    final int closeDecl = xml.indexOf(CLOSE_XML_DECL);
-                    if (closeDecl != -1) {
-                        xml = xml.substring(closeDecl + CLOSE_XML_DECL.length()).trim();
-                    }
+        hb.registerHelper("strip_xml_declaration", (src, options) -> {
+            if (empty(src)) return "";
+            String xml = src.toString().trim();
+            if (xml.startsWith("<?xml")) {
+                final int closeDecl = xml.indexOf(CLOSE_XML_DECL);
+                if (closeDecl != -1) {
+                    xml = xml.substring(closeDecl + CLOSE_XML_DECL.length()).trim();
                 }
-                return new Handlebars.SafeString(xml);
             }
+            return new Handlebars.SafeString(xml);
         });
     }
 
@@ -417,24 +407,20 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         }
     }
 
-    public static void registerFileHelpers(final Handlebars hb) {
-        registerFileHelpers(hb, null);
-    }
+    public static void registerFileHelpers(final Handlebars hb) { registerFileHelpers(hb, null); }
 
     public static void registerFileHelpers(final Handlebars hb, final List<String> paths) {
 
-        hb.registerHelper("rawImagePng", new Helper<Object>() {
-            public CharSequence apply(Object src, Options options) {
-                if (empty(src)) return "";
+        hb.registerHelper("rawImagePng", (src, options) -> {
+            if (empty(src)) return "";
 
-                java.io.File f = FileUtil.firstFoundFile(paths, src.toString());
-                String imgSrc = (f == null) ? src.toString() : f.getAbsolutePath();
+            File f = FileUtil.firstFoundFile(paths, src.toString());
+            String imgSrc = (f == null) ? src.toString() : f.getAbsolutePath();
 
-                final Object width = options.get("width");
-                final String widthAttr = empty(width) ? "" : "width=\"" + width + "\" ";
-                return new Handlebars.SafeString(
-                        "<img " + widthAttr + "src=\"data:image/png;base64," + imgSrc + "\"/>");
-            }
+            final Object width = options.get("width");
+            final String widthAttr = empty(width) ? "" : "width=\"" + width + "\" ";
+            return new Handlebars.SafeString(
+                    "<img " + widthAttr + "src=\"data:image/png;base64," + imgSrc + "\"/>");
         });
 
         hb.registerHelper("base64File", new FileLoaderHelper(paths, true));
