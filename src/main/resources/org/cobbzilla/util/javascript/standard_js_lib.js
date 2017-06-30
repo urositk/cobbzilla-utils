@@ -7,6 +7,20 @@ function len (thing) {
     }
 }
 
+// returns item[i] from array or collection
+function getItem (thing, index) {
+    try {
+        return thing.get(index);
+    } catch (err) {
+        return thing[index];
+    }
+}
+
+// returns item[0] from array or collection
+function first (thing) {
+    return getItem(thing, 0);
+}
+
 // returns true if item is in arr array
 function found (item, arr) { return (typeof arr != 'undefined') && arr != null && _findIndex(arr, function(o){return ''+o == item}) != -1; }
 
