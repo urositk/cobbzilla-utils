@@ -1,5 +1,6 @@
 package org.cobbzilla.util.handlebars;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
@@ -141,6 +142,8 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                         if (value.toString().contains(""+altStart+altStart)) {
                             setterCandidate.invoke(thing, apply(handlebars, (String) value, ctx, altStart, altEnd));
                         }
+                    } else if (value instanceof JsonNode) {
+                        setterCandidate.invoke(thing, json(apply(handlebars, json(value), ctx, altStart, altEnd), JsonNode.class));
                     } else {
                         // recurse
                         setterCandidate.invoke(thing, applyReflectively(handlebars, value, ctx, altStart, altEnd));
