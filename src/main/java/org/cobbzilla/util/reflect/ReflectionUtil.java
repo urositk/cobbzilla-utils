@@ -52,6 +52,20 @@ public class ReflectionUtil {
         return null;
     }
 
+    public static Integer toIntegerOrNull(Object object) {
+        if (object == null) return null;
+        if (object instanceof Number) return ((Number) object).intValue();
+        if (object instanceof String) {
+            try {
+                return Integer.valueOf(object.toString());
+            } catch (Exception e) {
+                log.info("toIntegerOrNull("+object+"): "+e);
+                return null;
+            }
+        }
+        return null;
+    }
+
     public static Short toShort(Object object) {
         if (object == null) return null;
         if (object instanceof Number) return ((Number) object).shortValue();
