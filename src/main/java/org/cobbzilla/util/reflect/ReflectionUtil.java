@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.cobbzilla.util.collection.ArrayUtil;
 
@@ -18,6 +19,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.string.StringUtil.uncapitalize;
 
 /**
@@ -786,5 +788,29 @@ public class ReflectionUtil {
     }
 
     public static String caller(StackTraceElement s) { return s.getClassName() + "." + s.getMethodName() + ":" + s.getLineNumber(); }
+
+    /**
+     * Replace any string values with their transformed values
+     * @param map a map of things
+     * @param transformer a transformer
+     * @return the same map, but if any value was a string, the transformer has been applied to it.
+     */
+    public static Map transformStrings(Map map, Transformer transformer) {
+        if (empty(map)) return map;
+        final Map setOps = new HashMap();
+        for (Object entry : map.entrySet()) {
+            final Map.Entry e = (Map.Entry) entry;
+            if (e.getValue() instanceof String) {
+                setOps.put(e.getKey(), transformer.transform(e.getValue()).toString());
+            } else if (e.getValue() instanceof Map) {
+                setOps.put(e.getKey(), transformStrings((Map) e.getValue(), transformer));
+            }
+        }
+        for (Object entry : setOps.entrySet()) {
+            final Map.Entry e = (Map.Entry) entry;
+            map.put(e.getKey(), e.getValue());
+        }
+        return map;
+    }
 
 }

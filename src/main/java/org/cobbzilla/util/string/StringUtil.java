@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
@@ -471,4 +472,8 @@ public class StringUtil {
         return DIFF_JS_ENGINE.evaluate(DIFF_JS, ctx);
     }
 
+    public static String replaceWithRandom(String s, String find, int randLength) {
+        while (s.contains(find)) s = s.replaceFirst(find, randomAlphanumeric(randLength));
+        return s;
+    }
 }
