@@ -17,7 +17,7 @@ import static org.cobbzilla.util.time.TimeUtil.formatDuration;
 @Slf4j
 public class HtmlScreenCapture extends PhantomUtil {
 
-    private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(15);
+    private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(30);
 
     public HtmlScreenCapture (String phantomJsPath) { super(phantomJsPath); }
 
