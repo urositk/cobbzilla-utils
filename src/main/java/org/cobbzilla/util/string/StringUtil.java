@@ -180,6 +180,10 @@ public class StringUtil {
         }
     }
 
+    public static String simpleUrlEncode (String s) {
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+
     public static String urlDecode (String s) {
         try {
             return URLDecoder.decode(s, UTF8);
