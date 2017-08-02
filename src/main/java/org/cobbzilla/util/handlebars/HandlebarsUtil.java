@@ -255,6 +255,13 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             return new Handlebars.SafeString(val.substring(0, max));
         });
 
+        hb.registerHelper("truncate_and_url_encode", (Helper<Integer>) (max, options) -> {
+            final String val = options.param(0, " ");
+            if (empty(val)) return "";
+            if (max == -1 || max >= val.length()) return urlEncode(val);
+            return new Handlebars.SafeString(urlEncode(val.substring(0, max)));
+        });
+
         hb.registerHelper("length", (thing, options) -> {
             if (empty(thing)) return "0";
             if (thing.getClass().isArray()) return ""+((Object[]) thing).length;
