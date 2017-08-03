@@ -17,7 +17,7 @@ import static org.cobbzilla.util.time.TimeUtil.formatDuration;
 @Slf4j
 public class HtmlScreenCapture extends PhantomUtil {
 
-    private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(30);
+    private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(60);
 
     public HtmlScreenCapture (String phantomJsPath) { super(phantomJsPath); }
 
@@ -32,9 +32,10 @@ public class HtmlScreenCapture extends PhantomUtil {
         try {
             @Cleanup final PhantomJSHandle handle = execJs(script);
             long start = now();
-            while (file.length() == 0 && now() - start < timeout) sleep(100);
+            while (file.length() == 0 && now() - start < timeout) sleep(200);
             if (file.length() == 0 && now() - start >= timeout) {
-                die("capture: after " + formatDuration(timeout) + " file was never written to: " + abs(file));
+                sleep(5000);
+                if (file.length() == 0) die("capture: after " + formatDuration(timeout) + " file was never written to: " + abs(file));
             }
         } catch (Exception e) {
             die("capture: unexpected exception: "+e, e);
