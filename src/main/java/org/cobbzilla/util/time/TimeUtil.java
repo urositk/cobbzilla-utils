@@ -73,7 +73,7 @@ public class TimeUtil {
 
     public static long parseDuration(String duration) {
         if (empty(duration)) return 0;
-        final long val = Long.parseLong(StringUtil.chopSuffix(duration));
+        final long val = Long.parseLong(duration.length() > 1 ? StringUtil.chopSuffix(duration) : duration);
         switch (duration.charAt(duration.length()-1)) {
             case 's': return TimeUnit.SECONDS.toMillis(val);
             case 'm': return TimeUnit.MINUTES.toMillis(val);
