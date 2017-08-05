@@ -79,7 +79,7 @@ public class TimeUtil {
             case 'm': return TimeUnit.MINUTES.toMillis(val);
             case 'h': return TimeUnit.HOURS.toMillis(val);
             case 'd': return TimeUnit.DAYS.toMillis(val);
-            default: return Long.parseLong(duration);
+            default: return val;
         }
     }
 
