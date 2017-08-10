@@ -319,10 +319,15 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             }
         }
 
-        protected CharSequence print (DateTimeFormatter formatter, Object src, Options options) {
+        protected long zonedTimestamp (Object src, Options options) {
             if (empty(src)) src = "now";
             final DateTimeZone timeZone = getTimeZone(options);
-            return new Handlebars.SafeString(formatter.print(new DateTime(longVal(src, timeZone), timeZone)));
+            return longVal(src, timeZone);
+        }
+
+        protected CharSequence print (DateTimeFormatter formatter, Object src, Options options) {
+            return new Handlebars.SafeString(formatter.print(new DateTime(zonedTimestamp(src, options),
+                                                                          getTimeZone(options))));
         }
     }
 
@@ -350,9 +355,15 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                 return print(TimeUtil.DATE_FORMAT_MMMM_D_YYYY, src, options);
             }
         });
+
+        hb.registerHelper("timestamp", new DateHelper() {
+            public CharSequence apply(Object src, Options options) {
+                return new Handlebars.SafeString(Long.toString(zonedTimestamp(src, options)));
+            }
+        });
     }
 
-    public static long longVal(Object src, DateTimeZone timeZone) {
+    private static long longVal(Object src, DateTimeZone timeZone) {
         if (src == null) return now();
         String srcStr = src.toString().trim();
 
