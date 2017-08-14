@@ -196,6 +196,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         });
 
         hb.registerHelper("find", (thing, options) -> {
+            if (thing == null) return null;
             final Iterator iter;
             if (thing instanceof Collection) {
                 iter = ((Collection) thing).iterator();
