@@ -361,8 +361,8 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         if (srcStr.startsWith("now")) {
             // Multiple periods may be added to the original timestamp (separated by comma), but in the correct order.
-            String[] splitSrc = srcStr.substring(3).split(",");
-            DateTime result = new DateTime(now(), timeZone);
+            final String[] splitSrc = srcStr.substring(3).split(",");
+            DateTime result = new DateTime(now(), timeZone).withTimeAtStartOfDay();
             for (String period : splitSrc) {
                 int sign = 1;
                 if (period.startsWith("-")) {
