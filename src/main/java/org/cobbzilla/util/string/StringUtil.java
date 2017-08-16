@@ -5,6 +5,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.lang3.LocaleUtils;
+import org.cobbzilla.util.collection.ArrayUtil;
 import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.javascript.JsEngine;
 import org.cobbzilla.util.javascript.JsEngineConfig;
@@ -220,6 +221,29 @@ public class StringUtil {
             builder.append(o);
         }
         return builder.toString();
+    }
+
+    public static String toString(Map map) {
+        if (empty(map)) return "null";
+        final StringBuilder b = new StringBuilder("{");
+        for (Object key : map.keySet()) {
+            final Object value = map.get(key);
+            b.append(key).append("=");
+            if (value == null) {
+                b.append("null");
+            } else {
+                if (value.getClass().isArray()) {
+                    b.append("[").append(ArrayUtil.arrayToString((Object[]) value, ", ")).append("]");
+                } else if (value instanceof Map) {
+                    b.append(toString((Map) value));
+                } else if (value instanceof Collection) {
+                    b.append(toString((Collection) value, ", "));
+                } else {
+                    b.append(value);
+                }
+            }
+        }
+        return b.append("}").toString();
     }
 
     public static Set<String> toSet (String s, String sep) {
@@ -480,4 +504,5 @@ public class StringUtil {
         while (s.contains(find)) s = s.replaceFirst(find, randomAlphanumeric(randLength));
         return s;
     }
+
 }
