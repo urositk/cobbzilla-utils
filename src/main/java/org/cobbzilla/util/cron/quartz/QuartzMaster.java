@@ -10,6 +10,7 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
@@ -22,6 +23,7 @@ public class QuartzMaster implements CronDaemon {
     private static final String TRIGGER_SUFFIX = "_trigger";
 
     private Scheduler scheduler;
+    @Getter @Setter private TimeZone timeZone;
 
     @Getter @Setter private List<? extends CronJob> jobs;
 
@@ -57,18 +59,16 @@ public class QuartzMaster implements CronDaemon {
 
         TriggerBuilder<Trigger> builder = newTrigger().withIdentity(id+TRIGGER_SUFFIX);
         if (job.isStartNow()) builder = builder.startNow();
-        final Trigger trigger = builder.withSchedule(cronSchedule(job.getCronTimeString())).build();
+        final CronScheduleBuilder cronSchedule = cronSchedule(job.getCronTimeString());
+        final Trigger trigger = builder.withSchedule(timeZone != null ? cronSchedule.inTimeZone(timeZone) : cronSchedule).build();
 
         scheduler.scheduleJob(jobDetail, trigger);
     }
 
-    @Override
-    public void removeJob(final String id) throws Exception {
+    @Override public void removeJob(final String id) throws Exception {
         scheduler.deleteJob(new JobKey(id+JOB_SUFFIX));
     }
 
-    public void stop () throws Exception {
-        scheduler.shutdown();
-    }
+    public void stop () throws Exception { scheduler.shutdown(); }
 
 }
