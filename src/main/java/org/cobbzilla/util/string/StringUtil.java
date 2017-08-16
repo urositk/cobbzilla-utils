@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.cobbzilla.util.collection.ArrayUtil.arrayToString;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
@@ -224,7 +225,7 @@ public class StringUtil {
     }
 
     public static String toString(Map map) {
-        if (empty(map)) return "null";
+        if (map == null) return "null";
         final StringBuilder b = new StringBuilder("{");
         for (Object key : map.keySet()) {
             final Object value = map.get(key);
@@ -233,7 +234,7 @@ public class StringUtil {
                 b.append("null");
             } else {
                 if (value.getClass().isArray()) {
-                    b.append("[").append(ArrayUtil.arrayToString((Object[]) value, ", ")).append("]");
+                    b.append(arrayToString((Object[]) value, ", "));
                 } else if (value instanceof Map) {
                     b.append(toString((Map) value));
                 } else if (value instanceof Collection) {

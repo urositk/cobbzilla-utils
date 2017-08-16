@@ -1,5 +1,7 @@
 package org.cobbzilla.util.collection;
 
+import org.cobbzilla.util.string.StringUtil;
+
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -94,17 +96,22 @@ public class ArrayUtil {
      * @return the result of calling .toString on each non-null element (and printing nullValue for each null element, unless nulValue == null in which case null elements are omitted), with 'delim' in between each entry.
      */
     public static String arrayToString(Object[] array, String delim, String nullValue) {
-        final StringBuilder b = new StringBuilder();
+        if (array == null) return "null";
+        final StringBuilder b = new StringBuilder("[");
         for (Object o : array) {
             if (b.length() > 0) b.append(delim);
             if (o == null) {
                 if (nullValue == null) continue;
                 b.append(nullValue);
+            } else if (o.getClass().isArray()) {
+                b.append(arrayToString((Object[]) o, delim, nullValue));
+            } else if (o instanceof Map) {
+                b.append(StringUtil.toString((Map) o));
             } else {
                 b.append(o.toString());
             }
         }
-        return b.toString();
+        return b.append("]").toString();
     }
 
     public static <T> T[] shift(T[] args) {
