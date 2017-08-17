@@ -466,7 +466,9 @@ public class ReflectionUtil {
         final ParameterizedType parameterizedType = (ParameterizedType) check.getGenericSuperclass();
         final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
         if (index >= actualTypeArguments.length) die("getTypeParam("+clazz.getName()+"): "+actualTypeArguments.length+" type parameters found, index "+index+" out of bounds");
-        return (Class) actualTypeArguments[index];
+        if (actualTypeArguments[index] instanceof Class) return (Class) actualTypeArguments[index];
+        if (actualTypeArguments[index] instanceof ParameterizedType) return (Class) ((ParameterizedType) actualTypeArguments[index]).getRawType();
+        return ((Type) actualTypeArguments[index]).getClass();
     }
 
     /**
