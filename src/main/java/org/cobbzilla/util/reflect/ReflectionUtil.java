@@ -546,6 +546,17 @@ public class ReflectionUtil {
         return true;
     }
 
+    public static Class getterType(Object object, String field) {
+        try {
+            final Object o = get(object, field);
+            if (o == null) return die("getterType: cannot determine field type, value was null");
+            return o.getClass();
+
+        } catch (Exception e) {
+            return die("getterType: simple get failed: "+e, e);
+        }
+    }
+
     /**
      * Call a setter
      * @param object the object to call set(field) on
