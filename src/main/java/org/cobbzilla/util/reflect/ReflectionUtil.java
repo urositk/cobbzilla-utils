@@ -235,6 +235,18 @@ public class ReflectionUtil {
      */
     public static <T> T copy(T thing) { return (T) instantiate(thing.getClass(), thing); }
 
+    /**
+     * Mirror the object. Create a new instance and copy all fields
+     * @param thing The thing to copy
+     * @param <T> Whatevs
+     * @return A mirror of the object, created using the thing's default constructor and copying all fields with 'copy'
+     */
+    public static <T> T mirror(T thing) {
+        T copy = (T) instantiate(thing.getClass());
+        copy(copy, thing);
+        return copy;
+    }
+
     private enum Accessor { get, set }
 
     /**
