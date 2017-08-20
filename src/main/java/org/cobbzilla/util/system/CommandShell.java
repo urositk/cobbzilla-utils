@@ -276,7 +276,9 @@ public class CommandShell {
 
     public static String execScript (String contents, Map<String, String> env, List<Integer> exitValues) {
         final CommandResult result = scriptResult(contents, env, null, exitValues);
-        if (exitValues != null && !result.isZeroExitStatus() && !exitValues.contains(result.getExitStatus())) die("execScript: non-zero exit: "+result);
+        if (!result.isZeroExitStatus() && (exitValues == null || !exitValues.contains(result.getExitStatus()))) {
+            die("execScript: non-zero exit: "+result);
+        }
         return result.getStdout();
     }
 
