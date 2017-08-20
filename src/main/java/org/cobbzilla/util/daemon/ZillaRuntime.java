@@ -10,15 +10,14 @@ import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.cobbzilla.util.collection.ToStringTransformer;
 import org.cobbzilla.util.io.StreamUtil;
+import org.cobbzilla.util.string.StringUtil;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static java.lang.Long.toHexString;
 import static java.util.stream.LongStream.range;
@@ -221,4 +220,13 @@ public class ZillaRuntime {
     public static String zcat() { return SystemUtils.IS_OS_MAC ? "gzcat" : "zcat"; }
     public static String zcat(File f) { return (SystemUtils.IS_OS_MAC ? "gzcat" : "zcat") + " " + abs(f); }
 
+    public static String javaOptions() { return javaOptions(true); }
+
+    public static String javaOptions(boolean excludeDebugOptions) {
+        final List<String> opts = new ArrayList<>();
+        for (String arg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
+            if (!arg.startsWith("-agentlib") && !arg.startsWith("-Xrunjdwp")) opts.add(arg);
+        }
+        return StringUtil.toString(opts, " ");
+    }
 }
