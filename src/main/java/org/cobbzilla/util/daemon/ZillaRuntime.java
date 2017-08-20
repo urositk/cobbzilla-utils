@@ -220,12 +220,20 @@ public class ZillaRuntime {
     public static String zcat() { return SystemUtils.IS_OS_MAC ? "gzcat" : "zcat"; }
     public static String zcat(File f) { return (SystemUtils.IS_OS_MAC ? "gzcat" : "zcat") + " " + abs(f); }
 
+    public static final String[] OMIT_DEBUG_OPTIONS = {"-Xdebug", "-agentlib", "-Xrunjdwp"};
+
+    public static boolean isDebugOption (String arg) {
+        for (String opt : OMIT_DEBUG_OPTIONS) if (arg.startsWith(opt)) return true;
+        return false;
+    }
+
     public static String javaOptions() { return javaOptions(true); }
 
     public static String javaOptions(boolean excludeDebugOptions) {
         final List<String> opts = new ArrayList<>();
         for (String arg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
-            if (!arg.startsWith("-agentlib") && !arg.startsWith("-Xrunjdwp")) opts.add(arg);
+            if (excludeDebugOptions && isDebugOption(arg)) continue;
+            opts.add(arg);
         }
         return StringUtil.toString(opts, " ");
     }
