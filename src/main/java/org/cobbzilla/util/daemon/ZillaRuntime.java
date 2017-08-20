@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.cobbzilla.util.collection.ToStringTransformer;
 import org.cobbzilla.util.io.StreamUtil;
 
@@ -22,6 +23,7 @@ import java.util.UUID;
 import static java.lang.Long.toHexString;
 import static java.util.stream.LongStream.range;
 import static org.apache.commons.collections.CollectionUtils.collect;
+import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.list;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
@@ -215,4 +217,8 @@ public class ZillaRuntime {
     public static Collection<String> stringRange(Number start, Number end) {
         return collect(range(start.longValue(), end.longValue()).boxed().iterator(), ToStringTransformer.instance);
     }
+
+    public static String zcat() { return SystemUtils.IS_OS_MAC ? "gzcat" : "zcat"; }
+    public static String zcat(File f) { return (SystemUtils.IS_OS_MAC ? "gzcat" : "zcat") + " " + abs(f); }
+
 }
