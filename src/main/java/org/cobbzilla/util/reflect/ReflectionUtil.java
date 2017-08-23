@@ -437,11 +437,32 @@ public class ReflectionUtil {
                 } else {
                     if (hasSetter(dest, key, value.getClass())) {
                         set(dest, key, value);
+                    } else {
+                        final Class pc = getPrimitiveClass(value.getClass());
+                        if (pc != null && hasSetter(dest, key, pc)) {
+                            set(dest, key, value);
+                        } else {
+                            log.info("copyFromMap: skipping uncopyable property: "+key);
+                        }
                     }
                 }
             }
         }
         return dest;
+    }
+
+    public static Class getPrimitiveClass(Class<?> clazz) {
+        if (clazz.isArray()) return arrayClass(getPrimitiveClass(clazz.getComponentType()));
+        switch (clazz.getSimpleName()) {
+            case "Long": return long.class;
+            case "Integer": return int.class;
+            case "Short": return short.class;
+            case "Double": return double.class;
+            case "Float": return float.class;
+            case "Boolean": return boolean.class;
+            case "Character": return char.class;
+            default: return null;
+        }
     }
 
     public static final String[] TO_MAP_STANDARD_EXCLUDES = {"declaringClass", "class"};
