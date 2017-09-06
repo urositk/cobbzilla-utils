@@ -153,3 +153,14 @@ function match_any (arr, itemFunc) {
 function up (x, multiple) { return multiple * parseInt(Math.ceil(parseFloat(x)/parseFloat(multiple))); }
 function down (x, multiple) { return multiple * parseInt(Math.floor(parseFloat(x)/parseFloat(multiple))); }
 
+// percentage difference between two numbers, as a floating-point number (1% == 1.0, 100% == 100.0, -5.4% == -5.4)
+function pct_diff (x, y) {
+    var d1 = 100 * (x/y);
+    var d2 = 100 * (y/x);
+    return d1 > d2 ? d1 : d2;
+}
+
+// return true if x is "close enough" to y, in terms of max_pct (default is 1%)
+function is_close_enough (x, y, max_pct) {
+    return 100 - pct_diff(x, y) <= ((typeof max_pct == "undefined") ? 1.0 : max_pct);
+}
