@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.http.HttpStatusCodes.NO_CONTENT;
 import static org.cobbzilla.util.http.URIUtil.getFileExt;
 import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
 import static org.cobbzilla.util.system.Sleep.sleep;
@@ -149,13 +150,15 @@ public class HttpUtil {
         }
 
         bean.setStatus(response.getStatusLine().getStatusCode());
-        bean.setContentLength(response.getEntity().getContentLength());
-        final Header contentType = response.getEntity().getContentType();
-        if (contentType != null) {
-            bean.setContentType(contentType.getValue());
+        if (response.getStatusLine().getStatusCode() != NO_CONTENT) {
+            bean.setContentLength(response.getEntity().getContentLength());
+            final Header contentType = response.getEntity().getContentType();
+            if (contentType != null) {
+                bean.setContentType(contentType.getValue());
+            }
+            @Cleanup final InputStream content = response.getEntity().getContent();
+            bean.setEntity(content);
         }
-        @Cleanup final InputStream content = response.getEntity().getContent();
-        bean.setEntity(content);
 
         return bean;
     }
