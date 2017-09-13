@@ -93,11 +93,23 @@ public class ArrayUtil {
      * @param array the array to consider
      * @param delim the delimiter to put in between each element
      * @param nullValue the value to write if an array entry is null. if this parameter is null, then null array entries will not be included in the output.
-     * @return the result of calling .toString on each non-null element (and printing nullValue for each null element, unless nulValue == null in which case null elements are omitted), with 'delim' in between each entry.
+     * @return a string that starts with [ and ends with ] and within is the result of calling .toString on each non-null element (and printing nullValue for each null element, unless nulValue == null in which case null elements are omitted), with 'delim' in between each entry.
      */
     public static String arrayToString(Object[] array, String delim, String nullValue) {
+        return arrayToString(array, delim, nullValue, true);
+    }
+
+    /**
+     * Produce a delimited string from an array.
+     * @param array the array to consider
+     * @param delim the delimiter to put in between each element
+     * @param nullValue the value to write if an array entry is null. if this parameter is null, then null array entries will not be included in the output.
+     * @param includeBrackets if false, the return value will not start/end with []
+     * @return a string that starts with [ and ends with ] and within is the result of calling .toString on each non-null element (and printing nullValue for each null element, unless nulValue == null in which case null elements are omitted), with 'delim' in between each entry.
+     */
+    public static String arrayToString(Object[] array, String delim, String nullValue, boolean includeBrackets) {
         if (array == null) return "null";
-        final StringBuilder b = new StringBuilder("[");
+        final StringBuilder b = new StringBuilder(includeBrackets ? "[" : "");
         for (Object o : array) {
             if (b.length() > 0) b.append(delim);
             if (o == null) {
@@ -111,7 +123,7 @@ public class ArrayUtil {
                 b.append(o.toString());
             }
         }
-        return b.append("]").toString();
+        return includeBrackets ? b.append("]").toString() : b.toString();
     }
 
     public static <T> T[] shift(T[] args) {
