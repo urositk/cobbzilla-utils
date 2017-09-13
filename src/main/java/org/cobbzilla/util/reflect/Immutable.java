@@ -11,7 +11,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 @AllArgsConstructor
 public class Immutable<T> implements InvocationHandler {
 
-    private T obj;
+    private final T obj;
 
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
 
@@ -26,8 +26,8 @@ public class Immutable<T> implements InvocationHandler {
     }
 
     public static <T> T wrap(T thing) {
-        ClassLoader loader = thing.getClass().getClassLoader();
-        Class[] classes = thing.getClass().getInterfaces();
+        final ClassLoader loader = thing.getClass().getClassLoader();
+        final Class[] classes = thing.getClass().getInterfaces();
         return (T) Proxy.newProxyInstance(loader, classes, new Immutable(thing));
     }
 
