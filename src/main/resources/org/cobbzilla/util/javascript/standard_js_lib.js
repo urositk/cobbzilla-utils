@@ -118,6 +118,16 @@ function find_all (arr, field, value, comparison) {
     return found;
 }
 
+// return sum total of array elements
+function sum_total (arr, field) {
+    var hasField = (typeof field != 'undefined');
+    var sum = 0;
+    for (var i=0; i<arr.length; i++) {
+        sum += (hasField ? arr[i][field] : arr[i]);
+    }
+    return sum;
+}
+
 // returns a function that:
 // 1) applies itemFunc function to an item, 2) uses comparison function to compare the result against compareVal
 function compare (itemFunc, comparison, compareVal) {
