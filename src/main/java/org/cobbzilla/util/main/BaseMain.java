@@ -40,16 +40,21 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
     protected void postRun() {}
 
     public static void main(Class<? extends BaseMain> clazz, String[] args) {
+        BaseMain m = null;
         try {
-            final BaseMain m = clazz.newInstance();
+            m = clazz.newInstance();
             m.setArgs(args);
             m.preRun();
             m.run();
             m.postRun();
 
         } catch (Exception e) {
-            log.error("Unexpected error: " + e + (e.getCause() != null ? " (caused by "+ e.getCause()+")" : ""), e);
-            ZillaRuntime.die("Unexpected error: " + e);
+            if (m == null || m.getOptions() == null || m.getOptions().isVerboseFatalErrors()) {
+                log.error("Unexpected error: " + e + (e.getCause() != null ? " (caused by " + e.getCause() + ")" : ""), e);
+                ZillaRuntime.die("Unexpected error: " + e);
+            } else {
+                log.error(e.getClass().getSimpleName()+": "+e.getMessage());
+            }
         }
     }
 

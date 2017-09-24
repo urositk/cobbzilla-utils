@@ -17,6 +17,12 @@ public class BaseMainOptions {
     @Option(name=OPT_HELP, aliases=LONGOPT_HELP, usage=USAGE_HELP)
     @Getter @Setter private boolean help;
 
+    public static final String USAGE_VERBOSE_FATAL_ERRORS = "Verbose fatal errors";
+    public static final String OPT_VERBOSE_FATAL_ERRORS = "-z";
+    public static final String LONGOPT_VERBOSE_FATAL_ERRORS= "--verbose-fatal-errors";
+    @Option(name=OPT_VERBOSE_FATAL_ERRORS, aliases=LONGOPT_VERBOSE_FATAL_ERRORS, usage=USAGE_VERBOSE_FATAL_ERRORS)
+    @Getter @Setter private boolean verboseFatalErrors = false;
+
     public void out(String s) { System.out.println(s); }
     public void err(String s) { System.err.println(s); }
 
