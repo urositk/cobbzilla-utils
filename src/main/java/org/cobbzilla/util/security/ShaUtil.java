@@ -1,10 +1,14 @@
 package org.cobbzilla.util.security;
 
 import lombok.Cleanup;
+import org.apache.commons.exec.CommandLine;
 import org.cobbzilla.util.string.Base64;
 import org.cobbzilla.util.string.StringUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -14,6 +18,9 @@ import java.security.NoSuchAlgorithmException;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.io.FileUtil.abs;
+import static org.cobbzilla.util.string.StringUtil.split;
+import static org.cobbzilla.util.system.Bytes.MB;
+import static org.cobbzilla.util.system.CommandShell.exec;
 
 public class ShaUtil {
 
@@ -52,9 +59,23 @@ public class ShaUtil {
         }
     }
 
+    public static final long SHA256_FILE_USE_SHELL_THRESHHOLD = 10*MB;
+
     public static String sha256_file (String file) { return sha256_file(new File(file)); }
 
     public static String sha256_file (File file) {
+        try {
+            return (file.length() > SHA256_FILE_USE_SHELL_THRESHHOLD)
+                ? split(exec(new CommandLine("sha256sum").addArgument(abs(file))).getStdout(), " ").get(0)
+                : sha256_file_java(file);
+        } catch (Exception e) {
+            // if we tried the shell command, it may have failed, try the pure java version
+            if (file.length() > SHA256_FILE_USE_SHELL_THRESHHOLD) return sha256_file_java(file);
+            return die("Error calculating sha256 on " + abs(file) + ": " + e);
+        }
+    }
+
+    public static String sha256_file_java(File file) {
         try {
             @Cleanup final InputStream input = new FileInputStream(file);
             final MessageDigest md = getMessageDigest(input);
@@ -84,5 +105,4 @@ public class ShaUtil {
         }
         return md;
     }
-
 }
