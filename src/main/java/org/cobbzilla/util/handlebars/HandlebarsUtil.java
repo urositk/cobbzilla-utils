@@ -3,6 +3,7 @@ package org.cobbzilla.util.handlebars;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.HandlebarsException;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.io.AbstractTemplateLoader;
@@ -25,6 +26,7 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
@@ -98,7 +100,9 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             @Cleanup final StringWriter writer = new StringWriter(value.length());
             handlebars.compile(value).apply(ctx, writer);
             return writer.toString();
-
+        } catch (HandlebarsException e) {
+            if (e.getCause() instanceof FileNotFoundException) throw e;
+            return die("apply("+value+"): "+e, e);
         } catch (Exception e) {
             return die("apply("+value+"): "+e, e);
         } catch (Error e) {
@@ -139,7 +143,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                     final Object value = getterCandidate.invoke(thing, (Object[]) null);
                     if (value == null) break;
                     if (value instanceof String) {
-                        if (value.toString().contains(""+altStart+altStart)) {
+                        if (value.toString().contains("" + altStart + altStart)) {
                             setterCandidate.invoke(thing, apply(handlebars, (String) value, ctx, altStart, altEnd));
                         }
                     } else if (value instanceof JsonNode) {
@@ -148,6 +152,9 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                         // recurse
                         setterCandidate.invoke(thing, applyReflectively(handlebars, value, ctx, altStart, altEnd));
                     }
+                } catch (HandlebarsException e) {
+                    throw e;
+
                 } catch (Exception e) {
                     // no setter for getter
                     log.warn("applyReflectively: " + e);
@@ -424,7 +431,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                             : stream2string(filename);
                     return new Handlebars.SafeString(content);
                 } catch (Exception e) {
-                    return die("Cannot find readable file " + filename + " under paths " + paths);
+                    throw new FileNotFoundException("Cannot find readable file " + filename + " under paths " + paths);
                 }
             }
 
