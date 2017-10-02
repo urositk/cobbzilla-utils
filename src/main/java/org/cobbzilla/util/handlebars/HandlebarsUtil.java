@@ -420,12 +420,11 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     public static final String DEFAULT_FILE_RESOLVER = "_";
     private static final Map<String, FileResolver> fileResolverMap = new HashMap<>();
 
-    public static void addFileIncludePaths (Collection<String> paths) { addFileIncludePaths(DEFAULT_FILE_RESOLVER, paths); }
+    public static void setFileIncludePaths(Collection<String> paths) { setFileIncludePaths(DEFAULT_FILE_RESOLVER, paths); }
 
-    public static void addFileIncludePaths (String name, Collection<String> paths) {
+    public static void setFileIncludePaths(String name, Collection<String> paths) {
         fileResolverMap.put(name, new PathListFileResolver(paths));
     }
-
 
     @AllArgsConstructor
     private static class FileLoaderHelper implements Helper<String> {
