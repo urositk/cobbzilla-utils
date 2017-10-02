@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.io.IOUtils;
+import org.cobbzilla.util.collection.SingletonList;
 import org.cobbzilla.util.io.FileResolver;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.PathListFileResolver;
@@ -419,6 +420,8 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     public static final String DEFAULT_FILE_RESOLVER = "_";
     private static final Map<String, FileResolver> fileResolverMap = new HashMap<>();
+
+    public static void setFileIncludePath(String path) { setFileIncludePaths(DEFAULT_FILE_RESOLVER, new SingletonList<>(path)); }
 
     public static void setFileIncludePaths(Collection<String> paths) { setFileIncludePaths(DEFAULT_FILE_RESOLVER, paths); }
 
