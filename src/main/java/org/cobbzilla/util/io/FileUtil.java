@@ -39,7 +39,7 @@ public class FileUtil {
      * @param filename The name of the file.
      * @return         First found file or null.
      */
-    public static File firstFoundFile(List<String> paths, String filename) {
+    public static File firstFoundFile(Collection<String> paths, String filename) {
         if (!empty(paths)) {
             for (String path : paths) {
                 File f = new File(path, filename);

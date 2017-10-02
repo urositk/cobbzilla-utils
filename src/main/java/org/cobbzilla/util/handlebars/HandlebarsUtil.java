@@ -17,7 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.io.IOUtils;
+import org.cobbzilla.util.io.FileResolver;
 import org.cobbzilla.util.io.FileUtil;
+import org.cobbzilla.util.io.PathListFileResolver;
 import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.util.time.TimeUtil;
 import org.joda.time.DateTime;
@@ -415,14 +417,29 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         });
     }
 
+    public static final String DEFAULT_FILE_RESOLVER = "_";
+    private static final Map<String, FileResolver> fileResolverMap = new HashMap<>();
+
+    public static void addFileIncludePaths (Collection<String> paths) { addFileIncludePaths(DEFAULT_FILE_RESOLVER, paths); }
+
+    public static void addFileIncludePaths (String name, Collection<String> paths) {
+        fileResolverMap.put(name, new PathListFileResolver(paths));
+    }
+
+
     @AllArgsConstructor
     private static class FileLoaderHelper implements Helper<String> {
-        private List<String> paths;
+
         private boolean isBase64EncoderOn;
 
         @Override public CharSequence apply(String filename, Options options) throws IOException {
             if (empty(filename)) return EMPTY_SAFE_STRING;
-            File f = FileUtil.firstFoundFile(paths, filename);
+
+            final String include = options.get("includePath", DEFAULT_FILE_RESOLVER);
+            final FileResolver fileResolver = fileResolverMap.get(include);
+            if (fileResolver == null) return die("apply: no file resolve found for includePath="+include);
+
+            final File f = fileResolver.resolve(filename);
             if (f == null) {
                 // try classpath
                 try {
@@ -431,7 +448,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                             : stream2string(filename);
                     return new Handlebars.SafeString(content);
                 } catch (Exception e) {
-                    throw new FileNotFoundException("Cannot find readable file " + filename + " under paths " + paths);
+                    throw new FileNotFoundException("Cannot find readable file " + filename + ", resolver: " + fileResolver);
                 }
             }
 
@@ -443,14 +460,15 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         }
     }
 
-    public static void registerFileHelpers(final Handlebars hb) { registerFileHelpers(hb, null); }
-
-    public static void registerFileHelpers(final Handlebars hb, final List<String> paths) {
-
+    public static void registerFileHelpers(final Handlebars hb) {
         hb.registerHelper("rawImagePng", (src, options) -> {
             if (empty(src)) return "";
 
-            File f = FileUtil.firstFoundFile(paths, src.toString());
+            final String include = options.get("includePath", DEFAULT_FILE_RESOLVER);
+            final FileResolver fileResolver = fileResolverMap.get(include);
+            if (fileResolver == null) return die("rawImagePng: no file resolve found for includePath="+include);
+
+            final File f = fileResolver.resolve(src.toString());
             String imgSrc = (f == null) ? src.toString() : f.getAbsolutePath();
 
             final Object width = options.get("width");
@@ -459,7 +477,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                     "<img " + widthAttr + "src=\"data:image/png;base64," + imgSrc + "\"/>");
         });
 
-        hb.registerHelper("base64File", new FileLoaderHelper(paths, true));
-        hb.registerHelper("textFile", new FileLoaderHelper(paths, false));
+        hb.registerHelper("base64File", new FileLoaderHelper(true));
+        hb.registerHelper("textFile", new FileLoaderHelper(false));
     }
 }
