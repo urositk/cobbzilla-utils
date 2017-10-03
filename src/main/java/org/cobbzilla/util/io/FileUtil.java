@@ -379,16 +379,16 @@ public class FileUtil {
     }
 
     // quick alias for getting an absolute path
-    public static String abs(File path) { return path == null ? "null" : path.getAbsolutePath(); }
-    public static String abs(Path path) { return path == null ? "null" : abs(path.toFile()); }
-    public static String abs(String path) {
+    public static String abs(File path) {
         try {
-            return path == null ? "null" : abs(new File(path).getCanonicalFile());
+            return path == null ? "null" : path.getCanonicalPath();
         } catch (IOException e) {
-            log.warn("abs("+path+"): "+e);
-            return abs(new File(path));
+            log.warn("abs("+path.getAbsolutePath()+"): "+e);
+            return path.getAbsolutePath();
         }
     }
+    public static String abs(Path path) { return path == null ? "null" : abs(path.toFile()); }
+    public static String abs(String path) { return path == null ? "null" : abs(new File(path)); }
 
     public static File mkdirOrDie(String dir) { return mkdirOrDie(new File(dir)); }
 
