@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
@@ -25,16 +24,23 @@ import org.cobbzilla.util.system.CommandShell;
 import org.cobbzilla.util.system.Sleep;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.google.common.net.HttpHeaders.CONTENT_DISPOSITION;
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.hexnow;
+import static org.cobbzilla.util.http.HttpContentTypes.contentType;
 import static org.cobbzilla.util.http.HttpStatusCodes.NO_CONTENT;
 import static org.cobbzilla.util.http.URIUtil.getFileExt;
 import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
+import static org.cobbzilla.util.string.StringUtil.CRLF;
 import static org.cobbzilla.util.system.Sleep.sleep;
 
 @Slf4j
@@ -135,6 +141,8 @@ public class HttpUtil {
 
     public static HttpResponseBean getResponse(HttpRequestBean requestBean, HttpClient client) throws IOException {
 
+        if (requestBean.hasStream()) return getStreamResponse(requestBean);
+
         final HttpResponseBean bean = new HttpResponseBean();
 
         final HttpUriRequest request = initHttpRequest(requestBean);
@@ -161,6 +169,44 @@ public class HttpUtil {
         }
 
         return bean;
+    }
+
+    public static HttpResponseBean getStreamResponse(HttpRequestBean request) {
+        if (!request.hasStream()) return die("getStreamResponse: request stream was not set");
+        try {
+            final String boundary = hexnow();
+            request.withHeader(CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
+
+            @Cleanup("disconnect") final HttpURLConnection connection = (HttpURLConnection) new URL(request.getUri()).openConnection();
+            connection.setDoOutput(true);
+            for (NameAndValue header : request.getHeaders()) {
+                connection.setRequestProperty(header.getName(), header.getValue());
+            }
+
+            @Cleanup final OutputStream output = connection.getOutputStream();
+            final PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, Charset.defaultCharset()), true);
+            writer.append("--" + boundary).append(CRLF);
+            final String filename = request.getEntity();
+            addStreamHeader(writer, CONTENT_DISPOSITION, "form-data; name=\"file\"; filename=\""+ filename +"\"");
+            addStreamHeader(writer, CONTENT_TYPE, contentType(filename));
+            writer.append(CRLF).flush();
+            IOUtils.copy(request.getEntityInputStream(), output);
+            output.flush();
+            writer.append(CRLF);
+            writer.append("--").append(boundary).append("--").append(CRLF).flush();
+
+            return new HttpResponseBean()
+                    .setStatus(connection.getResponseCode())
+                    .setEntity(connection.getInputStream())
+                    .setHttpHeaders(connection.getHeaderFields());
+        } catch (Exception e) {
+            return die("getStreamResponse: "+e, e);
+        }
+    }
+
+    private static PrintWriter addStreamHeader(PrintWriter writer, String name, String value) {
+        writer.append(name).append(": ").append(value).append(CRLF);
+        return writer;
     }
 
     public static HttpResponseBean getResponse(String urlString) throws IOException {
@@ -232,7 +278,7 @@ public class HttpUtil {
     }
 
     public static String getContentType(HttpResponse response) {
-        final Header contentTypeHeader = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+        final Header contentTypeHeader = response.getFirstHeader(CONTENT_TYPE);
         return (contentTypeHeader == null) ? null : contentTypeHeader.getValue();
     }
 

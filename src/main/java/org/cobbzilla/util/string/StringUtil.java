@@ -41,6 +41,7 @@ public class StringUtil {
     public static final String[] EMPTY_ARRAY = {};
     public static final String DEFAULT_LOCALE = "en_US";
     public static final String BYTES_PATTERN = "(\\d+)(\\s+)?([MgGgTtPpEe][Bb])";
+    public static final String CRLF = "\r\n";
 
     public static final Transformer XFORM_TO_STRING = new Transformer() {
         @Override public Object transform(Object o) { return String.valueOf(o); }

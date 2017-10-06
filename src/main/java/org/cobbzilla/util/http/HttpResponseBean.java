@@ -92,4 +92,11 @@ public class HttpResponseBean {
         return this;
     }
 
+    public HttpResponseBean setHttpHeaders(Map<String, List<String>> h) {
+        if (empty(h)) return this;
+        for (Map.Entry<String, List<String>> e : h.entrySet()) {
+            for (String v : e.getValue()) addHeader(e.getKey(), v);
+        }
+        return this;
+    }
 }

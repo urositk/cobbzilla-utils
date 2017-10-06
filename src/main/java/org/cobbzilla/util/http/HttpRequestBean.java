@@ -17,6 +17,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.cobbzilla.util.collection.NameAndValue;
 import org.cobbzilla.util.string.StringUtil;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
 
@@ -38,7 +39,9 @@ public class HttpRequestBean {
     @Getter @Setter private String uri;
 
     @Getter @Setter private String entity;
+    @Getter @Setter private InputStream entityInputStream;
     public boolean hasData () { return entity != null; }
+    public boolean hasStream () { return entityInputStream != null; }
 
     @Getter @Setter private List<NameAndValue> headers = new ArrayList<>();
     public HttpRequestBean withHeader (String name, String value) { setHeader(name, value); return this; }
@@ -65,6 +68,13 @@ public class HttpRequestBean {
 
     public HttpRequestBean (String method, String uri, String entity, NameAndValue[] headers) {
         this(method, uri, entity);
+        this.headers = Arrays.asList(headers);
+    }
+
+    public HttpRequestBean (String method, String uri, InputStream entity, String name, NameAndValue[] headers) {
+        this(method, uri);
+        this.entity = name;
+        this.entityInputStream = entity;
         this.headers = Arrays.asList(headers);
     }
 
