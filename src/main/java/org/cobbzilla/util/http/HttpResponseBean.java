@@ -95,8 +95,10 @@ public class HttpResponseBean {
     public HttpResponseBean setHttpHeaders(Map<String, List<String>> h) {
         if (empty(h)) return this;
         for (Map.Entry<String, List<String>> e : h.entrySet()) {
-            for (String v : e.getValue()) {
-                if (!empty(e.getKey()) && !empty(e.getValue())) addHeader(e.getKey(), v);
+            if (!empty(e.getKey())) {
+                for (String v : e.getValue()) {
+                    if (!empty(v)) addHeader(e.getKey(), v);
+                }
             }
         }
         return this;
