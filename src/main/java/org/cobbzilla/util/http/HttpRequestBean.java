@@ -75,7 +75,7 @@ public class HttpRequestBean {
         this(method, uri);
         this.entity = name;
         this.entityInputStream = entity;
-        this.headers = Arrays.asList(headers);
+        this.headers = new ArrayList(Arrays.asList(headers));
     }
 
     public Map<String, Object> toMap () {
