@@ -22,6 +22,7 @@ import org.cobbzilla.util.io.FileResolver;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.PathListFileResolver;
 import org.cobbzilla.util.reflect.ReflectionUtil;
+import org.cobbzilla.util.string.StringUtil;
 import org.cobbzilla.util.time.TimeUtil;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -196,6 +197,11 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         hb.registerHelper("json", (src, options) -> {
             if (empty(src)) return "";
             return new Handlebars.SafeString(json(src));
+        });
+
+        hb.registerHelper("safe_name", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(StringUtil.safeSnakeName(src.toString()));
         });
 
         hb.registerHelper("urlEncode", (src, options) -> {
