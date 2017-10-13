@@ -88,7 +88,7 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
 
     public <T> T die (String message, Exception e) {
         if (options.isVerboseFatalErrors()) log.error(message, e);
-        err(message + ": " + e.getClass() + (!empty(e.getMessage()) ? ": "+e.getMessage(): ""));
+        err(message + ": " + e.getClass().getName() + (!empty(e.getMessage()) ? ": "+e.getMessage(): ""));
         System.exit(1);
         return null;
     }
