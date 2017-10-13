@@ -7,6 +7,7 @@ import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.reflect.ReflectionUtil.getFirstTypeParam;
 import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
 
@@ -30,7 +31,6 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
             if (options.isHelp()) {
                 showHelpAndExit();
             }
-
         } catch (Exception e) {
             showHelpAndExit(e);
         }
@@ -65,8 +65,13 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
 
     public void showHelpAndExit(String error) { showHelpAndExit(new IllegalArgumentException(error)); }
 
+    public static final String ERR_LINE = "\n--------------------------------------------------------------------------------\n";
+
     public void showHelpAndExit(Exception e) {
         parser.printUsage(System.err);
+        if ((e instanceof CmdLineException) && !empty(e.getMessage())) {
+            err(ERR_LINE + " >>> " + e.getMessage() + ERR_LINE);
+        }
         System.exit(1);
     }
 
@@ -75,15 +80,15 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
     public static void err (String message) { System.err.println(message); }
 
     public <T> T die (String message) {
-        log.error(message);
+        if (options.isVerboseFatalErrors()) log.error(message);
         err(message);
         System.exit(1);
         return null;
     }
 
     public <T> T die (String message, Exception e) {
-        log.error(message, e);
-        err(message + ": " + e);
+        if (options.isVerboseFatalErrors()) log.error(message, e);
+        err(message + ": " + e.getClass() + (!empty(e.getMessage()) ? ": "+e.getMessage(): ""));
         System.exit(1);
         return null;
     }
