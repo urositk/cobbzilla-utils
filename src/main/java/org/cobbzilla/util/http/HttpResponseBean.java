@@ -20,6 +20,7 @@ import static org.apache.http.HttpHeaders.CONTENT_LENGTH;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.string.StringUtil.UTF8cs;
 
 @Slf4j @Accessors(chain=true) @ToString(of={"status", "headers"})
 public class HttpResponseBean {
@@ -66,7 +67,14 @@ public class HttpResponseBean {
 
     public boolean hasEntity () { return !empty(entity); }
 
-    public String getEntityString () { return entity == null ? null : new String(entity); }
+    public String getEntityString () {
+        try {
+            return entity == null ? null : new String(entity, UTF8cs);
+        } catch (Exception e) {
+            log.warn("getEntityString: error parsing bytes: "+e);
+            return null;
+        }
+    }
 
     public <T> T getEntity (Class<T> clazz) {
         return entity == null ? null : JsonUtil.fromJsonOrDie(getEntityString(), clazz);
