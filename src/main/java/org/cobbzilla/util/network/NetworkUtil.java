@@ -22,6 +22,16 @@ public class NetworkUtil {
         return true;
     }
 
+    public static boolean isLocalHost(String host) {
+        if (isLocalIpv4(host)) return true;
+        try {
+            return InetAddress.getByName(host).isAnyLocalAddress();
+        } catch (Exception e) {
+            log.warn("isLocalHost("+host+"): "+e);
+            return false;
+        }
+    }
+
     protected static boolean isPublicIpv4(String addr) {
         if (empty(addr)) return false;
         if (addr.startsWith("/")) addr = addr.substring(1);
@@ -123,4 +133,5 @@ public class NetworkUtil {
                 .append(parts[0]).append(".in-addr.arpa")
                 .toString();
     }
+
 }
