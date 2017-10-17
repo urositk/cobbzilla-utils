@@ -21,6 +21,7 @@ public class HttpContentTypes {
     public static final String IMAGE_JPEG = "image/jpg";
     public static final String IMAGE_GIF = "image/gif";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+    public static final String UNKNOWN = APPLICATION_OCTET_STREAM;
     public static final String APPLICATION_ZIP = "application/zip";
     public static final String APPLICATION_GZIP = "application/gzip";
     // useful when constructing HttpRequestBeans that will be used against a JSON API
