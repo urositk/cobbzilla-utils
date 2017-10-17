@@ -105,7 +105,11 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             handlebars.compile(value).apply(ctx, writer);
             return writer.toString();
         } catch (HandlebarsException e) {
-            if (e.getCause() instanceof FileNotFoundException) throw e;
+            final Throwable cause = e.getCause();
+            if (cause != null && ((cause instanceof FileNotFoundException) || (cause instanceof RequiredVariableUndefinedException))) {
+                log.error(e.getMessage()+": \""+value+"\"");
+                throw e;
+            }
             return die("apply("+value+"): "+e, e);
         } catch (Exception e) {
             return die("apply("+value+"): "+e, e);
@@ -197,6 +201,12 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         hb.registerHelper("json", (src, options) -> {
             if (empty(src)) return "";
             return new Handlebars.SafeString(json(src));
+        });
+
+        hb.registerHelper("required", (src, options) -> {
+            // if (src == null) throw new HandlebarsException("required: undefined variable", new RequiredVariableUndefinedException("required: undefined variable"));
+            if (src == null) throw new RequiredVariableUndefinedException("required: undefined variable");
+            return new Handlebars.SafeString(src.toString());
         });
 
         hb.registerHelper("safe_name", (src, options) -> {
