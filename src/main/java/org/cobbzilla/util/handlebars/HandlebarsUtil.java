@@ -1,5 +1,6 @@
 package org.cobbzilla.util.handlebars;
 
+import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.jknack.handlebars.Handlebars;
@@ -449,6 +450,9 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     private static class FileLoaderHelper implements Helper<String> {
 
         private boolean isBase64EncoderOn;
+        private boolean escapeSpecialChars;
+
+        public FileLoaderHelper(boolean isBase64EncoderOn) { this(isBase64EncoderOn, false); }
 
         @Override public CharSequence apply(String filename, Options options) throws IOException {
             if (empty(filename)) return EMPTY_SAFE_STRING;
@@ -461,9 +465,12 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             if (f == null) {
                 // try classpath
                 try {
-                    final String content = isBase64EncoderOn
+                    String content = isBase64EncoderOn
                             ? encodeBytes(IOUtils.toByteArray(loadResourceAsStream(filename)))
                             : stream2string(filename);
+                    if (escapeSpecialChars) {
+                        content = new String(JsonStringEncoder.getInstance().quoteAsString(content));
+                    }
                     return new Handlebars.SafeString(content);
                 } catch (Exception e) {
                     throw new FileNotFoundException("Cannot find readable file " + filename + ", resolver: " + fileResolver);
@@ -471,14 +478,16 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             }
 
             try {
-                return new Handlebars.SafeString(isBase64EncoderOn ? encodeFromFile(f) : FileUtil.toString(f));
+                String string = isBase64EncoderOn ? encodeFromFile(f) : FileUtil.toString(f);
+                if (escapeSpecialChars) string = new String(JsonStringEncoder.getInstance().quoteAsString(string));
+                return new Handlebars.SafeString(string);
             } catch (IOException e) {
                 return die("Cannot read file from: " + f, e);
             }
         }
     }
 
-    public static void registerFileHelpers(final Handlebars hb) {
+    public static void registerFileHelpers(final Handlebars hb, boolean escapeSpecialChars) {
         hb.registerHelper("rawImagePng", (src, options) -> {
             if (empty(src)) return "";
 
@@ -496,6 +505,6 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         });
 
         hb.registerHelper("base64File", new FileLoaderHelper(true));
-        hb.registerHelper("textFile", new FileLoaderHelper(false));
+        hb.registerHelper("textFile", new FileLoaderHelper(false, escapeSpecialChars));
     }
 }
