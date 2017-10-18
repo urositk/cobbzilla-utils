@@ -450,9 +450,6 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     private static class FileLoaderHelper implements Helper<String> {
 
         private boolean isBase64EncoderOn;
-        private boolean escapeSpecialChars;
-
-        public FileLoaderHelper(boolean isBase64EncoderOn) { this(isBase64EncoderOn, false); }
 
         @Override public CharSequence apply(String filename, Options options) throws IOException {
             if (empty(filename)) return EMPTY_SAFE_STRING;
@@ -460,6 +457,8 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             final String include = options.get("includePath", DEFAULT_FILE_RESOLVER);
             final FileResolver fileResolver = fileResolverMap.get(include);
             if (fileResolver == null) return die("apply: no file resolve found for includePath="+include);
+
+            final boolean escapeSpecialChars = options.get("escape", false);
 
             final File f = fileResolver.resolve(filename);
             if (f == null) {
@@ -487,7 +486,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         }
     }
 
-    public static void registerFileHelpers(final Handlebars hb, boolean escapeSpecialChars) {
+    public static void registerFileHelpers(final Handlebars hb) {
         hb.registerHelper("rawImagePng", (src, options) -> {
             if (empty(src)) return "";
 
@@ -505,6 +504,6 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         });
 
         hb.registerHelper("base64File", new FileLoaderHelper(true));
-        hb.registerHelper("textFile", new FileLoaderHelper(false, escapeSpecialChars));
+        hb.registerHelper("textFile", new FileLoaderHelper(false));
     }
 }
