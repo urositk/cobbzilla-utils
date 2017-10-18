@@ -28,6 +28,8 @@ import static org.cobbzilla.util.string.StringUtil.uncapitalize;
 @Slf4j
 public class ReflectionUtil {
 
+    public static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
+
     public static Boolean toBoolean(Object object) {
         if (object == null) return null;
         if (object instanceof Boolean) return (Boolean) object;

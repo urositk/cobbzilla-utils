@@ -11,7 +11,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 public class ArrayUtil {
 
     public static final Object[] SINGLE_NULL_OBJECT = new Object[]{null};
-    public static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
+    public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
     public static <T> T[] append (T[] array, T... elements) {
         if (array == null || array.length == 0) {
