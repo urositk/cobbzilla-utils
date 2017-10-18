@@ -1,5 +1,6 @@
 package org.cobbzilla.util.handlebars;
 
+import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.jknack.handlebars.Handlebars;
@@ -464,11 +465,12 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             if (f == null) {
                 // try classpath
                 try {
-                    final String content = isBase64EncoderOn
+                    String content = isBase64EncoderOn
                             ? encodeBytes(IOUtils.toByteArray(loadResourceAsStream(filename)))
-                            : escapeSpecialChars ? stream2string(filename)
-                                                 : stream2string(filename).replace("\n", "\\n")
-                                                                          .replace("\"", "\\\"");
+                            : stream2string(filename);
+                    if (escapeSpecialChars) {
+                        content = new String(JsonStringEncoder.getInstance().quoteAsString(content));
+                    }
                     return new Handlebars.SafeString(content);
                 } catch (Exception e) {
                     throw new FileNotFoundException("Cannot find readable file " + filename + ", resolver: " + fileResolver);
@@ -476,10 +478,9 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             }
 
             try {
-                return new Handlebars.SafeString(isBase64EncoderOn ? encodeFromFile(f)
-                                                         : escapeSpecialChars ? FileUtil.toString(f)
-                        : FileUtil.toString(f).replace("\n", "\\n")
-                                  .replace("\"", "\\\""));
+                String string = isBase64EncoderOn ? encodeFromFile(f) : FileUtil.toString(f);
+                if (escapeSpecialChars) string = new String(JsonStringEncoder.getInstance().quoteAsString(string));
+                return new Handlebars.SafeString(string);
             } catch (IOException e) {
                 return die("Cannot read file from: " + f, e);
             }
