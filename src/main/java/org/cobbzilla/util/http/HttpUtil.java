@@ -179,6 +179,7 @@ public class HttpUtil {
 
             @Cleanup("disconnect") final HttpURLConnection connection = (HttpURLConnection) new URL(request.getUri()).openConnection();
             connection.setDoOutput(true);
+            connection.setRequestMethod(request.getMethod());
             for (NameAndValue header : request.getHeaders()) {
                 connection.setRequestProperty(header.getName(), header.getValue());
             }
