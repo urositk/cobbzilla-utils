@@ -315,4 +315,7 @@ public class CommandShell {
         if (!f.exists()) die("home("+user+"): home does not exist "+path);
         return f;
     }
+
+    public static File pwd () { return new File(System.getProperty("user.dir")); }
+
 }
