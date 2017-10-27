@@ -25,7 +25,7 @@ public class NetworkUtil {
     public static boolean isLocalHost(String host) {
         if (isLocalIpv4(host)) return true;
         try {
-            return InetAddress.getByName(host).isAnyLocalAddress();
+            return isLocalIpv4(InetAddress.getByName(host).getHostAddress());
         } catch (Exception e) {
             log.warn("isLocalHost("+host+"): "+e);
             return false;
