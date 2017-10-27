@@ -47,7 +47,7 @@ public class HttpContentTypes {
             case "xml":              return APPLICATION_XML;
             case "pdf":              return APPLICATION_PDF;
             case "json":             return APPLICATION_JSON;
-            case "gz":               return APPLICATION_GZIP;
+            case "gz": case "tgz":   return APPLICATION_GZIP;
             case "zip":              return APPLICATION_ZIP;
             default: return die("contentType: no content-type could be determined for name: "+name);
         }
