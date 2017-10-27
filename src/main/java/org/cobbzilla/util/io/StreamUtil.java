@@ -83,6 +83,7 @@ public class StreamUtil {
     }
 
     public static File loadResourceAsFile(String path, Class clazz, File file) throws IOException {
+        if (file.isDirectory()) file = new File(file, new File(path).getName());
         @Cleanup final FileOutputStream out = new FileOutputStream(file);
         IOUtils.copy(loadResourceAsStream(path, clazz), out);
         return file;
