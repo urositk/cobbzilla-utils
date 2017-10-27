@@ -12,7 +12,7 @@ import static org.cobbzilla.util.io.FileUtil.abs;
 // zip-related code adapted from: https://stackoverflow.com/a/10634536/1251543
 public class Decompressors {
 
-    public static File unroll (File infile) throws Exception {
+    public static TempDir unroll (File infile) throws Exception {
         if (Tarball.isTarball(infile)) {
             return Tarball.unroll(infile);
         } else if (isZipFile(infile.getName())) {
