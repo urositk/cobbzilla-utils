@@ -205,7 +205,6 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         });
 
         hb.registerHelper("required", (src, options) -> {
-            // if (src == null) throw new HandlebarsException("required: undefined variable", new RequiredVariableUndefinedException("required: undefined variable"));
             if (src == null) throw new RequiredVariableUndefinedException("required: undefined variable");
             return new Handlebars.SafeString(src.toString());
         });
@@ -247,6 +246,46 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                 }
             }
             return EMPTY_SAFE_STRING;
+        });
+
+        hb.registerHelper("compare", (val1, options) -> {
+            final String operator = options.param(0);
+            final Object val2 = options.param(1);
+            final Comparable v1 = cval(val1);
+            final Object v2 = cval(val2);
+            return (v1 == null && v2 == null) || (v1 != null && compare(operator, v1, v2)) ? options.fn(options) : options.inverse(options);
+        });
+
+        hb.registerHelper("string_compare", (val1, options) -> {
+            final String operator = options.param(0);
+            final Object val2 = options.param(1);
+            final String v1 = val1.toString();
+            final String v2 = val2.toString();
+            return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
+        });
+
+        hb.registerHelper("long_compare", (val1, options) -> {
+            final String operator = options.param(0);
+            final Object val2 = options.param(1);
+            final Long v1 = Long.valueOf(val1.toString());
+            final Long v2 = Long.valueOf(val2.toString());
+            return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
+        });
+
+        hb.registerHelper("double_compare", (val1, options) -> {
+            final String operator = options.param(0);
+            final Object val2 = options.param(1);
+            final Double v1 = Double.valueOf(val1.toString());
+            final Double v2 = Double.valueOf(val2.toString());
+            return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
+        });
+
+        hb.registerHelper("big_compare", (val1, options) -> {
+            final String operator = options.param(0);
+            final Object val2 = options.param(1);
+            final BigDecimal v1 = big(val1.toString());
+            final BigDecimal v2 = big(val2.toString());
+            return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
         });
 
         hb.registerHelper("expr", (val1, options) -> {
@@ -305,6 +344,39 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             return "";
         });
 
+    }
+
+    private static Comparable cval(Object v) {
+        if (v == null) return null;
+        if (v instanceof Number) return (Comparable) v;
+        if (v instanceof String) {
+            final String s = v.toString();
+            try {
+                return Long.parseLong(s);
+            } catch (Exception e) {
+                try {
+                    return big(s);
+                } catch (Exception e2) {
+                    return s;
+                }
+            }
+        } else {
+            return die("don't know to compare objects of class "+v.getClass());
+        }
+    }
+
+    public static <T> boolean compare(String operator, Comparable<T> v1, T v2) {
+        boolean result;
+        switch (operator) {
+            case "==":  result =  v1.equals(v2); break;
+            case "!=":  result = !v1.equals(v2); break;
+            case ">":   result = v1.compareTo(v2) > 0; break;
+            case ">=":  result = v1.compareTo(v2) >= 0; break;
+            case "<":   result = v1.compareTo(v2) < 0; break;
+            case "<=":  result = v1.compareTo(v2) <= 0; break;
+            default: result = false;
+        }
+        return result;
     }
 
     public static void registerCurrencyHelpers(Handlebars hb) {
