@@ -23,7 +23,7 @@ public class FieldTransformer implements Transformer {
 
     @Override public Object transform(Object o) { return ReflectionUtil.get(o, field); }
 
-    public <E> List<E> collect (Collection c) { return (List<E>) CollectionUtils.collect(c, this); }
+    public <E> List<E> collect (Collection c) { return c == null ? null : (List<E>) CollectionUtils.collect(c, this); }
 
     public <E> E[] array (Collection c) {
         if (c == null) return null;
