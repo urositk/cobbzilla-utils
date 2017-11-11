@@ -1,11 +1,13 @@
 package org.cobbzilla.util.time;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.cobbzilla.util.daemon.ZillaRuntime;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+@NoArgsConstructor
 public class CurrentTime {
 
     @Getter @Setter private long now;
