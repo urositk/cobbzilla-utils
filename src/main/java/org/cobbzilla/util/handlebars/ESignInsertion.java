@@ -16,6 +16,8 @@ public class ESignInsertion extends ImageInsertion {
 
     @Getter @Setter private String role = null;
 
+    public ESignInsertion(ESignInsertion other) { super(other); }
+
     public ESignInsertion(String spec) { super(spec); }
 
     @Override protected void setField(String key, String value) {

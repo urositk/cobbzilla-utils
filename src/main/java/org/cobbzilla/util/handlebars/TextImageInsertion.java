@@ -34,6 +34,7 @@ public class TextImageInsertion extends ImageInsertion {
     @Getter @Setter private int widthPadding = 10;
     @Getter @Setter private int lineSpacing = 4;
 
+    public TextImageInsertion(TextImageInsertion other) { super(other); }
     public TextImageInsertion(String spec) { super(spec); }
 
     @Override protected void setField(String key, String value) {

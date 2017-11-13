@@ -19,6 +19,8 @@ public class Base64ImageInsertion extends ImageInsertion {
 
     public static final Base64ImageInsertion[] NO_IMAGE_INSERTIONS = new Base64ImageInsertion[0];
 
+    public Base64ImageInsertion(Base64ImageInsertion other) { super(other); }
+
     public Base64ImageInsertion(String spec) { super(spec); }
 
     @Getter @Setter private String image; // base64-encoded image data

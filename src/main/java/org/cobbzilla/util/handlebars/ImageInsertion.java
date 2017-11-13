@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.io.File;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.reflect.ReflectionUtil.copy;
 
 @NoArgsConstructor @Accessors(chain=true)
 public abstract class ImageInsertion {
@@ -25,6 +27,8 @@ public abstract class ImageInsertion {
     @Getter @Setter private String format = "png";
 
     @JsonIgnore public abstract File getImageFile() throws IOException;
+
+    public ImageInsertion(ImageInsertion other) { copy(this, other); }
 
     public ImageInsertion(String spec) {
         for (String part : StringUtil.split(spec, ", ")) {
