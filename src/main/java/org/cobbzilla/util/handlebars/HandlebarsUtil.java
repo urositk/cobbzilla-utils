@@ -37,8 +37,8 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.regex.Pattern;
 
+import static java.util.regex.Pattern.quote;
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 import static org.cobbzilla.util.io.StreamUtil.loadResourceAsStream;
 import static org.cobbzilla.util.io.StreamUtil.stream2string;
@@ -51,6 +51,12 @@ import static org.cobbzilla.util.string.StringUtil.*;
 @AllArgsConstructor @Slf4j
 public class HandlebarsUtil extends AbstractTemplateLoader {
 
+    public static final String HB_START = "{{";
+    public static final String HB_END = "}}";
+
+    public static final String HB_LSTART = "{{{";
+    public static final String HB_LEND = "}}}";
+
     private String sourceName = "unknown";
 
     public static Map<String, Object> apply(Handlebars handlebars, Map<String, Object> map, Map<String, Object> ctx) {
@@ -59,7 +65,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             final Object value = entry.getValue();
             if (value instanceof String) {
                 final String val = (String) value;
-                if (val.contains("{{") && val.contains("}}")) {
+                if (val.contains(HB_START) && val.contains(HB_END)) {
                     merged.put(entry.getKey(), apply(handlebars, value.toString(), ctx));
                 } else {
                     merged.put(entry.getKey(), entry.getValue());
@@ -90,15 +96,15 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             final String e3 = StringUtils.repeat(altEnd, 3);
             final String e2 = StringUtils.repeat(altEnd, 2);
             // escape existing handlebars delimiters with dummy placeholders (we'll put them back later)
-            value = value.replaceAll("\\{\\{\\{", DUMMY_START3).replaceAll("}}}", DUMMY_END3)
-                    .replaceAll("\\{\\{", DUMMY_START2).replaceAll("}}", DUMMY_END2)
+            value = value.replaceAll(quote(HB_LSTART), DUMMY_START3).replaceAll(HB_LEND, DUMMY_END3)
+                    .replaceAll(quote(HB_START), DUMMY_START2).replaceAll(HB_END, DUMMY_END2)
                     // replace our custom start/end delimiters with handlebars standard ones
-                    .replaceAll(Pattern.quote(s3), "{{{").replaceAll(Pattern.quote(e3), "}}}")
-                    .replaceAll(Pattern.quote(s2), "{{").replaceAll(Pattern.quote(e2), "}}");
+                    .replaceAll(quote(s3), HB_LSTART).replaceAll(quote(e3), HB_LEND)
+                    .replaceAll(quote(s2), HB_START).replaceAll(quote(e2), HB_END);
             // run handlebars, then put the real handlebars stuff back (removing the dummy placeholders)
             value = apply(handlebars, value, ctx)
-                    .replaceAll(DUMMY_START3, "{{{").replaceAll(DUMMY_END3, "}}}")
-                    .replaceAll(DUMMY_START2, "{{").replaceAll(DUMMY_END2, "}}");
+                    .replaceAll(DUMMY_START3, HB_LSTART).replaceAll(DUMMY_END3, HB_LEND)
+                    .replaceAll(DUMMY_START2, HandlebarsUtil.HB_START).replaceAll(DUMMY_END2, HB_END);
             return value;
         }
         try {

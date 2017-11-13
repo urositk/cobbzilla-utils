@@ -9,6 +9,9 @@ import org.w3c.dom.NodeList;
 
 import java.util.Map;
 
+import static org.cobbzilla.util.handlebars.HandlebarsUtil.HB_END;
+import static org.cobbzilla.util.handlebars.HandlebarsUtil.HB_START;
+
 @Slf4j
 public class TidyHandlebarsSpanMerger implements TidyHelper {
 
@@ -74,19 +77,19 @@ public class TidyHandlebarsSpanMerger implements TidyHelper {
     public static String scrubHandlebars(String text) {
         final StringBuilder b = new StringBuilder();
         int start = 0;
-        int pos = text.indexOf("{{", start);
+        int pos = text.indexOf(HB_START, start);
         while (pos != -1) {
-            b.append(text.substring(start, pos)).append("{{");
+            b.append(text.substring(start, pos)).append(HB_START);
             start = pos + 2;
-            int endPos = text.indexOf("}}", start);
+            int endPos = text.indexOf(HB_END, start);
             if (endPos == -1) {
                 b.append(text.substring(start));
                 return b.toString();
             } else {
-                b.append(scrubHtmlEntities(text.substring(start, endPos))).append("}}");
+                b.append(scrubHtmlEntities(text.substring(start, endPos))).append(HB_END);
                 start = endPos + 2;
             }
-            pos = text.indexOf("{{", start);
+            pos = text.indexOf(HB_START, start);
         }
         if (start != text.length()-1) b.append(text.substring(start));
         return b.toString();
