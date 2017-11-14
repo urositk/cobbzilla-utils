@@ -1,4 +1,3 @@
-// todo: move to cobbzilla-utils stringutils
 var dmp = new diff_match_patch();
 
 function diff(text1, text2, opts) {

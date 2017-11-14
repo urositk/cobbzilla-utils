@@ -91,6 +91,8 @@ public class JsonUtil {
         return null;
     }
 
+    public static String json_html(Object value) { return json(value).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace(" ", "&nbsp;").replace("\n", "<br/>"); }
+
     public static class PublicView {}
 
     public static String toJson (Object o) throws Exception {

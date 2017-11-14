@@ -5,8 +5,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.lang3.LocaleUtils;
-import org.cobbzilla.util.collection.ArrayUtil;
-import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.javascript.JsEngine;
 import org.cobbzilla.util.javascript.JsEngineConfig;
 import org.cobbzilla.util.security.MD5Util;
@@ -31,6 +29,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.cobbzilla.util.collection.ArrayUtil.arrayToString;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.io.StreamUtil.loadResourceAsStringOrDie;
 
 public class StringUtil {
 
@@ -490,8 +489,8 @@ public class StringUtil {
     }
 
     private static final String DIFF_JS
-            = StreamUtil.loadResourceAsStringOrDie(getPackagePath(StringUtil.class)+"/diff_match_patch.js") + "\n"
-            + StreamUtil.loadResourceAsStringOrDie(getPackagePath(StringUtil.class)+"/calc_diff.js") + "\n";
+            = loadResourceAsStringOrDie(getPackagePath(StringUtil.class)+"/diff_match_patch.js") + "\n"
+            + loadResourceAsStringOrDie(getPackagePath(StringUtil.class)+"/calc_diff.js") + "\n";
     public static JsEngine DIFF_JS_ENGINE = new JsEngine(new JsEngineConfig(5, 20, null));
     public static String diff (String text1, String text2, Map<String, String> opts) {
         if (opts == null) opts = new HashMap<>();
