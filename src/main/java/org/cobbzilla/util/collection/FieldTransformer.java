@@ -8,7 +8,9 @@ import org.cobbzilla.util.reflect.ReflectionUtil;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.cobbzilla.util.collection.ArrayUtil.EMPTY_OBJECT_ARRAY;
 
@@ -24,6 +26,7 @@ public class FieldTransformer implements Transformer {
     @Override public Object transform(Object o) { return ReflectionUtil.get(o, field); }
 
     public <E> List<E> collect (Collection c) { return c == null ? null : (List<E>) CollectionUtils.collect(c, this); }
+    public <E> Set<E> collectSet (Collection c) { return c == null ? null : new HashSet<>(CollectionUtils.collect(c, this)); }
 
     public <E> E[] array (Collection c) {
         if (c == null) return null;
