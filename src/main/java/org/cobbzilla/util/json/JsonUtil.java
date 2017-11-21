@@ -59,6 +59,11 @@ public class JsonUtil {
             .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
+    public static final ObjectMapper NOTNULL_MAPPER_ALLOW_EMPTY = FULL_MAPPER
+            .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
+            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
     public static final ObjectMapper PUBLIC_MAPPER = buildMapper();
 
     public static final ObjectWriter PUBLIC_WRITER = buildWriter(PUBLIC_MAPPER, PublicView.class);
@@ -91,18 +96,29 @@ public class JsonUtil {
         return null;
     }
 
-    public static String json_html(Object value) { return json(value).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace(" ", "&nbsp;").replace("\n", "<br/>"); }
+    public static String json_html(Object value) { return json_html(value, null); }
+
+    public static String json_html(Object value, ObjectMapper m) {
+        return (m == null ? json(value) : json(value, m)).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace(" ", "&nbsp;").replace("\n", "<br/>");
+    }
 
     public static class PublicView {}
 
-    public static String toJson (Object o) throws Exception {
-        return JsonUtil.NOTNULL_MAPPER.writeValueAsString(o);
-    }
+    public static String toJson (Object o) throws Exception { return toJson(o, NOTNULL_MAPPER); }
+
+    public static String toJson (Object o, ObjectMapper m) throws Exception { return m.writeValueAsString(o); }
 
     public static String json (Object o) { return toJsonOrDie(o); }
+    public static String json (Object o, ObjectMapper m) { return toJsonOrDie(o, m); }
 
     public static String toJsonOrDie (Object o) {
         try { return toJson(o); } catch (Exception e) {
+            return die("toJson: exception writing object ("+o+"): "+e, e);
+        }
+    }
+
+    public static String toJsonOrDie (Object o, ObjectMapper m) {
+        try { return toJson(o, m); } catch (Exception e) {
             return die("toJson: exception writing object ("+o+"): "+e, e);
         }
     }
