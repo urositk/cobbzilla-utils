@@ -35,7 +35,7 @@ public class ZillaRuntime {
     public static void terminate(Thread thread, long timeout) {
         if (thread == null || !thread.isAlive()) return;
         thread.interrupt();
-        long start = realNow();
+        final long start = realNow();
         while (thread.isAlive() && realNow() - start < timeout) {
             sleep(100, "terminate: waiting for thread to die: "+thread);
         }
@@ -68,8 +68,8 @@ public class ZillaRuntime {
     public static <T> T notSupported(String message) { return _throw(new UnsupportedOperationException(message)); }
 
     private static <T> T _throw (RuntimeException e) {
-        String message = e.getMessage();
-        Throwable cause = e.getCause();
+        final String message = e.getMessage();
+        final Throwable cause = e.getCause();
         if (errorApi != null) {
             if (cause != null && cause instanceof Exception) errorApi.report(message, (Exception) cause);
             else errorApi.report(e);
