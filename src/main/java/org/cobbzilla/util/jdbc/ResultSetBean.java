@@ -19,6 +19,8 @@ public class ResultSetBean {
     @Getter private final ArrayList<Map<String, Object>> rows = new ArrayList<>();
     public boolean isEmpty () { return rows.isEmpty(); }
 
+    public int rowCount () { return isEmpty() ? 0 : rows.size(); }
+
     public Map<String, Object> first () { return rows.get(0); }
     public Integer count () { return isEmpty() ? null : Integer.valueOf(rows.get(0).entrySet().iterator().next().getValue().toString()); }
     public int countOrZero () { return isEmpty() ? 0 : Integer.parseInt(rows.get(0).entrySet().iterator().next().getValue().toString()); }
