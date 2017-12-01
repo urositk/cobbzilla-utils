@@ -48,6 +48,10 @@ public class TimeUtil {
     }
 
     public static String formatDuration(long duration) {
+        final boolean negative = duration < 0;
+        if (negative) duration *= -1L;
+        final String prefix = negative ? "-" : "";
+
         long days = 0, hours = 0, mins = 0, secs = 0, millis = 0;
 
         if (duration > DAY) {
@@ -67,8 +71,8 @@ public class TimeUtil {
         }
         millis = duration - secs * SECOND;
 
-        if (days > 0) return String.format("%1$01dd %2$02d:%3$02d:%4$02d.%5$04d", days, hours, mins, secs, millis);
-        return String.format("%1$02d:%2$02d:%3$02d.%4$04d", hours, mins, secs, millis);
+        if (days > 0) return prefix+String.format("%1$01dd %2$02d:%3$02d:%4$02d.%5$04d", days, hours, mins, secs, millis);
+        return prefix+String.format("%1$02d:%2$02d:%3$02d.%4$04d", hours, mins, secs, millis);
     }
 
     public static long parseDuration(String duration) {
