@@ -513,6 +513,17 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         });
     }
 
+    public static void registerJurisdictionHelpers(final Handlebars hb, JurisdictionResolver jurisdictionResolver) {
+        hb.registerHelper("us_state", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(jurisdictionResolver.usState(src.toString()));
+        });
+        hb.registerHelper("us_zip", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(jurisdictionResolver.usZip(src.toString()));
+        });
+    }
+
     public static final String DEFAULT_FILE_RESOLVER = "_";
     private static final Map<String, FileResolver> fileResolverMap = new HashMap<>();
 
