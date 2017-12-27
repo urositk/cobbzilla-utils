@@ -196,10 +196,16 @@ public class HttpUtil {
             writer.append(CRLF);
             writer.append("--").append(boundary).append("--").append(CRLF).flush();
 
-            return new HttpResponseBean()
+            HttpResponseBean response = new HttpResponseBean()
                     .setStatus(connection.getResponseCode())
-                    .setEntity(connection.getInputStream())
                     .setHttpHeaders(connection.getHeaderFields());
+            try {
+                response.setEntity(connection.getInputStream());
+            } catch (IOException ioe) {
+                response.setEntity(connection.getErrorStream());
+            }
+
+            return response;
         } catch (Exception e) {
             return die("getStreamResponse: "+e, e);
         }
