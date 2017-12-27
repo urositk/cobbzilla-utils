@@ -45,6 +45,9 @@ public class ValidationRegexes {
     public static final String YYYYMMDD_REGEX = "^(19|20|21)[0-9]{2}-[01][0-9]-(0[1-9]|[1-2][0-9]|3[0-1])$";
     public static final Pattern YYYYMMDD_PATTERN = pattern(YYYYMMDD_REGEX);
 
+    public static final String ZIPCODE_REGEX = "^\\d{5}(-\\d{4})?$";
+    public static final Pattern ZIPCODE_PATTERN = pattern(ZIPCODE_REGEX);
+
     public static Pattern pattern(String regex) { return Pattern.compile(regex, Pattern.CASE_INSENSITIVE); }
 
     public static List<String> findAllRegexMatches(String text, String regex) {
