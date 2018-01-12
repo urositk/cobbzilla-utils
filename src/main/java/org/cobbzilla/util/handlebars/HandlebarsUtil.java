@@ -227,18 +227,22 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             return new Handlebars.SafeString(src.toString());
         });
 
+        hb.registerHelper("lastElement", (thing, options) -> {
+            if (thing == null) return null;
+            final Iterator iter = getIterator(thing);
+            final String path = options.param(0);
+            Object lastElement = null;
+            while (iter.hasNext()) {
+                lastElement = iter.next();
+            }
+            final Object val = ReflectionUtil.get(lastElement, path);
+            if (val != null) return new Handlebars.SafeString(""+val);
+            return EMPTY_SAFE_STRING;
+        });
+
         hb.registerHelper("find", (thing, options) -> {
             if (thing == null) return null;
-            final Iterator iter;
-            if (thing instanceof Collection) {
-                iter = ((Collection) thing).iterator();
-            } else if (thing instanceof Map) {
-                iter = ((Map) thing).values().iterator();
-            } else if (Object[].class.isAssignableFrom(thing.getClass())) {
-                iter = new ArrayIterator(thing);
-            } else {
-                return die("find: invalid argument type "+thing.getClass().getName());
-            }
+            final Iterator iter = getIterator(thing);
             final String path = options.param(0);
             final String arg = options.param(1);
             final String output = options.param(2);
@@ -350,6 +354,18 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             return "";
         });
 
+    }
+
+    private static Iterator getIterator(Object thing) {
+        if (thing instanceof Collection) {
+            return ((Collection) thing).iterator();
+        } else if (thing instanceof Map) {
+            return ((Map) thing).values().iterator();
+        } else if (Object[].class.isAssignableFrom(thing.getClass())) {
+            return new ArrayIterator(thing);
+        } else {
+            return die("find: invalid argument type "+thing.getClass().getName());
+        }
     }
 
     private static Comparable cval(Object v) {
