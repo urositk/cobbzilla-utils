@@ -506,4 +506,6 @@ public class StringUtil {
         return s;
     }
 
+    public static String firstWord(String value) { return value.trim().split("\\s+")[0]; }
+
 }

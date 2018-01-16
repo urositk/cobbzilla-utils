@@ -1,11 +1,13 @@
 package org.cobbzilla.util.string;
 
-import org.cobbzilla.util.daemon.ZillaRuntime;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.util.Locale;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
+@Slf4j
 public class LocaleUtil {
 
     public static File findLocaleFile (File base, String locale) {
@@ -48,4 +50,15 @@ public class LocaleUtil {
         return localeFile.exists() ? localeFile : null;
     }
 
+    public static Locale fromString(String localeString) {
+        final String[] parts = localeString.split("[-_]+");
+        switch (parts.length) {
+            case 3: return new Locale(parts[0], parts[1], parts[2]);
+            case 2: return new Locale(parts[0], parts[1]);
+            case 1: return new Locale(parts[0]);
+            default:
+                log.warn("fromString: invalid locale string: "+localeString);
+                return Locale.getDefault();
+        }
+    }
 }
