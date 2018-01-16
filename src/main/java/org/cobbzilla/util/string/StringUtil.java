@@ -5,6 +5,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.cobbzilla.util.javascript.JsEngine;
 import org.cobbzilla.util.javascript.JsEngineConfig;
 import org.cobbzilla.util.security.MD5Util;
@@ -508,4 +509,10 @@ public class StringUtil {
 
     public static String firstWord(String value) { return value.trim().split("\\s+")[0]; }
 
+    /**
+     * If both strings are empty (null or empty string) return true, else use apache's StringUtils.equals method.
+     */
+    public static boolean equalsExtended(String s1, String s2) {
+        return empty(s1) && empty(s2) ? true : StringUtils.equals(s1, s2);
+    }
 }
