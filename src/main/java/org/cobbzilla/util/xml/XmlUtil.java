@@ -18,6 +18,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
@@ -124,6 +125,13 @@ public class XmlUtil {
         return found;
     }
 
+    public static List<Element> findElements(Element element, final String name, final Map<String, String> conditions) {
+        if (empty(conditions)) return findElements(element, name);
+        final List<Element> found = new ArrayList<>();
+        applyRecursively(element, new MatchNodeSubElements(name, conditions, found));
+        return found;
+    }
+
     public static Element findUniqueElement(Document doc, String name) {
         final List<Element> elements = findElements(doc, name);
         if (empty(elements)) return null;
@@ -143,6 +151,11 @@ public class XmlUtil {
 
     public static Element findFirstElement(Element e, String name, String content) {
         final List<Element> elements = findElements(e, name, content);
+        return empty(elements) ? null : elements.get(0);
+    }
+
+    public static Element findFirstElement(Element e, String name, Map<String, String> conditions) {
+        final List<Element> elements = findElements(e, name, conditions);
         return empty(elements) ? null : elements.get(0);
     }
 
@@ -229,6 +242,24 @@ public class XmlUtil {
 
         @Override protected boolean check(Element element) {
             return super.check(element) && text.equals(element.getTextContent().trim());
+        }
+    }
+
+    public static class MatchNodeSubElements extends MatchNodeName {
+        private final Map<String, String> conditions;
+
+        public MatchNodeSubElements(String name, Map<String, String> conditions, List<Element> found) {
+            super(name, found);
+            if (empty(conditions)) die("Conditions map cannot be null");
+            this.conditions = conditions;
+        }
+
+        @Override protected boolean check(Element element) {
+            if (!super.check(element)) return false;
+            for (Map.Entry<String, String> condition : conditions.entrySet()) {
+                if (findFirstElement(element, condition.getKey(), condition.getValue()) == null) return false;
+            }
+            return true;
         }
     }
 }
