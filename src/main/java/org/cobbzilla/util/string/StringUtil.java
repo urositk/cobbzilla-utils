@@ -513,6 +513,6 @@ public class StringUtil {
      * If both strings are empty (null or empty string) return true, else use apache's StringUtils.equals method.
      */
     public static boolean equalsExtended(String s1, String s2) {
-        return empty(s1) && empty(s2) ? true : StringUtils.equals(s1, s2);
+        return (empty(s1) && empty(s2)) || StringUtils.equals(s1, s2);
     }
 }
