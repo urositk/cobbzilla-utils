@@ -28,8 +28,13 @@ public class ElementIdGenerator {
     public Element text(Document doc, String elementName, String text) { return text(doc, elementName, text, null); }
 
     public Element text(Document doc, String elementName, String text, Integer truncate) {
-        if (truncate != null && text.trim().length() > truncate) text = text.trim().substring(0, truncate);
         final Element element = create(doc, elementName);
+
+        if (text == null) return element;
+        text = text.trim();
+        if (text.length() == 0) return element;
+
+        if (truncate != null && text.trim().length() > truncate) text = text.trim().substring(0, truncate);
         element.appendChild(doc.createTextNode(text));
         return element;
     }
