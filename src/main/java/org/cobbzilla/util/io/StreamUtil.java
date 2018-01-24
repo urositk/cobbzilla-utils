@@ -1,6 +1,7 @@
 package org.cobbzilla.util.io;
 
 import lombok.Cleanup;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.cobbzilla.util.string.StringUtil;
 
@@ -10,6 +11,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.stdin;
 import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
 
+@Slf4j
 public class StreamUtil {
 
     public static final String SUFFIX = ".tmp";
@@ -89,7 +91,17 @@ public class StreamUtil {
         return file;
     }
 
-    public static String stream2string(String path) { return loadResourceAsStringOrDie(path); }
+    public static String stream2string(String path) { return stream2string(path, null); }
+
+    public static String stream2string(String path, String defaultValue) {
+        if (defaultValue == null) return loadResourceAsStringOrDie(path);
+        try {
+            return loadResourceAsStringOrDie(path);
+        } catch (Exception e) {
+            log.warn("stream2string: path not found ("+path+": "+e+"), returning defaultValue");
+            return defaultValue;
+        }
+    }
 
     public static String loadResourceAsStringOrDie(String path) {
         try {
