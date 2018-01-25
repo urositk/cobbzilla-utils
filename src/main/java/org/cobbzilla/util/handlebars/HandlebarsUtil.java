@@ -210,6 +210,11 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             return new Handlebars.SafeString(json(src));
         });
 
+        hb.registerHelper("context", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(options.context.toString());
+        });
+
         hb.registerHelper("required", (src, options) -> {
             if (src == null) throw new RequiredVariableUndefinedException("required: undefined variable");
             return new Handlebars.SafeString(src.toString());
