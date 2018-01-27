@@ -55,8 +55,12 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
             } else {
                 log.error(e.getClass().getSimpleName()+(e.getMessage() != null ? ": "+e.getMessage() : ""));
             }
+        } finally {
+            if (m != null) m.cleanup();
         }
     }
+
+    public void cleanup () {}
 
     public void showHelpAndExit() {
         parser.printUsage(System.out);
