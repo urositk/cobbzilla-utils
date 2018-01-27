@@ -60,6 +60,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     private String sourceName = "unknown";
 
     public static Map<String, Object> apply(Handlebars handlebars, Map<String, Object> map, Map<String, Object> ctx) {
+        if (empty(map)) return map;
         final Map<String, Object> merged = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             final Object value = entry.getValue();
