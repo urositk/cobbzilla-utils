@@ -395,6 +395,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     public static <T> boolean compare(String operator, Comparable<T> v1, T v2) {
         boolean result;
+        final List<String> parts;
         switch (operator) {
             case "==":  result =  v1.equals(v2); break;
             case "!=":  result = !v1.equals(v2); break;
@@ -402,6 +403,18 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             case ">=":  result = v1.compareTo(v2) >= 0; break;
             case "<":   result = v1.compareTo(v2) < 0; break;
             case "<=":  result = v1.compareTo(v2) <= 0; break;
+            case "in":
+                parts = StringUtil.split(v2.toString(), ", \n\t");
+                for (String part : parts) {
+                    if (v1.equals(part)) return true;
+                }
+                return false;
+            case "not_in":
+                parts = StringUtil.split(v2.toString(), ", \n\t");
+                for (String part : parts) {
+                    if (v1.equals(part)) return false;
+                }
+                return true;
             default: result = false;
         }
         return result;
