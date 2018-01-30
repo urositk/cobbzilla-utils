@@ -593,7 +593,13 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
             final boolean escapeSpecialChars = options.get("escape", false);
 
-            final File f = fileResolver.resolve(filename);
+            File f = fileResolver.resolve(filename);
+            if (f == null && filename.startsWith(File.separator)) {
+                // looks like an absolute path, try the filesystem
+                f = new File(filename);
+                if (!f.exists() || !f.canRead()) f = null;
+            }
+
             if (f == null) {
                 // try classpath
                 try {
