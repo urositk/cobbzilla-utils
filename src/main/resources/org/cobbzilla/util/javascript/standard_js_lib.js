@@ -7,18 +7,9 @@ function len (thing) {
     }
 }
 
-// returns item[i] from array or collection
-function getItem (thing, index) {
-    try {
-        return thing.get(index);
-    } catch (err) {
-        return thing[index];
-    }
-}
-
-// returns item[0] from array or collection
+// returns item[0] of item['0'] from array or collection
 function first (thing) {
-    return getItem(thing, 0);
+    return _get_element(thing, 0);
 }
 
 // returns true if item is in arr array
@@ -27,7 +18,7 @@ function found (item, arr) { return (typeof arr != 'undefined') && arr != null &
 // returns true if any element in items array is found in arr array
 function found_any (items, arr) {
     if (typeof items == 'undefined' || typeof arr == 'undefined' || items == null || arr == null) return false;
-    for (var i=0; i<items.length; i++) if (found(items[i], arr)) return true;
+    for (var i = 0; i < len(items); i++) if (found(_get_element(items, i), arr)) return true;
     return false;
 }
 
@@ -42,11 +33,16 @@ function le (x, compare) { return x <= compare; }
 function eq (x, compare) { return x == compare; }
 function ne (x, compare) { return x != compare; }
 
+function _inner_get_element(not_null_arr, field) {
+    var v = not_null_arr[field];
+    if ((v === undefined || v === null) && typeof not_null_arr.get === 'function') return not_null_arr.get(field);
+    return v;
+}
+
 function _get_element(arr, field) {
     if (arr == null) return null;
-
-    var v = arr[field];
-    if (v === undefined && typeof arr.get === 'function') return arr.get(field);
+    var v = _inner_get_element(arr, field);
+    if ((v === undefined || v === null) && typeof field === 'number') return _inner_get_element(arr, '' + field);
     return v;
 }
 
@@ -88,16 +84,17 @@ function find (arr, field, value, comparison) {
 
 function _find (arr, func) {
     if ((typeof arr == 'undefined') || arr == null) return null;
-    for (var i=0; i<arr.length; i++) {
-        if (func(arr[i])) return arr[i];
+    for (var i = 0; i < len(arr); i++) {
+        var v = _get_element(arr, i);
+        if (func(v)) return v;
     }
     return null;
 }
 
 function _findIndex (arr, func) {
     if ((typeof arr == 'undefined') || arr == null) return null;
-    for (var i=0; i<arr.length; i++) {
-        if (func(arr[i])) return i;
+    for (var i = 0; i < len(arr); i++) {
+        if (func(_get_element(arr, i))) return i;
     }
     return -1;
 }
@@ -112,7 +109,7 @@ function contains (arr, field, comparison, value) {
 function find_all (arr, field, value, comparison) {
     if (typeof comparison == 'undefined') comparison = eq;
     var found = [];
-    if ((typeof arr == 'undefined') || arr == null || arr.length == 0) return found;
+    if ((typeof arr == 'undefined') || arr == null || len(arr) == 0) return found;
     _find(arr, match_object(field, value, comparison, found));
     // arr.find(match_object(field, value, comparison, found));
     return found;
@@ -122,8 +119,9 @@ function find_all (arr, field, value, comparison) {
 function sum_total (arr, field) {
     var hasField = (typeof field != 'undefined');
     var sum = 0;
-    for (var i=0; i<arr.length; i++) {
-        sum += (hasField ? arr[i][field] : arr[i]);
+    for (var i = 0; i < len(arr); i++) {
+        var v = _get_element(arr, i);
+        sum += (hasField ? _get_element(v, field) : v);
     }
     return sum;
 }
@@ -153,7 +151,7 @@ function compare_pct (field, total, comparison, compareVal) {
 
 // apply itemFunc to each item in array arr. if any such invocation of itemFunc returns true, then this function returns true
 function match_any (arr, itemFunc) {
-    if ((typeof arr == 'undefined') || arr == null || arr.length == 0) return false;
+    if ((typeof arr == 'undefined') || arr == null || len(arr) == 0) return false;
     // var found = arr.find(itemFunc);
     var found = _find(arr, itemFunc);
     return (typeof found != 'undefined') && found != null;
