@@ -160,7 +160,7 @@ public class ZillaRuntime {
 
     public static String uuid() { return UUID.randomUUID().toString(); }
 
-    @Getter @Setter private static long systemTimeOffset = 0;
+    @Getter @Setter private static volatile long systemTimeOffset = 0;
     public static long now() { return System.currentTimeMillis() + systemTimeOffset; }
     public static String hexnow() { return toHexString(now()); }
     public static String hexnow(long now) { return toHexString(now); }

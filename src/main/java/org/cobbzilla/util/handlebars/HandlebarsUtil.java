@@ -60,6 +60,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     private String sourceName = "unknown";
 
     public static Map<String, Object> apply(Handlebars handlebars, Map<String, Object> map, Map<String, Object> ctx) {
+        if (empty(map)) return map;
         final Map<String, Object> merged = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             final Object value = entry.getValue();
@@ -208,6 +209,20 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         hb.registerHelper("json", (src, options) -> {
             if (empty(src)) return "";
             return new Handlebars.SafeString(json(src));
+        });
+
+        hb.registerHelper("context", (src, options) -> {
+            if (empty(src)) return "";
+            return new Handlebars.SafeString(options.context.toString());
+        });
+
+        hb.registerHelper("context_json", (src, options) -> {
+            if (empty(src)) return "";
+            try {
+                return new Handlebars.SafeString(json(options.context));
+            } catch (Exception e) {
+                return new Handlebars.SafeString("Error calling json(options.context): "+e.getClass()+": "+e.getMessage());
+            }
         });
 
         hb.registerHelper("required", (src, options) -> {
@@ -389,6 +404,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     public static <T> boolean compare(String operator, Comparable<T> v1, T v2) {
         boolean result;
+        final List<String> parts;
         switch (operator) {
             case "==":  result =  v1.equals(v2); break;
             case "!=":  result = !v1.equals(v2); break;
@@ -396,6 +412,18 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             case ">=":  result = v1.compareTo(v2) >= 0; break;
             case "<":   result = v1.compareTo(v2) < 0; break;
             case "<=":  result = v1.compareTo(v2) <= 0; break;
+            case "in":
+                parts = StringUtil.split(v2.toString(), ", \n\t");
+                for (String part : parts) {
+                    if (v1.equals(part)) return true;
+                }
+                return false;
+            case "not_in":
+                parts = StringUtil.split(v2.toString(), ", \n\t");
+                for (String part : parts) {
+                    if (v1.equals(part)) return false;
+                }
+                return true;
             default: result = false;
         }
         return result;
@@ -565,7 +593,13 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
             final boolean escapeSpecialChars = options.get("escape", false);
 
-            final File f = fileResolver.resolve(filename);
+            File f = fileResolver.resolve(filename);
+            if (f == null && filename.startsWith(File.separator)) {
+                // looks like an absolute path, try the filesystem
+                f = new File(filename);
+                if (!f.exists() || !f.canRead()) f = null;
+            }
+
             if (f == null) {
                 // try classpath
                 try {
