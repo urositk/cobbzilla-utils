@@ -2,6 +2,7 @@ package org.cobbzilla.util.handlebars;
 
 import com.github.jknack.handlebars.Handlebars;
 import lombok.Cleanup;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.io.MemoryUsageSetting;
@@ -15,7 +16,8 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
-import org.cobbzilla.util.string.StringUtil;
+import org.cobbzilla.util.error.GeneralErrorHandler;
+import org.cobbzilla.util.error.HasGeneralErrorHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,15 +27,20 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.temp;
 import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
+import static org.cobbzilla.util.error.GeneralErrorHandlerBase.defaultErrorHandler;
 
 @Slf4j
 public class PdfMerger {
+
+    @Getter private static final AtomicReference<GeneralErrorHandler> errorHandler = defaultErrorHandler();
+    public static void setErrorHandler (GeneralErrorHandler handler) { errorHandler.set(handler); }
 
     public static final String NULL_FORM_VALUE = "þÿ";
     public static final String CTX_IMAGE_INSERTIONS = "imageInsertions";
@@ -104,12 +111,12 @@ public class PdfMerger {
                             try {
                                 field.setValue(formValue);
                             } catch (Exception e) {
-                                die("merge (field="+field+", value="+formValue+"): "+e, e);
+                                errorHandler.get().handleError("merge (field="+field+", value="+formValue+"): "+e, e);
                             }
                         }
                     }
                 } catch (Exception e) {
-                    die("merge: "+e, e);
+                    errorHandler.get().handleError("merge: "+e, e);
                 }
                 field.setReadOnly(true);
                 field.getCOSObject().setInt("Ff", 1);
@@ -140,7 +147,10 @@ public class PdfMerger {
         pdfDocument.getDocumentCatalog().setPageMode(PageMode.USE_THUMBS);
         pdfDocument.save(output);
 
-        if (validationErrors != null && !validationErrors.isEmpty()) return die("merge: "+StringUtil.toString(validationErrors));
+        if (validationErrors != null && !validationErrors.isEmpty()) {
+            errorHandler.get().handleError(validationErrors);
+            return null;
+        }
         return output;
     }
 
@@ -223,4 +233,5 @@ public class PdfMerger {
             tempFile.delete();
         }
     }
+
 }
