@@ -23,6 +23,7 @@ import org.cobbzilla.util.io.FileResolver;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.PathListFileResolver;
 import org.cobbzilla.util.reflect.ReflectionUtil;
+import org.cobbzilla.util.string.LocaleUtil;
 import org.cobbzilla.util.string.StringUtil;
 import org.cobbzilla.util.time.TimeUtil;
 import org.joda.time.DateTime;
@@ -56,6 +57,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     public static final String HB_LSTART = "{{{";
     public static final String HB_LEND = "}}}";
+    public static final String DEFAULT_FLOAT_FORMAT = "%1$,.3f";
 
     private String sourceName = "unknown";
 
@@ -204,6 +206,17 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             src = apply(hb, src.toString(), (Map<String, Object>) options.context.model());
             src = sha256_hex(src.toString());
             return new Handlebars.SafeString(src.toString());
+        });
+
+        hb.registerHelper("format_float", (val, options) -> {
+            if (empty(val)) return "";
+            if (options.params.length > 2) return die("format_float: too many parameters. Usage: {{format_float expr [format] [locale]}}");
+            final String format = options.params.length > 0 && !empty(options.param(0)) ? options.param(0) : DEFAULT_FLOAT_FORMAT;
+            final Locale locale = LocaleUtil.fromString(options.params.length > 1 && !empty(options.param(1)) ? options.param(1) : null);
+
+            val = apply(hb, val.toString(), (Map<String, Object>) options.context.model());
+            val = String.format(locale, format, Double.valueOf(val.toString()));
+            return new Handlebars.SafeString(val.toString());
         });
 
         hb.registerHelper("json", (src, options) -> {

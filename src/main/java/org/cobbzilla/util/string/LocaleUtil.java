@@ -51,11 +51,12 @@ public class LocaleUtil {
     }
 
     public static Locale fromString(String localeString) {
-        final String[] parts = localeString.split("[-_]+");
+        final String[] parts = empty(localeString) ? StringUtil.EMPTY_ARRAY : localeString.split("[-_]+");
         switch (parts.length) {
             case 3: return new Locale(parts[0], parts[1], parts[2]);
             case 2: return new Locale(parts[0], parts[1]);
             case 1: return new Locale(parts[0]);
+            case 0: return Locale.getDefault();
             default:
                 log.warn("fromString: invalid locale string: "+localeString);
                 return Locale.getDefault();
