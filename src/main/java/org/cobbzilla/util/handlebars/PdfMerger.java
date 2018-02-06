@@ -17,7 +17,6 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
 import org.cobbzilla.util.error.GeneralErrorHandler;
-import org.cobbzilla.util.error.HasGeneralErrorHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,10 +30,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.error.GeneralErrorHandlerBase.defaultErrorHandler;
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.temp;
 import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
-import static org.cobbzilla.util.error.GeneralErrorHandlerBase.defaultErrorHandler;
 
 @Slf4j
 public class PdfMerger {
