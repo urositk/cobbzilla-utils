@@ -232,7 +232,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         hb.registerHelper("context_json", (src, options) -> {
             if (empty(src)) return "";
             try {
-                return new Handlebars.SafeString(json(options.context));
+                return new Handlebars.SafeString(json(options.context.model()));
             } catch (Exception e) {
                 return new Handlebars.SafeString("Error calling json(options.context): "+e.getClass()+": "+e.getMessage());
             }
