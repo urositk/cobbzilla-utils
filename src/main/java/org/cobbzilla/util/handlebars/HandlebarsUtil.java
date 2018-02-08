@@ -201,6 +201,8 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     public static void registerUtilityHelpers (final Handlebars hb) {
         hb.registerHelper("exists", (src, options) -> empty(src) ? null : options.apply(options.fn));
 
+        hb.registerHelper("not_exists", (src, options) -> empty(src) ? null : options.inverse(options.fn));
+
         hb.registerHelper("sha256", (src, options) -> {
             if (empty(src)) return "";
             src = apply(hb, src.toString(), (Map<String, Object>) options.context.model());
