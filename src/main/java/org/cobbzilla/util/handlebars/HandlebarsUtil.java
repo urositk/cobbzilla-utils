@@ -200,7 +200,15 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     public static final CharSequence EMPTY_SAFE_STRING = "";
 
-    @Getter public static final AtomicReference<ContextMessageSender> messageSender = new AtomicReference<>();
+    private static final AtomicReference<ContextMessageSender> messageSender = new AtomicReference<>();
+
+    public static void setMessageSender(ContextMessageSender sender) {
+        synchronized (messageSender) {
+            final ContextMessageSender current = messageSender.get();
+            if (current != null && current != sender && !current.equals(sender)) die("setMessageSender: already set to "+current);
+            messageSender.set(sender);
+        }
+    }
 
     public static void registerUtilityHelpers (final Handlebars hb) {
         hb.registerHelper("exists", (src, options) -> empty(src) ? null : options.apply(options.fn));
