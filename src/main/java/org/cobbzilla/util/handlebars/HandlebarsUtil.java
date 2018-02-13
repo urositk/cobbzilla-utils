@@ -17,9 +17,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.entity.ContentType;
 import org.apache.pdfbox.io.IOUtils;
 import org.cobbzilla.util.collection.SingletonList;
+import org.cobbzilla.util.http.HttpContentTypes;
 import org.cobbzilla.util.io.FileResolver;
 import org.cobbzilla.util.io.FileUtil;
 import org.cobbzilla.util.io.PathListFileResolver;
@@ -241,9 +241,9 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         hb.registerHelper("context", (src, options) -> {
             if (empty(src)) return "";
             if (options.params.length > 1) return die("context: too many parameters. Usage: {{context [recipient]}}");
-            final String recipient = getEmailRecipient(hb, options);
+            final String recipient = getEmailRecipient(hb, options, 0);
             final String ctxString = options.context.toString();
-            sendContext(recipient, ctxString, ContentType.TEXT_PLAIN);
+            sendContext(recipient, ctxString,HttpContentTypes.TEXT_PLAIN);
             return new Handlebars.SafeString(ctxString);
         });
 
@@ -251,9 +251,9 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             if (empty(src)) return "";
             try {
                 if (options.params.length > 1) return die("context: too many parameters. Usage: {{context [recipient]}}");
-                final String recipient = getEmailRecipient(hb, options);
+                final String recipient = getEmailRecipient(hb, options, 0);
                 final String json = json(options.context.model());
-                sendContext(recipient, json, ContentType.APPLICATION_JSON);
+                sendContext(recipient, json, HttpContentTypes.APPLICATION_JSON);
                 return new Handlebars.SafeString(json);
             } catch (Exception e) {
                 return new Handlebars.SafeString("Error calling json(options.context): "+e.getClass()+": "+e.getMessage());
@@ -406,19 +406,19 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     }
 
-    public static String getEmailRecipient(Handlebars hb, Options options) {
-        return options.params.length > 0 && !empty(options.param(0))
-                            ? apply(hb, options.param(0).toString(), (Map<String, Object>) options.context.model())
+    public static String getEmailRecipient(Handlebars hb, Options options, int index) {
+        return options.params.length > index && !empty(options.param(index))
+                            ? apply(hb, options.param(index).toString(), (Map<String, Object>) options.context.model())
                             : null;
     }
 
-    public static void sendContext(String recipient, String ctxString, ContentType contentType) {
-        if (!empty(recipient)) {
+    public static void sendContext(String recipient, String message, String contentType) {
+        if (!empty(recipient) && !empty(message)) {
             synchronized (messageSender) {
                 final ContextMessageSender sender = messageSender.get();
                 if (sender != null) {
                     try {
-                        sender.send(recipient, ctxString, contentType.toString());
+                        sender.send(recipient, message, contentType);
                     } catch (Exception e) {
                         log.error("context: error sending message: "+e, e);
                     }
