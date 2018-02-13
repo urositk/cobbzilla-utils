@@ -2,6 +2,6 @@ package org.cobbzilla.util.handlebars;
 
 public interface ContextMessageSender {
 
-    void send(String message, String contentType);
+    void send(String recipient, String message, String contentType);
 
 }
