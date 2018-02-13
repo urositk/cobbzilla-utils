@@ -283,6 +283,9 @@ public class FileUtil {
             return die("toFile: error writing data to temp file: "+e, e);
         }
     }
+    public static File toTempFile (String data, String ext) {
+        return toFileOrDie(temp(ext), data, false);
+    }
 
     public static File toFile (String file, String data) throws IOException {
         return toFile(new File(file), data);

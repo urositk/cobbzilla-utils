@@ -17,6 +17,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ContentType;
 import org.apache.pdfbox.io.IOUtils;
 import org.cobbzilla.util.collection.SingletonList;
 import org.cobbzilla.util.io.FileResolver;
@@ -38,6 +39,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.regex.Pattern.quote;
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
@@ -198,6 +200,8 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     public static final CharSequence EMPTY_SAFE_STRING = "";
 
+    @Getter public static final AtomicReference<ContextMessageSender> messageSender = new AtomicReference<>();
+
     public static void registerUtilityHelpers (final Handlebars hb) {
         hb.registerHelper("exists", (src, options) -> empty(src) ? null : options.apply(options.fn));
 
@@ -228,14 +232,20 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         hb.registerHelper("context", (src, options) -> {
             if (empty(src)) return "";
-            return new Handlebars.SafeString(options.context.toString());
+            if (options.params.length > 1) return die("context: too many parameters. Usage: {{context [email]}}");
+            final String email = options.params.length > 0 && !empty(options.param(0)) ? options.param(0) : null;
+            final String ctxString = options.context.toString();
+            sendContext(email, ctxString, ContentType.TEXT_PLAIN);
+            return new Handlebars.SafeString(ctxString);
         });
 
         hb.registerHelper("context_json", (src, options) -> {
             if (empty(src)) return "";
             try {
+                if (options.params.length > 1) return die("context: too many parameters. Usage: {{context [email]}}");
+                final String email = options.params.length > 0 && !empty(options.param(0)) ? options.param(0) : null;
                 final String json = json(options.context.model());
-                log.info("context_json:\n"+json);
+                sendContext(email, json, ContentType.APPLICATION_JSON);
                 return new Handlebars.SafeString(json);
             } catch (Exception e) {
                 return new Handlebars.SafeString("Error calling json(options.context): "+e.getClass()+": "+e.getMessage());
@@ -386,6 +396,21 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             return "";
         });
 
+    }
+
+    public static void sendContext(String email, String ctxString, ContentType contentType) {
+        if (!empty(email)) {
+            synchronized (messageSender) {
+                final ContextMessageSender sender = messageSender.get();
+                if (sender != null) {
+                    try {
+                        sender.send(ctxString, contentType.toString());
+                    } catch (Exception e) {
+                        log.error("context: error sending message: "+e, e);
+                    }
+                }
+            }
+        }
     }
 
     private static Iterator getIterator(Object thing) {
