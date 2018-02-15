@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.cobbzilla.util.collection.ToStringTransformer;
+import org.cobbzilla.util.error.GeneralErrorHandler;
 import org.cobbzilla.util.io.StreamUtil;
 import org.cobbzilla.util.string.StringUtil;
 
@@ -18,6 +19,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.Long.toHexString;
 import static java.util.stream.LongStream.range;
@@ -237,4 +240,29 @@ public class ZillaRuntime {
         }
         return StringUtil.toString(opts, " ");
     }
+
+    public static <T> T dcl (AtomicReference<T> target, Callable<T> init) {
+        return dcl(target, init, null);
+    }
+
+    public static <T> T dcl (AtomicReference<T> target, Callable<T> init, GeneralErrorHandler error) {
+        if (target.get() == null) {
+            synchronized (target) {
+                if (target.get() == null) {
+                    try {
+                        target.set(init.call());
+                    } catch (Exception e) {
+                        if (error != null) {
+                            error.handleError("dcl: error initializing: "+e, e);
+                        } else {
+                            log.warn("dcl: "+e);
+                            return null;
+                        }
+                    }
+                }
+            }
+        }
+        return target.get();
+    }
+
 }
