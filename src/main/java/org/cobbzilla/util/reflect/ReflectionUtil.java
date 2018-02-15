@@ -599,6 +599,23 @@ public class ReflectionUtil {
      * @param value the value to set
      */
     public static void set(Object object, String field, Object value) {
+        set(object, field, value, null);
+    }
+
+    /**
+     * Call a setter with a hint as to what the type should be
+     * @param object the object to call set(field) on
+     * @param field the field name
+     * @param value the value to set
+     */
+    public static void set(Object object, String field, Object value, Class<?> type) {
+        if (type != null) {
+            if (value == null) {
+                setNull(object, field, type);
+                return;
+            }
+            value = instantiate(type, value);
+        }
         final String[] tokens = field.split("\\.");
         Object target = getTarget(object, tokens);
         if (target != null) invoke_set(target, tokens[tokens.length - 1], value);
