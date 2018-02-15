@@ -240,20 +240,18 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         hb.registerHelper("context", (src, options) -> {
             if (empty(src)) return "";
-            if (options.params.length > 1) return die("context: too many parameters. Usage: {{context [recipient]}}");
-            final String recipient = getEmailRecipient(hb, options, 0);
+            if (options.params.length > 0) return die("context: too many parameters. Usage: {{context [recipient]}}");
             final String ctxString = options.context.toString();
-            sendContext(recipient, ctxString,HttpContentTypes.TEXT_PLAIN);
+            sendContext(src.toString(), ctxString,HttpContentTypes.TEXT_PLAIN);
             return new Handlebars.SafeString(ctxString);
         });
 
         hb.registerHelper("context_json", (src, options) -> {
             if (empty(src)) return "";
             try {
-                if (options.params.length > 1) return die("context: too many parameters. Usage: {{context [recipient]}}");
-                final String recipient = getEmailRecipient(hb, options, 0);
+                if (options.params.length > 0) return die("context: too many parameters. Usage: {{context [recipient]}}");
                 final String json = json(options.context.model());
-                sendContext(recipient, json, HttpContentTypes.APPLICATION_JSON);
+                sendContext(src.toString(), json, HttpContentTypes.APPLICATION_JSON);
                 return new Handlebars.SafeString(json);
             } catch (Exception e) {
                 return new Handlebars.SafeString("Error calling json(options.context): "+e.getClass()+": "+e.getMessage());
