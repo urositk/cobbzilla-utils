@@ -12,6 +12,7 @@ public abstract class ResourceMessages  {
 
     @Getter(lazy=true) private final ResourceBundle bundle = ResourceBundle.getBundle(getBundleName());
 
+    // todo: add support for locale-specific bundles and messages
     public String translate(String messageTemplate) {
 
         // strip leading/trailing curlies if they are there
