@@ -155,6 +155,19 @@ public class ReflectionUtil {
     public static <T> T instantiate(Class<T> clazz, Object argument) {
         Constructor<T> constructor = null;
         Class<?> tryClass = argument.getClass();
+        if (clazz.isPrimitive()) {
+            switch (clazz.getName()) {
+                case "boolean": return (T) Boolean.valueOf(argument.toString());
+                case "byte":    return (T) Byte.valueOf(argument.toString());
+                case "short":   return (T) Short.valueOf(argument.toString());
+                case "char":    return (T) Character.valueOf(empty(argument) ? 0 : argument.toString().charAt(0));
+                case "int":     return (T) Integer.valueOf(argument.toString());
+                case "long":    return (T) Long.valueOf(argument.toString());
+                case "float":   return (T) Float.valueOf(argument.toString());
+                case "double":  return (T) Double.valueOf(argument.toString());
+                default: return die("instantiate: unrecognized primitive type: "+clazz.getName());
+            }
+        }
         while (constructor == null) {
             try {
                 constructor = clazz.getConstructor(tryClass);
@@ -709,10 +722,27 @@ public class ReflectionUtil {
     private static void invoke_set_null(Object target, String token, Class type) {
         final String methodName = getAccessorMethodName(Accessor.set, token);
         try {
-            MethodUtils.invokeMethod(target, methodName, new Object[] { null }, new Class[] { type });
+            MethodUtils.invokeMethod(target, methodName, new Object[] {getNullArgument(type)}, new Class[] { type });
         } catch (Exception e) {
             die("Error calling "+methodName+": "+e);
         }
+    }
+
+    private static Object getNullArgument(Class clazz) {
+        if (clazz.isPrimitive()) {
+            switch (clazz.getName()) {
+                case "boolean": return false;
+                case "byte":    return (byte) 0;
+                case "short":   return (short) 0;
+                case "char":    return (char) 0;
+                case "int":     return (int) 0;
+                case "long":    return (long) 0;
+                case "float":   return (float) 0;
+                case "double":  return (double) 0;
+                default: return die("instantiate: unrecognized primitive type: "+clazz.getName());
+            }
+        }
+        return null;
     }
 
     // methods below forked from dropwizard-- https://github.com/codahale/dropwizard
