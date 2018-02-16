@@ -18,7 +18,7 @@ public class DaemonThreadFactory implements ThreadFactory {
     }
 
     public static ExecutorService fixedPool (int count) {
-        if (count < 0) {
+        if (count <= 0) {
             log.warn("fixedPool: invalid count ("+count+"), using single thread");
             count = 1;
         }
