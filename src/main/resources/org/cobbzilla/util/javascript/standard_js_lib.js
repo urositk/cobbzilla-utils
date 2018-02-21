@@ -1,5 +1,6 @@
 // returns length of array or collection
 function len (thing) {
+    if (typeof thing == 'undefined' || thing == null) return 0;
     try {
         return thing.size();
     } catch (err) {
