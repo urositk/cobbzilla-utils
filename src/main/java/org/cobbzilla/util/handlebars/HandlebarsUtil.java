@@ -242,7 +242,9 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             if (empty(src)) return "";
             if (options.params.length > 0) return die("context: too many parameters. Usage: {{context [recipient]}}");
             final String ctxString = options.context.toString();
-            sendContext(src.toString(), ctxString,HttpContentTypes.TEXT_PLAIN);
+            final String recipient = src.toString();
+            final String subject = options.params.length > 1 ? options.param(0) : null;
+            sendContext(recipient, subject, ctxString,HttpContentTypes.TEXT_PLAIN);
             return new Handlebars.SafeString(ctxString);
         });
 
@@ -251,7 +253,9 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             try {
                 if (options.params.length > 0) return die("context: too many parameters. Usage: {{context [recipient]}}");
                 final String json = json(options.context.model());
-                sendContext(src.toString(), json, HttpContentTypes.APPLICATION_JSON);
+                final String recipient = src.toString();
+                final String subject = options.params.length > 1 ? options.param(0) : null;
+                sendContext(recipient, subject, json, HttpContentTypes.APPLICATION_JSON);
                 return new Handlebars.SafeString(json);
             } catch (Exception e) {
                 return new Handlebars.SafeString("Error calling json(options.context): "+e.getClass()+": "+e.getMessage());
@@ -410,13 +414,13 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                             : null;
     }
 
-    public static void sendContext(String recipient, String message, String contentType) {
+    public static void sendContext(String recipient, String subject, String message, String contentType) {
         if (!empty(recipient) && !empty(message)) {
             synchronized (messageSender) {
                 final ContextMessageSender sender = messageSender.get();
                 if (sender != null) {
                     try {
-                        sender.send(recipient, message, contentType);
+                        sender.send(recipient, subject, message, contentType);
                     } catch (Exception e) {
                         log.error("context: error sending message: "+e, e);
                     }

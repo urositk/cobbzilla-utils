@@ -35,6 +35,8 @@ import static org.cobbzilla.util.system.Sleep.sleep;
 @Slf4j
 public class ZillaRuntime {
 
+    public static final String CLASSPATH_PREFIX = "classpath:";
+
     public static void terminate(Thread thread, long timeout) {
         if (thread == null || !thread.isAlive()) return;
         thread.interrupt();
