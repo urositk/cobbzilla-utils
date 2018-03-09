@@ -8,7 +8,10 @@ import org.cobbzilla.util.string.StringUtil;
 import java.io.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
+import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.daemon.ZillaRuntime.stdin;
+import static org.cobbzilla.util.io.FileUtil.basename;
+import static org.cobbzilla.util.io.FileUtil.extensionOrName;
 import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
 
 @Slf4j
@@ -18,26 +21,28 @@ public class StreamUtil {
     public static final String PREFIX = "stream2file";
     public static final String CLASSPATH_PROTOCOL = "classpath://";
 
-    public static File stream2file (InputStream in) {
-        return stream2file(in, false);
-    }
+    public static File stream2temp (String path) { return stream2file(loadResourceAsStream(path), true, path); }
+    public static File stream2temp (InputStream in) { return stream2file(in, true); }
 
-    public static File stream2temp (InputStream in) {
-        return stream2file(in, true);
-    }
+    public static File stream2file (InputStream in) { return stream2file(in, false); }
+    public static File stream2file (InputStream in, boolean deleteOnExit) { return stream2file(in, deleteOnExit, SUFFIX); }
 
-    public static File stream2temp (String path) {
-        return stream2file(loadResourceAsStream(path), true);
-    }
-
-    public static File stream2file (InputStream in, boolean temp) {
+    public static File stream2file (InputStream in, boolean deleteOnExit, String pathOrSuffix) {
         try {
-            final File file = File.createTempFile(PREFIX, SUFFIX, getDefaultTempDir());
-            if (temp) file.deleteOnExit();
-            return stream2file(in, file);
+            return stream2file(in, mktemp(deleteOnExit, pathOrSuffix));
         } catch (IOException e) {
             return die("stream2file: "+e, e);
         }
+    }
+
+    public static File mktemp(boolean deleteOnExit, String pathOrSuffix) throws IOException {
+        final String basename = empty(pathOrSuffix) ? "" : basename(pathOrSuffix);
+        final File file = File.createTempFile(
+                !basename.contains(".") || basename.length() < 7 ? basename+"_"+PREFIX : basename.split("\\.")[0],
+                empty(pathOrSuffix) ? SUFFIX : extensionOrName(pathOrSuffix),
+                getDefaultTempDir());
+        if (deleteOnExit) file.deleteOnExit();
+        return file;
     }
 
     public static File stream2file(InputStream in, File file) throws IOException {

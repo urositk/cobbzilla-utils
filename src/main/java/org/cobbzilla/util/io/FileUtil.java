@@ -436,6 +436,11 @@ public class FileUtil {
         return name.substring(lastDot);
     }
 
+    public static String extensionOrName(String name) {
+        final String ext = extension(name);
+        return empty(ext) ? name : ext;
+    }
+
     public static String removeExtension(File f, String ext) {
         return f.getName().substring(0, f.getName().length() - ext.length());
     }
