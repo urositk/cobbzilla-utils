@@ -171,10 +171,10 @@ public class CommandShell {
 
         } catch (Exception e) {
             final String stdout = outBuffer.toString().trim();
-            final String stderr = outBuffer.toString().trim();
+            final String stderr = errBuffer.toString().trim();
             log.error("exec("+command.getCommandLine()+"): " + e
                     + (stdout.length() > 0 ? "\nstdout="+ellipsis(stdout, 1000) : "")
-                    + (stderr.length() > 0 ? "\nstderr="+ ellipsis(stderr, 1000) : ""));
+                    + (stderr.length() > 0 ? "\nstderr="+ellipsis(stderr, 1000) : ""));
             return new CommandResult(e, outBuffer, errBuffer);
         }
     }
