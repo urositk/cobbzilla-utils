@@ -38,7 +38,7 @@ public class StreamUtil {
     public static File mktemp(boolean deleteOnExit, String pathOrSuffix) throws IOException {
         final String basename = empty(pathOrSuffix) ? "" : basename(pathOrSuffix);
         final File file = File.createTempFile(
-                !basename.contains(".") || basename.length() < 7 ? basename+"_"+PREFIX : basename.split("\\.")[0],
+                !basename.contains(".") || basename.length() < 7 ? basename.replace('.', '_')+"_"+PREFIX : basename.split("\\.")[0],
                 empty(pathOrSuffix) ? SUFFIX : extensionOrName(pathOrSuffix),
                 getDefaultTempDir());
         if (deleteOnExit) file.deleteOnExit();
