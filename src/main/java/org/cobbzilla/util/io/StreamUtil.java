@@ -77,7 +77,8 @@ public class StreamUtil {
     }
 
     public static File loadResourceAsFile (String path) throws IOException {
-        return loadResourceAsFile(path, StreamUtil.class);
+        final File tmp = File.createTempFile("resource", extensionOrName(path), getDefaultTempDir());
+        return loadResourceAsFile(path, StreamUtil.class, tmp);
     }
 
     public static File loadResourceAsFile (String path, Class clazz) throws IOException {
