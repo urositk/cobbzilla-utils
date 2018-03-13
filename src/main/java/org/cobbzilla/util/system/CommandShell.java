@@ -195,7 +195,7 @@ public class CommandShell {
         final CommandLine commandLine = new CommandLine(CHMOD);
         if (recursive) commandLine.addArgument("-R");
         commandLine.addArgument(perms);
-        commandLine.addArgument(file);
+        commandLine.addArgument(abs(file), false);
         final Executor executor = new DefaultExecutor();
         return executor.execute(commandLine);
     }
