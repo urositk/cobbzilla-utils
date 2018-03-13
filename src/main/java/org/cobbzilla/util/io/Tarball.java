@@ -12,14 +12,13 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.cobbzilla.util.system.Command;
-import org.cobbzilla.util.system.CommandShell;
 
 import java.io.*;
 
+import static java.io.File.createTempFile;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.io.FileUtil.abs;
-import static org.cobbzilla.util.system.CommandShell.exec;
-import static org.cobbzilla.util.system.CommandShell.okResult;
+import static org.cobbzilla.util.system.CommandShell.*;
 
 @Slf4j
 public class Tarball {
@@ -84,7 +83,7 @@ public class Tarball {
                     die("Expected to copy "+entry.getSize()+ " bytes for "+entry.getName()+" in tarball "+ path);
                 }
             }
-            CommandShell.chmod(file, Integer.toOctalString(entry.getMode()));
+            chmod(file, Integer.toOctalString(entry.getMode()));
         }
     }
 
@@ -94,7 +93,7 @@ public class Tarball {
      * @return The created tarball (will be a temp file)
      */
     public static File roll (File dir) throws IOException {
-        return roll(File.createTempFile("temp-tarball-", ".tar.gz"), dir, dir);
+        return roll(createTempFile("temp-tarball-", ".tar.gz"), dir, dir);
     }
 
     /**
