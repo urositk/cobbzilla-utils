@@ -19,23 +19,19 @@ public class HtmlScreenCapture extends PhantomUtil {
 
     private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(60);
 
-    public HtmlScreenCapture (String phantomJsPath) { super(phantomJsPath); }
-
     public static final String SCRIPT = StreamUtil.loadResourceAsStringOrDie(getPackagePath(HtmlScreenCapture.class)+"/html_screen_capture.js");
 
     public synchronized void capture (String url, File file) { capture(url, file, TIMEOUT); }
 
     public synchronized void capture (String url, File file, long timeout) {
         final String script = SCRIPT.replace("@@URL@@", url).replace("@@FILE@@", abs(file));
-        log.info("capture: calling execJs("+script+")");
-
         try {
             @Cleanup final PhantomJSHandle handle = execJs(script);
             long start = now();
             while (file.length() == 0 && now() - start < timeout) sleep(200);
             if (file.length() == 0 && now() - start >= timeout) {
                 sleep(5000);
-                if (file.length() == 0) die("capture: after " + formatDuration(timeout) + " file was never written to: " + abs(file));
+                if (file.length() == 0) die("capture: after " + formatDuration(timeout) + " file was never written to: " + abs(file)+", handle="+handle);
             }
         } catch (Exception e) {
             die("capture: unexpected exception: "+e, e);

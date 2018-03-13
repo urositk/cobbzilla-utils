@@ -1,29 +1,27 @@
 package org.cobbzilla.util.http;
 
-import lombok.Getter;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.File;
 
 import static org.cobbzilla.util.io.FileUtil.abs;
 
+@Slf4j
 public class PhantomUtil {
 
-    @Getter private final String phantomjs;
+    static { WebDriverManager.phantomjs().setup(); }
 
-    public PhantomUtil(String phantomjs) { this.phantomjs = phantomjs; }
-
-    private PhantomJSDriver defaultDriver(String phantomjs) {
+    private PhantomJSDriver defaultDriver() {
         final DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setJavascriptEnabled(true);
-        capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, phantomjs);
         return new PhantomJSDriver(capabilities);
     }
 
     public PhantomJSHandle execJs(String script) {
-        final PhantomJSDriver driver = defaultDriver(phantomjs);
+        final PhantomJSDriver driver = defaultDriver();
         final PhantomJSHandle handle = new PhantomJSHandle(driver);
         driver.setErrorHandler(handle);
         driver.executePhantomJS(script);
