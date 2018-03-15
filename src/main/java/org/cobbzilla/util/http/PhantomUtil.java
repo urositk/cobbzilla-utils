@@ -14,6 +14,9 @@ public class PhantomUtil {
 
     static { WebDriverManager.phantomjs().setup(); }
 
+    // ensures static-initializer above gets run
+    public static void init () {}
+
     private PhantomJSDriver defaultDriver() {
         final DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setJavascriptEnabled(true);
