@@ -28,11 +28,15 @@ public class CommandShell {
     private static final int[] DEFAULT_EXIT_VALUES = {0};
 
     public static Map<String, String> loadShellExports (String userFile) throws IOException {
-        File file = new File(System.getProperty("user.home") + File.separator + userFile);
+        final File file = userFile(userFile);
         if (!file.exists()) {
             throw new IllegalArgumentException("file does not exist: "+abs(file));
         }
         return loadShellExports(file);
+    }
+
+    public static File userFile(String path) {
+        return new File(System.getProperty("user.home") + File.separator + path);
     }
 
     public static Map<String, String> loadShellExports (File f) throws IOException {
