@@ -14,6 +14,9 @@ import static org.cobbzilla.util.string.ValidationRegexes.IPv4_PATTERN;
 @Slf4j
 public class NetworkUtil {
 
+    public static final String IPv4_ALL_ADDRS = "0.0.0.0";
+    public static final String IPv4_LOCALHOST = "127.0.0.1";
+
     public static boolean isLocalIpv4(String addr) {
         if (empty(addr)) return false;
         if (addr.startsWith("/")) addr = addr.substring(1);
