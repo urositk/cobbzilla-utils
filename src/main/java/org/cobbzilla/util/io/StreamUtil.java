@@ -103,7 +103,7 @@ public class StreamUtil {
         try {
             return loadResourceAsStringOrDie(path);
         } catch (Exception e) {
-            log.warn("stream2string: path not found ("+path+": "+e+"), returning defaultValue");
+            log.info("stream2string: path not found ("+path+": "+e+"), returning defaultValue");
             return defaultValue;
         }
     }
