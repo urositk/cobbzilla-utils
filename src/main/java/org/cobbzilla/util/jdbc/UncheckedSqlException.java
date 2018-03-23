@@ -12,4 +12,8 @@ public class UncheckedSqlException extends RuntimeException {
 
     @Getter @Setter private SQLException sqlException;
 
+    @Override public String getMessage() {
+        return sqlException != null ? sqlException.getMessage() : "(null SQLException)";
+    }
+
 }
