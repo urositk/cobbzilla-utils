@@ -297,15 +297,17 @@ public class ReflectionUtil {
      */
     public static <T> int copy (T dest, T src, String[] fields) {
         int copyCount = 0;
-        for (String field : fields) {
-            try {
-                final Object value = get(src, field);
-                if (value != null) {
-                    set(dest, field, value);
-                    copyCount++;
+        if (fields != null) {
+            for (String field : fields) {
+                try {
+                    final Object value = get(src, field);
+                    if (value != null) {
+                        set(dest, field, value);
+                        copyCount++;
+                    }
+                } catch (Exception e) {
+                    log.debug("copy: field=" + field + ": " + e);
                 }
-            } catch (Exception e) {
-                log.debug("copy: field="+field+": "+e);
             }
         }
         return copyCount;
