@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -221,16 +222,18 @@ public class StringUtil {
         return toString(c, sep, null);
     }
 
-    public static String toString (Collection c, String sep, String encloseWith) {
+    public static String toString (Collection c, String sep, Function<Object, String> transformer) {
         StringBuilder builder = new StringBuilder();
         for (Object o : c) {
             if (builder.length() > 0) builder.append(sep);
-            if (encloseWith != null) builder.append(encloseWith);
-            builder.append(o);
-            if (encloseWith != null) builder.append(encloseWith);
+            builder.append(transformer != null ? transformer.apply(o) : o);
         }
         return builder.toString();
     }
+
+    public static String sqlIn (Collection c) { return toString(c, ",", ESCAPE_SQL); }
+
+    public static final Function<Object, String> ESCAPE_SQL = o -> o.toString().replace("\'", "\'\'");
 
     public static String toString(Map map) {
         if (map == null) return "null";
