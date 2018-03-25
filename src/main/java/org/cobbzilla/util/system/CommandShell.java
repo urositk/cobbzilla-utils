@@ -15,6 +15,7 @@ import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.getDefaultTempDir;
 import static org.cobbzilla.util.string.StringUtil.ellipsis;
+import static org.cobbzilla.util.string.StringUtil.trimQuotes;
 
 @Slf4j
 public class CommandShell {
@@ -59,10 +60,7 @@ public class CommandShell {
                     if (eqPos != -1) {
                         key = line.substring(0, eqPos).trim();
                         value = line.substring(eqPos+1).trim();
-                        if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("\'") && value.endsWith("\'"))) {
-                            // strip quotes if found
-                            value = value.substring(1, value.length()-1);
-                        }
+                        value = trimQuotes(value);
                         map.put(key, value);
                     }
                 }
