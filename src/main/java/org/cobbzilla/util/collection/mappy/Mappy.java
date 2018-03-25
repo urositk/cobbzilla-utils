@@ -238,4 +238,10 @@ public abstract class Mappy<K, V, C extends Collection<V>> implements Map<K, V> 
         }
         return "{"+b.toString()+"}";
     }
+
+    public Map<K, C> toMap() {
+        final HashMap<K, C> m = new HashMap<>();
+        for (K key : keySet()) m.put(key, getAll(key));
+        return m;
+    }
 }
