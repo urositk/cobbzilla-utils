@@ -218,10 +218,16 @@ public class StringUtil {
     public static String toString (Collection c) { return toString(c, ","); }
 
     public static String toString (Collection c, String sep) {
+        return toString(c, sep, null);
+    }
+
+    public static String toString (Collection c, String sep, String encloseWith) {
         StringBuilder builder = new StringBuilder();
         for (Object o : c) {
             if (builder.length() > 0) builder.append(sep);
+            if (encloseWith != null) builder.append(encloseWith);
             builder.append(o);
+            if (encloseWith != null) builder.append(encloseWith);
         }
         return builder.toString();
     }
