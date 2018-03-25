@@ -233,7 +233,7 @@ public class StringUtil {
 
     public static String sqlIn (Collection c) { return toString(c, ",", ESCAPE_SQL); }
 
-    public static final Function<Object, String> ESCAPE_SQL = o -> o.toString().replace("\'", "\'\'");
+    public static final Function<Object, String> ESCAPE_SQL = o -> "'"+o.toString().replace("\'", "\'\'")+"'";
 
     public static String toString(Map map) {
         if (map == null) return "null";
