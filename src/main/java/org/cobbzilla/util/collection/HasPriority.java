@@ -4,8 +4,9 @@ import java.util.Comparator;
 
 public interface HasPriority {
 
-    boolean hasPriority ();
     Integer getPriority ();
+
+    default boolean hasPriority () { return getPriority() != null; }
 
     Comparator<HasPriority> SORT_PRIORITY = (r1, r2) -> {
         if (!r2.hasPriority()) return r1.hasPriority() ? -1 : 0;
