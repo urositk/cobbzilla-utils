@@ -47,7 +47,7 @@ public class Sleep {
             Thread.sleep(millis);
             return true;
         } catch (InterruptedException e) {
-            log.warn("nap ("+reason+"): interrupted");
+            log.info("nap ("+reason+"): interrupted");
             return false;
         }
     }
