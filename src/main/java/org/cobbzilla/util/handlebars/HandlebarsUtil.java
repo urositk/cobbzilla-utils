@@ -321,32 +321,32 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         hb.registerHelper("string_compare", (val1, options) -> {
             final String operator = options.param(0);
             final Object val2 = options.param(1);
-            final String v1 = val1.toString();
-            final String v2 = val2.toString();
+            final String v1 = val1 == null ? null : val1.toString();
+            final String v2 = val2 == null ? null : val2.toString();
             return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
         });
 
         hb.registerHelper("long_compare", (val1, options) -> {
             final String operator = options.param(0);
             final Object val2 = options.param(1);
-            final Long v1 = Long.valueOf(val1.toString());
-            final Long v2 = Long.valueOf(val2.toString());
+            final Long v1 = val1 == null ? null : Long.valueOf(val1.toString());
+            final Long v2 = val2 == null ? null : Long.valueOf(val2.toString());
             return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
         });
 
         hb.registerHelper("double_compare", (val1, options) -> {
             final String operator = options.param(0);
             final Object val2 = options.param(1);
-            final Double v1 = Double.valueOf(val1.toString());
-            final Double v2 = Double.valueOf(val2.toString());
+            final Double v1 = val1 == null ? null : Double.valueOf(val1.toString());
+            final Double v2 = val2 == null ? null : Double.valueOf(val2.toString());
             return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
         });
 
         hb.registerHelper("big_compare", (val1, options) -> {
             final String operator = options.param(0);
             final Object val2 = options.param(1);
-            final BigDecimal v1 = big(val1.toString());
-            final BigDecimal v2 = big(val2.toString());
+            final BigDecimal v1 = val1 == null ? null : big(val1.toString());
+            final BigDecimal v2 = val2 == null ? null : big(val2.toString());
             return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
         });
 
@@ -461,6 +461,8 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     }
 
     public static <T> boolean compare(String operator, Comparable<T> v1, T v2) {
+        if (v1 == null) return v2 == null;
+        if (v2 == null) return false;
         boolean result;
         final List<String> parts;
         switch (operator) {
