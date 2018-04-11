@@ -39,9 +39,11 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.regex.Pattern.quote;
+import static org.cobbzilla.util.daemon.DaemonThreadFactory.fixedPool;
 import static org.cobbzilla.util.daemon.ZillaRuntime.*;
 import static org.cobbzilla.util.io.StreamUtil.loadResourceAsStream;
 import static org.cobbzilla.util.io.StreamUtil.stream2string;
@@ -414,19 +416,23 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                             : null;
     }
 
+    private static final ExecutorService contextSender = fixedPool(10);
+
     public static void sendContext(String recipient, String subject, String message, String contentType) {
-        if (!empty(recipient) && !empty(message)) {
-            synchronized (messageSender) {
-                final ContextMessageSender sender = messageSender.get();
-                if (sender != null) {
-                    try {
-                        sender.send(recipient, subject, message, contentType);
-                    } catch (Exception e) {
-                        log.error("context: error sending message: "+e, e);
+        contextSender.submit(() -> {
+            if (!empty(recipient) && !empty(message)) {
+                synchronized (messageSender) {
+                    final ContextMessageSender sender = messageSender.get();
+                    if (sender != null) {
+                        try {
+                            sender.send(recipient, subject, message, contentType);
+                        } catch (Exception e) {
+                            log.error("context: error sending message: " + e, e);
+                        }
                     }
                 }
             }
-        }
+        });
     }
 
     private static Iterator getIterator(Object thing) {
