@@ -8,8 +8,6 @@ public interface JurisdictionResolver {
 
     String usZip (String value);
 
-    default boolean isValidUsStateAbbreviation(String a) {
-        return !empty(a) && usState(a) != null;
-    }
+    default boolean isValidUsStateAbbreviation(String a) { return !empty(a) && usState(a) != null; }
 
 }
