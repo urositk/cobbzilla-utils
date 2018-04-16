@@ -58,6 +58,7 @@ public class TypedResultSetBean<T> extends ResultSetBean implements Iterable<T> 
                 try {
                     final Field f = getDeclaredField(thing.getClass(), field);
                     if (f != null) {
+                        f.setAccessible(true);
                         f.set(thing, value);
                     } else {
                         log.warn("readField: field "+thing.getClass().getName()+"."+field+" not found via setter nor via field: "+e);
