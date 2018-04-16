@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.cobbzilla.util.reflect.ReflectionUtil;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.cobbzilla.util.reflect.ReflectionUtil.getDeclaredField;
 import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
 import static org.cobbzilla.util.string.StringUtil.snakeCaseToCamelCase;
 
@@ -48,7 +50,23 @@ public class TypedResultSetBean<T> extends ResultSetBean implements Iterable<T> 
     }
 
     protected void readField(T thing, String field, Object value) {
-        if (value !=  null) ReflectionUtil.set(thing, field, value);
+        if (value != null) {
+            try {
+                ReflectionUtil.set(thing, field, value);
+            } catch (Exception e) {
+                // try field setter
+                try {
+                    final Field f = getDeclaredField(thing.getClass(), field);
+                    if (f != null) {
+                        f.set(thing, value);
+                    } else {
+                        log.warn("readField: field "+thing.getClass().getName()+"."+field+" not found via setter nor via field: "+e);
+                    }
+                } catch (Exception e2) {
+                    log.warn("readField: field "+thing.getClass().getName()+"."+field+" not found via setter nor via field: "+e2);
+                }
+            }
+        }
     }
 
 }

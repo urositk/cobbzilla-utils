@@ -283,6 +283,18 @@ public class ReflectionUtil {
         return getDeclaredField(clazz.getSuperclass(), field);
     }
 
+    public static Field getField(Class<?> clazz, String field) {
+        try {
+            return clazz.getField(field);
+        } catch (NoSuchFieldException e) {
+            if (clazz.equals(Object.class)) {
+                log.info("getField: field not found "+clazz.getName()+"/"+field);
+                return null;
+            }
+        }
+        return getDeclaredField(clazz.getSuperclass(), field);
+    }
+
     public static <T> Method factoryMethod(Class<T> clazz, Object value) {
         // find a static method that takes the value and returns an instance of the class
         for (Method m : clazz.getMethods()) {
