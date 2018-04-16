@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.cobbzilla.util.collection.ArrayUtil.arrayToString;
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 import static org.cobbzilla.util.string.StringUtil.uncapitalize;
@@ -262,6 +263,45 @@ public class ReflectionUtil {
         return copy;
     }
 
+    public static Object invokeStatic(Method m, Object... values) {
+        try {
+            return m.invoke(null, values);
+        } catch (Exception e) {
+            return die("invokeStatic: "+m.getClass().getSimpleName()+"."+m.getName()+"("+arrayToString(values, ", ")+"): "+e, e);
+        }
+    }
+
+    public static Field getDeclaredField(Class<?> clazz, String field) {
+        try {
+            return clazz.getDeclaredField(field);
+        } catch (NoSuchFieldException e) {
+            if (clazz.equals(Object.class)) {
+                log.info("getDeclaredField: field not found "+clazz.getName()+"/"+field);
+                return null;
+            }
+        }
+        return getDeclaredField(clazz.getSuperclass(), field);
+    }
+
+    public static <T> Method factoryMethod(Class<T> clazz, Object value) {
+        // find a static method that takes the value and returns an instance of the class
+        for (Method m : clazz.getMethods()) {
+            if (m.getReturnType().equals(clazz)) {
+                final Class<?>[] parameterTypes = m.getParameterTypes();
+                if (parameterTypes != null && parameterTypes.length == 1 && parameterTypes[0].isAssignableFrom(value.getClass())) {
+                    return m;
+                }
+            }
+        }
+        log.warn("factoryMethod: class "+clazz.getName()+" does not have static factory method that takes a String, returning null");
+        return null;
+    }
+
+    public static <T> T callFactoryMethod(Class<T> clazz, Object value) {
+        final Method m = factoryMethod(clazz, value);
+        return m != null ? (T) invokeStatic(m, value) : null;
+    }
+
     private enum Accessor { get, set }
 
     /**
@@ -504,9 +544,9 @@ public class ReflectionUtil {
      * @param clazz The class to search for parameterized types
      * @return The first concrete class for a parameterized type found in clazz
      */
-    public static Class getFirstTypeParam(Class clazz) { return getTypeParam(clazz, 0); }
+    public static <T> Class<T> getFirstTypeParam(Class clazz) { return getTypeParam(clazz, 0); }
 
-    public static Class getTypeParam(Class clazz, int index) {
+    public static <T> Class<T> getTypeParam(Class clazz, int index) {
         // todo: add a cache on this thing... could do wonders
         Class check = clazz;
         while (check.getGenericSuperclass() == null || !(check.getGenericSuperclass() instanceof ParameterizedType)) {
@@ -518,7 +558,7 @@ public class ReflectionUtil {
         if (index >= actualTypeArguments.length) die("getTypeParam("+clazz.getName()+"): "+actualTypeArguments.length+" type parameters found, index "+index+" out of bounds");
         if (actualTypeArguments[index] instanceof Class) return (Class) actualTypeArguments[index];
         if (actualTypeArguments[index] instanceof ParameterizedType) return (Class) ((ParameterizedType) actualTypeArguments[index]).getRawType();
-        return ((Type) actualTypeArguments[index]).getClass();
+        return (Class<T>) ((Type) actualTypeArguments[index]).getClass();
     }
 
     /**
@@ -527,22 +567,22 @@ public class ReflectionUtil {
      * @param impl The type (or a supertype) of the parameterized class variable
      * @return The first concrete class found that is assignable to an instance of impl
      */
-    public static Class getFirstTypeParam(Class clazz, Class impl) {
+    public static <T> Class<T> getFirstTypeParam(Class clazz, Class impl) {
         // todo: add a cache on this thing... could do wonders
         Class check = clazz;
         while (check != null && !check.equals(Object.class)) {
             Class superCheck = check;
             Type superType = superCheck.getGenericSuperclass();
-            while (superType != null || !superType.equals(Object.class)) {
+            while (superType != null && !superType.equals(Object.class)) {
                 if (superType instanceof ParameterizedType) {
                     final ParameterizedType ptype = (ParameterizedType) superType;
                     final Class<?> rawType = (Class<?>) ptype.getRawType();
                     if (impl.isAssignableFrom(rawType)) {
-                        return rawType;
+                        return (Class<T>) rawType;
                     }
                     for (Type t : ptype.getActualTypeArguments()) {
                         if (impl.isAssignableFrom((Class<?>) t)) {
-                            return (Class<?>) t;
+                            return (Class<T>) t;
                         }
                     }
 

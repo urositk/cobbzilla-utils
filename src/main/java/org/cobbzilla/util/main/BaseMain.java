@@ -15,7 +15,7 @@ import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
 public abstract class BaseMain<OPT extends BaseMainOptions> {
 
     @Getter private final OPT options = initOptions();
-    protected OPT initOptions() { return instantiate((Class<OPT>) getFirstTypeParam(getClass())); }
+    protected OPT initOptions() { return instantiate(getFirstTypeParam(getClass())); }
 
     @Getter(value=AccessLevel.PROTECTED) private final CmdLineParser parser = new CmdLineParser(getOptions());
 
@@ -53,7 +53,7 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
                 log.error("Unexpected error: " + e + (e.getCause() != null ? " (caused by " + e.getCause() + ")" : ""), e);
                 ZillaRuntime.die("Unexpected error: " + e);
             } else {
-                log.error(e.getClass().getSimpleName()+(e.getMessage() != null ? ": "+e.getMessage() : ""));
+                    log.error(e.getClass().getSimpleName()+(e.getMessage() != null ? ": "+e.getMessage() : ""));
             }
         } finally {
             if (m != null) m.cleanup();

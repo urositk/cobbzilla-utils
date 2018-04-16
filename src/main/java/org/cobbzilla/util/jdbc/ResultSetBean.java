@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Cleanup;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@NoArgsConstructor(access=AccessLevel.PRIVATE)
+@NoArgsConstructor(access=AccessLevel.PRIVATE) @Slf4j
 public class ResultSetBean {
 
     public static final ResultSetBean EMPTY = new ResultSetBean();
