@@ -20,12 +20,12 @@ import static org.cobbzilla.util.string.StringUtil.snakeCaseToCamelCase;
 @Slf4j
 public class TypedResultSetBean<T> extends ResultSetBean implements Iterable<T> {
 
-    public TypedResultSetBean(ResultSet rs) throws SQLException { super(rs); }
-    public TypedResultSetBean(PreparedStatement ps) throws SQLException { super(ps); }
-    public TypedResultSetBean(Connection conn, String sql) throws SQLException { super(conn, sql); }
+    public TypedResultSetBean(Class<T> clazz, ResultSet rs) throws SQLException { super(rs); rowType = clazz; }
+    public TypedResultSetBean(Class<T> clazz, PreparedStatement ps) throws SQLException { super(ps); rowType = clazz; }
+    public TypedResultSetBean(Class<T> clazz, Connection conn, String sql) throws SQLException { super(conn, sql); rowType = clazz; }
 
-    @Getter(lazy=true) private final Class<T> rowType = ReflectionUtil.getFirstTypeParam(getClass());
-    @Getter(lazy=true, value=AccessLevel.PRIVATE) private final List<T> typedRows = getTypedRows(getRowType());
+    private final Class<T> rowType;
+    @Getter(lazy=true, value=AccessLevel.PRIVATE) private final List<T> typedRows = getTypedRows(rowType);
 
     @Override public Iterator<T> iterator() { return new ArrayList<>(getTypedRows()).iterator(); }
 
