@@ -41,7 +41,7 @@ public class StringUtil {
     public static final String EMPTY = "";
     public static final String[] EMPTY_ARRAY = {};
     public static final String DEFAULT_LOCALE = "en_US";
-    public static final String BYTES_PATTERN = "(\\d+)(\\s+)?([MgGgTtPpEe][Bb])";
+    public static final String BYTES_PATTERN = "(\\d+)(\\p{javaSpaceChar}+)?([MgGgTtPpEe][Bb])";
     public static final String CRLF = "\r\n";
 
     public static final Transformer XFORM_TO_STRING = new Transformer() {
@@ -111,7 +111,7 @@ public class StringUtil {
 
     public static String onlyDigits (String s) { return s.replaceAll("\\D+", ""); }
 
-    public static String removeWhitespace (String s) { return s.replaceAll("\\s", ""); }
+    public static String removeWhitespace (String s) { return s.replaceAll("\\p{javaSpaceChar}", ""); }
 
     public static Integer safeParseInt(String s) {
         if (empty(s)) return null;
@@ -517,7 +517,7 @@ public class StringUtil {
         return s;
     }
 
-    public static String firstWord(String value) { return value.trim().split("\\s+")[0]; }
+    public static String firstWord(String value) { return value.trim().split("\\p{javaSpaceChar}+")[0]; }
 
     /**
      * If both strings are empty (null or empty string) return true, else use apache's StringUtils.equals method.

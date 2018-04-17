@@ -63,7 +63,7 @@ public class JsonUtilTest {
         final String orig = StreamUtil.stream2string(PREFIX + "/merge/test1_orig.json");
         final String request = StreamUtil.stream2string(PREFIX + "/merge/test1_request.json");
         final String expected = StreamUtil.stream2string(PREFIX + "/merge/test1_expected.json");
-        assertTrue(jsonEquals(expected.replaceAll("\\s+", ""), JsonUtil.mergeJson(orig, request).replaceAll("\\s+", "")));
+        assertTrue(jsonEquals(expected.replaceAll("\\p{javaSpaceChar}+", ""), JsonUtil.mergeJson(orig, request).replaceAll("\\p{javaSpaceChar}+", "")));
     }
 
     private boolean jsonEquals(String j1, String j2) {
