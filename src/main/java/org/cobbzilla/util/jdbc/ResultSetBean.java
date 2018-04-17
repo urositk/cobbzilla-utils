@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 @NoArgsConstructor(access=AccessLevel.PRIVATE) @Slf4j
 public class ResultSetBean {
@@ -30,6 +31,19 @@ public class ResultSetBean {
     public ResultSetBean (PreparedStatement ps)        throws SQLException { rows.addAll(read(ps)); }
     public ResultSetBean (Connection conn, String sql) throws SQLException { rows.addAll(read(conn, sql)); }
 
+    private final AtomicReference<ResultSetMetaData> rsMetaData = new AtomicReference<>();
+    public ResultSetMetaData getRsMetaData(ResultSet rs) throws SQLException {
+        if (rsMetaData.get() == null) {
+            synchronized (rsMetaData) {
+                if (rsMetaData.get() == null) {
+                    rsMetaData.set(rs.getMetaData());
+                }
+            }
+        }
+        return rsMetaData.get();
+    }
+    public ResultSetMetaData getRsMetaData() { return rsMetaData.get(); }
+
     private List<Map<String, Object>> read(Connection conn, String sql) throws SQLException {
         @Cleanup final PreparedStatement ps = conn.prepareStatement(sql);
         return read(ps);
@@ -40,7 +54,7 @@ public class ResultSetBean {
     }
 
     private List<Map<String, Object>> read(ResultSet rs) throws SQLException {
-        final ResultSetMetaData rsMetaData = rs.getMetaData();
+        final ResultSetMetaData rsMetaData = getRsMetaData(rs);
         final int numColumns = rsMetaData.getColumnCount();
         final List<Map<String, Object>> results = new ArrayList<>();
         while (rs.next()){

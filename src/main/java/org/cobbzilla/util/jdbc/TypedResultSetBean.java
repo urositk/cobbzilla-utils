@@ -10,10 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.cobbzilla.util.reflect.ReflectionUtil.getDeclaredField;
 import static org.cobbzilla.util.reflect.ReflectionUtil.instantiate;
@@ -68,6 +65,19 @@ public class TypedResultSetBean<T> extends ResultSetBean implements Iterable<T> 
                 }
             }
         }
+    }
+
+    public <K> Map<K, T> map (String field) {
+        final Map<K, T> map = new HashMap<>();
+        for (T thing : this) {
+            map.put((K) ReflectionUtil.get(thing, field), thing);
+        }
+        return map;
+    }
+
+    public T firstObject() {
+        final Iterator<T> iter = iterator();
+        return iter.hasNext() ? iter.next() : null;
     }
 
 }
