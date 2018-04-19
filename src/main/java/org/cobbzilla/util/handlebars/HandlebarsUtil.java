@@ -271,7 +271,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         hb.registerHelper("safe_name", (src, options) -> {
             if (empty(src)) return "";
-            return new Handlebars.SafeString(StringUtil.safeSnakeName(src.toString()));
+            return new Handlebars.SafeString(safeSnakeName(src.toString()));
         });
 
         hb.registerHelper("urlEncode", (src, options) -> {
