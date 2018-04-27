@@ -8,7 +8,7 @@ import java.util.ResourceBundle;
 @Slf4j
 public abstract class ResourceMessages  {
 
-    protected abstract String getBundleName();
+    protected String getBundleName() { return "labels/"+getClass().getSimpleName(); }
 
     @Getter(lazy=true) private final ResourceBundle bundle = ResourceBundle.getBundle(getBundleName());
 
