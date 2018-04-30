@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static java.lang.Long.toHexString;
 import static java.util.stream.LongStream.range;
 import static org.apache.commons.collections.CollectionUtils.collect;
+import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static org.cobbzilla.util.io.FileUtil.abs;
 import static org.cobbzilla.util.io.FileUtil.list;
 import static org.cobbzilla.util.system.Sleep.sleep;
@@ -247,6 +248,7 @@ public class ZillaRuntime {
         return dcl(target, init, null);
     }
 
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     public static <T> T dcl (AtomicReference<T> target, Callable<T> init, GeneralErrorHandler error) {
         if (target.get() == null) {
             synchronized (target) {
@@ -266,5 +268,7 @@ public class ZillaRuntime {
         }
         return target.get();
     }
+
+    public static String stacktrace() { return getStackTrace(new Exception()); }
 
 }
