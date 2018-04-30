@@ -14,6 +14,7 @@ public class HttpContentTypes {
 
     public static final String TEXT_HTML = "text/html";
     public static final String TEXT_PLAIN = "text/plain";
+    public static final String TEXT_CSV = "text/csv";
     public static final String APPLICATION_JSON = "application/json";
     public static final String APPLICATION_XML = "application/xml";
     public static final String APPLICATION_PDF = "application/pdf";
@@ -49,6 +50,8 @@ public class HttpContentTypes {
             case "json":             return APPLICATION_JSON;
             case "gz": case "tgz":   return APPLICATION_GZIP;
             case "zip":              return APPLICATION_ZIP;
+            case "txt":              return TEXT_PLAIN;
+            case "csv":              return TEXT_CSV;
             default: return die("contentType: no content-type could be determined for name: "+name);
         }
     }
@@ -56,6 +59,8 @@ public class HttpContentTypes {
     public static String fileExt (String contentType) {
         switch (contentType) {
             case TEXT_HTML:        return ".html";
+            case TEXT_PLAIN:       return ".txt";
+            case TEXT_CSV:         return ".csv";
             case IMAGE_PNG:        return ".png";
             case IMAGE_JPEG:       return ".jpeg";
             case IMAGE_GIF:        return ".gif";
