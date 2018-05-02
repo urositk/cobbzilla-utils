@@ -44,10 +44,7 @@ public class StringUtil {
     public static final String BYTES_PATTERN = "(\\d+)(\\p{javaSpaceChar}+)?([MgGgTtPpEe][Bb])";
     public static final String CRLF = "\r\n";
 
-    public static final Transformer XFORM_TO_STRING = new Transformer() {
-        @Override public Object transform(Object o) { return String.valueOf(o); }
-    };
-
+    public static final Transformer XFORM_TO_STRING = o -> String.valueOf(o);
     public static List<String> toStringCollection (Collection c) {
         return new ArrayList<>(CollectionUtils.collect(c, XFORM_TO_STRING));
     }
@@ -524,5 +521,13 @@ public class StringUtil {
      */
     public static boolean equalsExtended(String s1, String s2) {
         return (empty(s1) && empty(s2)) || StringUtils.equals(s1, s2);
+    }
+
+    public static final String PCT = "%";
+    public static final String ESC_PCT = "[%]";
+    public static String sqlFilter(String value) {
+        // escape any embedded '%' chars, and then add '%' as the first and last chars
+        // also replace any embedded single-quote characters with '%', this helps prevent SQL injection attacks
+        return PCT + value.toLowerCase().replace(PCT, ESC_PCT).replace("'", PCT) + PCT;
     }
 }
