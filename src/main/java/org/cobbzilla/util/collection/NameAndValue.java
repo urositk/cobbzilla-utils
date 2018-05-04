@@ -8,15 +8,14 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.cobbzilla.util.javascript.JsEngine;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
 
 @NoArgsConstructor @AllArgsConstructor @Accessors(chain=true)
 public class NameAndValue {
+
+    public static final NameAndValue[] EMPTY_ARRAY = new NameAndValue[0];
 
     public static List<NameAndValue> map2list(Map<String, Object> map) {
         final List<NameAndValue> list = new ArrayList<>(map.size());

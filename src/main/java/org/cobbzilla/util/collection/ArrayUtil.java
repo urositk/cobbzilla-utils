@@ -7,6 +7,7 @@ import java.util.*;
 
 import static org.cobbzilla.util.daemon.ZillaRuntime.die;
 import static org.cobbzilla.util.daemon.ZillaRuntime.empty;
+import static org.cobbzilla.util.reflect.ReflectionUtil.arrayClass;
 
 public class ArrayUtil {
 
@@ -132,5 +133,13 @@ public class ArrayUtil {
         final T[] newArgs = (T[]) Array.newInstance(args[0].getClass(), args.length-1);
         System.arraycopy(args, 1, newArgs, 0, args.length-1);
         return newArgs;
+    }
+
+    public static <T> T[] singletonArray (T thing) { return singletonArray(thing, (Class<T>) thing.getClass()); }
+
+    public static <T> T[] singletonArray (T thing, Class<T> clazz) {
+        final T[] array = (T[]) Array.newInstance(arrayClass(clazz), 1);
+        array[0] = thing;
+        return array;
     }
 }
