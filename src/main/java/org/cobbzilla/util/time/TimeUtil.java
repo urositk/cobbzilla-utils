@@ -2,6 +2,7 @@ package org.cobbzilla.util.time;
 
 import org.cobbzilla.util.string.StringUtil;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.DurationFieldType;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -100,5 +101,63 @@ public class TimeUtil {
     public static String timestamp(ClockProvider clock) {
         final long now = clock.now();
         return DATE_FORMAT_YYYY_MM_DD.print(now)+"-"+hexnow(now);
+    }
+
+    public static long startOfWeekMillis() { return startOfWeek().getMillis();  }
+    public static DateTime startOfWeek() { return startOfWeek(DefaultTimezone.getZone()); }
+    public static DateTime startOfWeek(DateTimeZone zone) {
+        final DateTime startOfToday = new DateTime(zone).withTimeAtStartOfDay();
+        return startOfToday.withFieldAdded(DurationFieldType.days(), -1 * startOfToday.getDayOfWeek());
+    }
+
+    public static long startOfMonthMillis() { return startOfMonth().getMillis();  }
+    public static DateTime startOfMonth() { return startOfMonth(DefaultTimezone.getZone()); }
+    public static DateTime startOfMonth(DateTimeZone zone) {
+        final DateTime startOfToday = new DateTime(zone).withTimeAtStartOfDay();
+        return startOfToday.withFieldAdded(DurationFieldType.days(), -1 * startOfToday.getDayOfMonth());
+    }
+
+    public static DateTime startOfQuarter(DateTime t) {
+        final int month = t.getMonthOfYear();
+        if (month <= 3) return t.withMonthOfYear(1);
+        if (month <= 6) return t.withMonthOfYear(4);
+        if (month <= 9) return t.withMonthOfYear(7);
+        return t.withMonthOfYear(10);
+    }
+
+    public static long startOfQuarterMillis() { return startOfQuarter().getMillis();  }
+    public static DateTime startOfQuarter() { return startOfQuarter(DefaultTimezone.getZone()); }
+    public static DateTime startOfQuarter(DateTimeZone zone) { return startOfQuarter(new DateTime(zone).withTimeAtStartOfDay()); }
+
+    public static long startOfYearMillis() { return startOfYear().getMillis();  }
+    public static DateTime startOfYear() { return startOfYear(DefaultTimezone.getZone()); }
+    public static DateTime startOfYear(DateTimeZone zone) { return new DateTime(zone).withTimeAtStartOfDay().withMonthOfYear(1).withDayOfMonth(1); }
+
+    public static long yesterdayMillis() { return yesterday().getMillis();  }
+    public static DateTime yesterday() { return yesterday(DefaultTimezone.getZone()); }
+    public static DateTime yesterday(DateTimeZone zone) { return new DateTime(zone).withTimeAtStartOfDay().withFieldAdded(DurationFieldType.days(), -1); }
+
+    public static long lastWeekMillis() { return lastWeek().getMillis();  }
+    public static DateTime lastWeek() { return lastWeek(DefaultTimezone.getZone()); }
+    public static DateTime lastWeek(DateTimeZone zone) {
+        return new DateTime(zone).withTimeAtStartOfDay().withFieldAdded(DurationFieldType.days(), -7).withDayOfWeek(1);
+    }
+
+    public static long lastMonthMillis() { return lastMonth().getMillis();  }
+    public static DateTime lastMonth() { return lastMonth(DefaultTimezone.getZone()); }
+    public static DateTime lastMonth(DateTimeZone zone) {
+        return new DateTime(zone).withTimeAtStartOfDay().withFieldAdded(DurationFieldType.months(), -1).withDayOfMonth(1);
+    }
+
+    public static long lastQuarterMillis() { return lastQuarter().getMillis();  }
+    public static DateTime lastQuarter() { return lastQuarter(DefaultTimezone.getZone()); }
+    public static DateTime lastQuarter(DateTimeZone zone) {
+        return startOfQuarter(new DateTime(zone).withTimeAtStartOfDay().withFieldAdded(DurationFieldType.months(), -3));
+    }
+
+    public static long lastYearMillis() { return lastYear().getMillis();  }
+    public static DateTime lastYear() { return lastYear(DefaultTimezone.getZone()); }
+    public static DateTime lastYear(DateTimeZone zone) {
+        return new DateTime(zone).withTimeAtStartOfDay().withFieldAdded(DurationFieldType.years(), -1).withDayOfYear(1);
     }
 }
