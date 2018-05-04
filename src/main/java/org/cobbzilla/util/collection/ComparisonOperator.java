@@ -14,9 +14,9 @@ public enum ComparisonOperator {
     gt (">", ">", "-gt"),
     ne ("!=", "!=", "-ne");
 
-    @Getter private String sql;
-    @Getter private String java;
-    @Getter private String shell;
+    @Getter public final String sql;
+    @Getter public final String java;
+    @Getter public final String shell;
 
     @JsonCreator public static ComparisonOperator fromString(String val) { return valueOf(val.toLowerCase()); }
 
