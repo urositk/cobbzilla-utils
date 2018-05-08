@@ -352,7 +352,7 @@ public class ReflectionUtil {
         if (fields != null) {
             for (String field : fields) {
                 try {
-                    final Object value = get(src, field);
+                    final Object value = get(src, field, null);
                     if (value != null) {
                         set(dest, field, value);
                         copyCount++;
@@ -738,7 +738,7 @@ public class ReflectionUtil {
                 target = MethodUtils.invokeMethod(target, isMethod, null);
             } catch (Exception e2) {
                 if (target instanceof Map) return ((Map) target).get(token);
-                return die("Error calling "+methodName+" and "+isMethod+": "+e+", "+e2);
+                throw new IllegalArgumentException("Error calling "+methodName+" and "+isMethod+": "+e+", "+e2);
             }
         }
         return target;
