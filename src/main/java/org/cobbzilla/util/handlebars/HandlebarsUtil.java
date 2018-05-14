@@ -314,7 +314,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         hb.registerHelper("compare", (val1, options) -> {
             final String operator = options.param(0);
-            final Object val2 = options.param(1);
+            final Object val2 = getComparisonArgParam(options);
             final Comparable v1 = cval(val1);
             final Object v2 = cval(val2);
             return (v1 == null && v2 == null) || (v1 != null && compare(operator, v1, v2)) ? options.fn(options) : options.inverse(options);
@@ -322,7 +322,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         hb.registerHelper("string_compare", (val1, options) -> {
             final String operator = options.param(0);
-            final Object val2 = options.param(1);
+            final Object val2 = getComparisonArgParam(options);
             final String v1 = val1 == null ? null : val1.toString();
             final String v2 = val2 == null ? null : val2.toString();
             return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
@@ -330,7 +330,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         hb.registerHelper("long_compare", (val1, options) -> {
             final String operator = options.param(0);
-            final Object val2 = options.param(1);
+            final Object val2 = getComparisonArgParam(options);
             final Long v1 = val1 == null ? null : Long.valueOf(val1.toString());
             final Long v2 = val2 == null ? null : Long.valueOf(val2.toString());
             return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
@@ -338,7 +338,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         hb.registerHelper("double_compare", (val1, options) -> {
             final String operator = options.param(0);
-            final Object val2 = options.param(1);
+            final Object val2 = getComparisonArgParam(options);
             final Double v1 = val1 == null ? null : Double.valueOf(val1.toString());
             final Double v2 = val2 == null ? null : Double.valueOf(val2.toString());
             return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
@@ -346,7 +346,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         hb.registerHelper("big_compare", (val1, options) -> {
             final String operator = options.param(0);
-            final Object val2 = options.param(1);
+            final Object val2 = getComparisonArgParam(options);
             final BigDecimal v1 = val1 == null ? null : big(val1.toString());
             final BigDecimal v2 = val2 == null ? null : big(val2.toString());
             return compare(operator, v1, v2) ? options.fn(options) : options.inverse(options);
@@ -354,7 +354,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
         hb.registerHelper("expr", (val1, options) -> {
             final String operator = options.param(0);
-            final Object val2 = options.param(1);
+            final Object val2 = getComparisonArgParam(options);
             final String v1 = val1.toString();
             final String v2 = val2.toString();
 
@@ -408,6 +408,11 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             return "";
         });
 
+    }
+
+    public static Object getComparisonArgParam(Options options) {
+        if (options.params.length <= 1) return die("getComparisonArgParam: missing argument");
+        return options.param(1);
     }
 
     public static String getEmailRecipient(Handlebars hb, Options options, int index) {
