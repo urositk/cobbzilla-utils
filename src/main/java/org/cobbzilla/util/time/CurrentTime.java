@@ -20,6 +20,7 @@ public class CurrentTime {
         realNow = ZillaRuntime.getSystemTimeOffset() == 0 ? null : new CurrentTimeValues(tz, ZillaRuntime.realNow());
     }
 
+    @NoArgsConstructor
     public static class CurrentTimeValues {
         @Getter @Setter private long now;
         @Getter @Setter private String yyyyMMdd;
