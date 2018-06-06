@@ -56,32 +56,44 @@ import static org.cobbzilla.util.string.StringUtil.*;
 @AllArgsConstructor @Slf4j
 public class HandlebarsUtil extends AbstractTemplateLoader {
 
-    public static final String HB_START = "{{";
-    public static final String HB_END = "}}";
+    public static final char HB_START_CHAR = '{';
+    public static final char HB_END_CHAR = '}';
 
-    public static final String HB_LSTART = "{{{";
-    public static final String HB_LEND = "}}}";
+    public static final String HB_START = StringUtils.repeat(HB_START_CHAR, 2);
+    public static final String HB_END = StringUtils.repeat(HB_END_CHAR, 2);
+
+    public static final String HB_LSTART = StringUtils.repeat(HB_START_CHAR, 3);
+    public static final String HB_LEND = StringUtils.repeat(HB_END_CHAR, 3);
+
     public static final String DEFAULT_FLOAT_FORMAT = "%1$,.3f";
 
     private String sourceName = "unknown";
 
     public static Map<String, Object> apply(Handlebars handlebars, Map<String, Object> map, Map<String, Object> ctx) {
+        return apply(handlebars, map, ctx, HB_START_CHAR, HB_END_CHAR);
+    }
+
+    public static Map<String, Object> apply(Handlebars handlebars, Map<String, Object> map, Map<String, Object> ctx, char altStart, char altEnd) {
         if (empty(map)) return map;
         final Map<String, Object> merged = new LinkedHashMap<>();
+        final String hbStart = StringUtils.repeat(altStart, 2);
+        final String hbEnd = StringUtils.repeat(altEnd, 2);
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             final Object value = entry.getValue();
             if (value instanceof String) {
                 final String val = (String) value;
-                if (val.contains(HB_START) && val.contains(HB_END)) {
-                    merged.put(entry.getKey(), apply(handlebars, value.toString(), ctx));
+                if (val.contains(hbStart) && val.contains(hbEnd)) {
+                    merged.put(entry.getKey(), apply(handlebars, value.toString(), ctx, altStart, altEnd));
                 } else {
                     merged.put(entry.getKey(), entry.getValue());
                 }
 
             } else if (value instanceof Map) {
-                merged.put(entry.getKey(), apply(handlebars, (Map<String, Object>) value, ctx));
+                // recurse
+                merged.put(entry.getKey(), apply(handlebars, (Map<String, Object>) value, ctx, altStart, altEnd));
 
             } else {
+                log.info("apply: ");
                 merged.put(entry.getKey(), entry.getValue());
             }
         }
@@ -97,7 +109,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     public static final String DUMMY_END3 = "___~~~___";
     public static final String DUMMY_END2 = "__~~__";
     public static String apply(Handlebars handlebars, String value, Map<String, Object> ctx, char altStart, char altEnd) {
-        if (altStart != 0 && altEnd != 0 && (altStart != '{' && altEnd != '}')) {
+        if (altStart != 0 && altEnd != 0 && (altStart != HB_START_CHAR && altEnd != HB_END_CHAR)) {
             final String s3 = StringUtils.repeat(altStart, 3);
             final String s2 = StringUtils.repeat(altStart, 2);
             final String e3 = StringUtils.repeat(altEnd, 3);
@@ -145,7 +157,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
      * @return the thing, possibly with String-valued properties having been modified
      */
     public static <T> T applyReflectively(Handlebars handlebars, T thing, Map<String, Object> ctx) {
-        return applyReflectively(handlebars, thing, ctx, '{', '}');
+        return applyReflectively(handlebars, thing, ctx, HB_START_CHAR, HB_END_CHAR);
     }
 
     public static <T> T applyReflectively(Handlebars handlebars, T thing, Map<String, Object> ctx, char altStart, char altEnd) {
@@ -168,8 +180,13 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
                         if (value.toString().contains("" + altStart + altStart)) {
                             setterCandidate.invoke(thing, apply(handlebars, (String) value, ctx, altStart, altEnd));
                         }
+
                     } else if (value instanceof JsonNode) {
                         setterCandidate.invoke(thing, json(apply(handlebars, json(value), ctx, altStart, altEnd), JsonNode.class));
+
+                    } else if (value instanceof Map) {
+                        setterCandidate.invoke(thing, apply(handlebars, (Map<String, Object>) value, ctx, altStart, altEnd));
+
                     } else {
                         // recurse
                         setterCandidate.invoke(thing, applyReflectively(handlebars, value, ctx, altStart, altEnd));
