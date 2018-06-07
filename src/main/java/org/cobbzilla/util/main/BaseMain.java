@@ -41,6 +41,7 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
 
     public static void main(Class<? extends BaseMain> clazz, String[] args) {
         BaseMain m = null;
+        int returnValue = 0;
         try {
             m = clazz.newInstance();
             m.setArgs(args);
@@ -55,9 +56,11 @@ public abstract class BaseMain<OPT extends BaseMainOptions> {
             } else {
                 log.error(e.getClass().getSimpleName()+(e.getMessage() != null ? ": "+e.getMessage() : ""));
             }
+            returnValue = -1;
         } finally {
             if (m != null) m.cleanup();
         }
+        System.exit(returnValue);
     }
 
     public void cleanup () {}
