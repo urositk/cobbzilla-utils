@@ -133,6 +133,15 @@ public class JsEngine {
         return Long.parseLong(result.toString().trim());
     }
 
+    public Long evaluateLong(String code, Map<String, Object> ctx, Long defaultValue) {
+        try {
+            return evaluateLong(code, ctx);
+        } catch (Exception e) {
+            log.debug("evaluateLong: returning "+defaultValue+" due to exception:"+e);
+            return defaultValue;
+        }
+    }
+
     public String evaluateString(String condition, Map<String, Object> ctx) {
         final Object rval = evaluate(condition, ctx);
         if (rval == null) return null;
