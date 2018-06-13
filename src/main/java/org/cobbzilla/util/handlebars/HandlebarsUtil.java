@@ -30,6 +30,7 @@ import org.cobbzilla.util.time.TimeUtil;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
@@ -548,8 +549,10 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
 
     private abstract static class DateHelper implements Helper<Object> {
 
-        protected DateTimeZone getTimeZone (Options options) {
-            final String timeZoneName = options.param(0, getDefaultTimeZone());
+        protected DateTimeZone getTimeZone (Options options) { return getTimeZone(options, 0); }
+
+        protected DateTimeZone getTimeZone (Options options, int index) {
+            final String timeZoneName = options.param(index, getDefaultTimeZone());
             try {
                 return DateTimeZone.forID(timeZoneName);
             } catch (Exception e) {
@@ -570,6 +573,15 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     }
 
     public static void registerDateHelpers(Handlebars hb) {
+
+        hb.registerHelper("date_format", new DateHelper() {
+            public CharSequence apply(Object src, Options options) {
+                final DateTimeFormatter formatter = DateTimeFormat.forPattern(options.param(0));
+                return new Handlebars.SafeString(formatter.print(new DateTime(zonedTimestamp(src, options),
+                        getTimeZone(options, 1))));
+            }
+        });
+
         hb.registerHelper("date_short", new DateHelper() {
             public CharSequence apply(Object src, Options options) {
                 return print(TimeUtil.DATE_FORMAT_MMDDYYYY, src, options);
