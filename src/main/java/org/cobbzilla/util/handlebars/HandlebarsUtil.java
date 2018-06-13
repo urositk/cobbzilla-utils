@@ -560,9 +560,11 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             }
         }
 
-        protected long zonedTimestamp (Object src, Options options) {
+        protected long zonedTimestamp (Object src, Options options) { return zonedTimestamp(src, options, 0); }
+
+        protected long zonedTimestamp (Object src, Options options, int index) {
             if (empty(src)) src = "now";
-            final DateTimeZone timeZone = getTimeZone(options);
+            final DateTimeZone timeZone = getTimeZone(options, index);
             return longVal(src, timeZone);
         }
 
@@ -577,7 +579,7 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
         hb.registerHelper("date_format", new DateHelper() {
             public CharSequence apply(Object src, Options options) {
                 final DateTimeFormatter formatter = DateTimeFormat.forPattern(options.param(0));
-                return new Handlebars.SafeString(formatter.print(new DateTime(zonedTimestamp(src, options),
+                return new Handlebars.SafeString(formatter.print(new DateTime(zonedTimestamp(src, options, 1),
                         getTimeZone(options, 1))));
             }
         });
