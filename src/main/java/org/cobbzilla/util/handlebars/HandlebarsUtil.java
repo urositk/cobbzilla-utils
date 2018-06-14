@@ -616,6 +616,10 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
     }
 
     private static long longVal(Object src, DateTimeZone timeZone) {
+        return longVal(src, timeZone, true);
+    }
+
+    private static long longVal(Object src, DateTimeZone timeZone, boolean tryAgain) {
         if (src == null) return now();
         String srcStr = src.toString().trim();
 
@@ -635,7 +639,15 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             return result.getMillis();
         }
 
-        return ((Number) src).longValue();
+        if (!tryAgain) return die("longVal: unparseable long: "+src);
+
+        try {
+            return ((Number) src).longValue();
+        } catch (Exception e) {
+            // try to parse it in different formats
+            Object t = TimeUtil.parse(src.toString());
+            return longVal(t, timeZone, false);
+        }
     }
 
     public static long longDollarVal(Object src) {

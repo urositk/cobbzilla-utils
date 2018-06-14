@@ -30,6 +30,11 @@ public class TimeUtil {
     public static final DateTimeFormatter DATE_FORMAT_YYYY_MM_DD_HH_mm_ss = DateTimeFormat.forPattern("yyyy-MM-dd-HH-mm-ss");
     public static final DateTimeFormatter DATE_FORMAT_YYYYMMDDHHMMSS = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
+    public static final DateTimeFormatter[] DATE_TIME_FORMATS = {
+            DATE_FORMAT_YYYY_MM_DD, DATE_FORMAT_YYYY_MM_DD, DATE_FORMAT_YYYYMMDD,
+            DATE_FORMAT_YYYY_MM_DD_HH_mm_ss, DATE_FORMAT_YYYYMMDDHHMMSS
+    };
+
     // For now only m (months) and d (days) are supported
     // Both have to be present at the same time in that same order, but the value for each can be 0 to exclude that one - e.g. 0m15d.
     public static final PeriodFormatter PERIOD_FORMATTER = new PeriodFormatterBuilder()
@@ -37,6 +42,17 @@ public class TimeUtil {
 
     public static Long parse(String time, DateTimeFormatter formatter) {
         return empty(time) ? null : formatter.parseDateTime(time).getMillis();
+    }
+
+    public static Object parse(String val) {
+        for (DateTimeFormatter f : DATE_TIME_FORMATS) {
+            try {
+                return TimeUtil.parse(val, f);
+            } catch (Exception ignored) {
+                // noop
+            }
+        }
+        return null;
     }
 
     public static String format(Long time, DateTimeFormatter formatter) {
@@ -160,4 +176,5 @@ public class TimeUtil {
     public static DateTime lastYear(DateTimeZone zone) {
         return new DateTime(zone).withTimeAtStartOfDay().withFieldAdded(DurationFieldType.years(), -1).withDayOfYear(1);
     }
+
 }
