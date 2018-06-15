@@ -33,6 +33,7 @@ function lt (x, compare) { return x < compare; }
 function le (x, compare) { return x <= compare; }
 function eq (x, compare) { return x == compare; }
 function ne (x, compare) { return x != compare; }
+function startsWith (x, compare) { return x.startsWith(compare); }
 
 function _inner_get_element(not_null_arr, field) {
     var v = not_null_arr[field];
