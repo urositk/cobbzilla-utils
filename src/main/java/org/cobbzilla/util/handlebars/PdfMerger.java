@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.PageMode;
+import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDCheckBox;
@@ -184,18 +181,36 @@ public class PdfMerger {
         try {
             imageTemp = insertion.getImageFile();
             if (imageTemp != null) {
-                // open stream for writing inserted image
-                final PDPage page = pdfDocument.getDocumentCatalog().getPages().get(insertion.getPage());
-                final PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, page, PDPageContentStream.AppendMode.APPEND, true);
-
-                // draw image on page
+                // create PD image
                 final PDImageXObject image = PDImageXObject.createFromFile(abs(imageTemp), pdfDocument);
-                contentStream.drawImage(image, insertion.getX(), insertion.getY(), insertion.getWidth(), insertion.getHeight());
-                contentStream.close();
+                final PDPageTree pages = pdfDocument.getDocumentCatalog().getPages();
+                final float insertionHeight = insertion.getHeight();
+                if (insertion.isWatermark()) {
+                    for (PDPage page : pages) {
+                        // set x, y, width and height to center insertion and maximize size on page
+                        final float y = (page.getBBox().getHeight()/2.0f) - insertionHeight;
+                        insertion.setX(20)
+                                .setY(y)
+                                .setWidth(page.getBBox().getWidth()-20)
+                                .setHeight(page.getBBox().getHeight()-10);
+                        insertImageOnPage(image, insertion, pdfDocument, page);
+                    }
+                } else {
+                    insertImageOnPage(image, insertion, pdfDocument, pages.get(insertion.getPage()));
+                }
             }
         } finally {
             if (imageTemp != null && !imageTemp.delete()) log.warn("insertImage("+clazz.getSimpleName()+"): error deleting image file: "+abs(imageTemp));
         }
+    }
+
+    private static void insertImageOnPage(PDImageXObject image, ImageInsertion insertion, PDDocument pdfDocument, PDPage page) throws IOException {
+        // open stream for writing inserted image
+        final PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, page, PDPageContentStream.AppendMode.APPEND, true);
+
+        // draw image on page
+        contentStream.drawImage(image, insertion.getX(), insertion.getY(), insertion.getWidth(), insertion.getHeight());
+        contentStream.close();
     }
 
     public static void concatenate(List infiles, OutputStream out, long maxMemory, long maxDisk) throws IOException {

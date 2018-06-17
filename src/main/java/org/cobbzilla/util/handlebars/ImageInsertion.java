@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.cobbzilla.util.reflect.ReflectionUtil;
 import org.cobbzilla.util.string.StringUtil;
 
 import java.io.File;
@@ -25,6 +24,7 @@ public abstract class ImageInsertion {
     @Getter @Setter private float width = 0;
     @Getter @Setter private float height = 0;
     @Getter @Setter private String format = "png";
+    @Getter @Setter private boolean watermark = false;
 
     @JsonIgnore public abstract File getImageFile() throws IOException;
 
