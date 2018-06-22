@@ -307,7 +307,7 @@ public class StringUtil {
 
     public static String ellipsis(String s, int len) {
         if (s == null || s.length() <= len) return s;
-        return s.substring(0, len) + "...";
+        return s.substring(0, len-3) + "...";
     }
 
     public static String truncate(String s, int len) {
