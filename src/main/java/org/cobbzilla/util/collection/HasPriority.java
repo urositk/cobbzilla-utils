@@ -14,4 +14,8 @@ public interface HasPriority {
         return r1.getPriority().compareTo(r2.getPriority());
     };
 
+    static int compare(Object o1, Object o2) {
+        return o1 instanceof HasPriority && o2 instanceof HasPriority ? SORT_PRIORITY.compare((HasPriority) o1, (HasPriority) o2) : 0;
+    }
+
 }
