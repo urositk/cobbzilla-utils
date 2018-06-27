@@ -46,7 +46,7 @@ public class PdfMergeMain extends BaseMain<PdfMergeOptions> {
             err("Unexpected exception merging PDF: "+e.getClass().getSimpleName()+": "+e.getMessage());
         }
         if (!empty(errors)) {
-            err(errors.size()+" errors found when merging PDF:\n"+ StringUtil.toString(errors, "\n"));
+            err(errors.size()+" error"+(errors.size() > 1 ? "s" : "")+" found when merging PDF:\n"+ StringUtil.toString(errors, "\n"));
         }
     }
 
