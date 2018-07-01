@@ -408,7 +408,7 @@ public class FileUtil {
     }
 
     public static boolean ensureDirExists(File dir) {
-        if (empty(dir)) return true;
+        if (empty(dir) && dir.isDirectory()) return true;
         if (!dir.exists() && !dir.mkdirs()) {
             log.error("ensureDirExists: error creating: " + abs(dir));
             return false;
