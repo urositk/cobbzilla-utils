@@ -408,6 +408,10 @@ public class FileUtil {
     }
 
     public static boolean ensureDirExists(File dir) {
+        if (dir == null) {
+            log.error("ensureDirExists: null as directory is not acceptable");
+            return false;
+        }
         if (dir.exists() && dir.isDirectory()) return true;
         if (!dir.exists() && !dir.mkdirs()) {
             log.error("ensureDirExists: error creating: " + abs(dir));
