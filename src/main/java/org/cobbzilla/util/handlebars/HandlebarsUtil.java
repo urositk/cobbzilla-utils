@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
@@ -424,6 +425,18 @@ public class HandlebarsUtil extends AbstractTemplateLoader {
             if (thing instanceof Collection) return ""+((Collection) thing).size();
             if (thing instanceof ArrayNode) return ""+((ArrayNode) thing).size();
             return "";
+        });
+
+        hb.registerHelper("adjust_rate", (thing, options) -> {
+            if (empty(thing) || (int) thing == 0) return formatDollarsAndCentsPlain(longDollarVal(0));
+
+            if (empty(options)) return formatDollarsAndCentsPlain(longDollarVal(thing));
+
+            final Integer adjustment = options.param(0);
+            if (adjustment == null || adjustment == 0) return formatDollarsAndCentsPlain(longDollarVal(thing));
+
+            final int result = (big((int) thing)).add(big(adjustment)).intValue();
+            return formatDollarsAndCentsPlain(longDollarVal(result));
         });
 
     }
